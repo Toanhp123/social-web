@@ -4,12 +4,11 @@ import bcrypt from 'bcrypt';
 import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
 import { JwtService } from '../../infrastructure/services/jwt.service.js';
 
-// application/services/login.service.ts
 @Injectable()
 export class LoginService {
   constructor(
     private authRepository: AuthRepository,
-    private jwtService: JwtService, // từ @nestjs/jwt
+    private jwtService: JwtService,
   ) {}
 
   async execute(email: string, password: string) {
