@@ -71,6 +71,7 @@ enum MessageType {
 enum ConversationRole {
   MEMBER
   ADMIN
+  MODERATOR
 }
 
 enum ReportType {
@@ -103,6 +104,20 @@ enum PostType {
   SYSTEM
 }
 
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum Permission {
+  DELETE_POST
+  REVIEW_REPORT
+  BAN_USER
+  FEATURE_POST
+  MANAGE_STORIES
+}
+
 // =====================================================
 // USER CORE
 // =====================================================
@@ -114,6 +129,8 @@ model User {
   password  String
   fullName  String
   avatarUrl String?
+
+  role UserRole @default(USER)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -148,15 +165,32 @@ model User {
   following Follow[] @relation("Following") // mình follow ai
   followers Follow[] @relation("Followers") // ai follow mình
 
-  savedPosts SavedPost[]
-  reports    Report[]
-  stories    Story[]
-  sessions   Session[]
-  storyViews StoryView[]
+  savedPosts      SavedPost[]
+  reports         Report[]
+  stories         Story[]
+  sessions        Session[]
+  storyViews      StoryView[]
+  userPermissions UserPermission[]
 
   @@index([createdAt])
   @@index([isHighFollower])
   @@index([followerCount])
+}
+
+model RolePermission {
+  role       UserRole
+  permission Permission
+
+  @@id([role, permission])
+}
+
+model UserPermission {
+  userId     String
+  permission Permission
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, permission])
 }
 
 model Follow {
@@ -644,7 +678,7 @@ model Notification {
 
 model Conversation {
   id        String  @id @default(uuid())
-  name      String? // null = DM (1-1), set = group chat
+  name      String?
   avatarUrl String?
   isGroup   Boolean @default(false)
 
@@ -663,7 +697,7 @@ model ConversationMember {
   userId         String
   role           ConversationRole @default(MEMBER)
 
-  lastReadAt DateTime? // used for unread tracking in group chat
+  lastReadAt DateTime?
   joinedAt   DateTime  @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
