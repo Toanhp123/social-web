@@ -165,12 +165,11 @@ model User {
   following Follow[] @relation("Following") // mình follow ai
   followers Follow[] @relation("Followers") // ai follow mình
 
-  savedPosts      SavedPost[]
-  reports         Report[]
-  stories         Story[]
-  sessions        Session[]
-  storyViews      StoryView[]
-  userPermissions UserPermission[]
+  savedPosts SavedPost[]
+  reports    Report[]
+  stories    Story[]
+  sessions   Session[]
+  storyViews StoryView[]
 
   @@index([createdAt])
   @@index([isHighFollower])
@@ -184,13 +183,11 @@ model RolePermission {
   @@id([role, permission])
 }
 
-model UserPermission {
-  userId     String
-  permission Permission
+model ConversationPermission {
+  conversationRole ConversationRole
+  permission       Permission
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, permission])
+  @@id([conversationRole, permission])
 }
 
 model Follow {
