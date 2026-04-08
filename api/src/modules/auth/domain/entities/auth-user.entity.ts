@@ -1,17 +1,20 @@
 export class AuthUser {
   constructor(
     public readonly id: string,
+    public readonly fullName: string,
     public readonly email: string,
-    public readonly password: string, // phải là hashed password
-    public readonly name?: string,
+    public readonly password: string,
+    public readonly username?: string,
+    public readonly role: 'USER' | 'ADMIN' = 'USER',
   ) {}
 
+  // Factory method để tạo mới
   static create(
+    fullName: string,
     email: string,
     hashedPassword: string,
-    name?: string,
+    username?: string,
   ): AuthUser {
-    // Domain validation
     if (!email || !email.includes('@')) {
       throw new Error('Invalid email format');
     }
@@ -20,16 +23,20 @@ export class AuthUser {
       throw new Error('Password hash is invalid');
     }
 
-    if (name && name.length < 2) {
-      throw new Error('Name must be at least 2 characters');
+    if (fullName && fullName.length < 12) {
+      throw new Error('FullName must be at least 12 characters');
     }
 
-    // Tạo entity với id rỗng (sẽ được gán sau khi lưu vào database)
+    if (username && username.length < 6) {
+      throw new Error('Username must be at least 6 characters');
+    }
+
     return new AuthUser(
-      '', // id sẽ được Prisma gán sau
+      '', // id sẽ được gán khi lưu vào database
+      fullName.trim(),
       email.toLowerCase().trim(),
       hashedPassword,
-      name?.trim(),
+      username?.trim(),
     );
   }
 

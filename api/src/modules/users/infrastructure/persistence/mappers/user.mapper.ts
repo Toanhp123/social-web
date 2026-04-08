@@ -5,12 +5,12 @@ type UserPayload = Prisma.UserGetPayload<{
   select: {
     id: true;
     email: true;
-    name: true;
+    username: true;
   };
 }>;
 
 export class UserMapper {
   static toDomain(prismaUser: UserPayload): User {
-    return new User(prismaUser.id, prismaUser.email, prismaUser.name);
+    return new User(prismaUser.id, prismaUser.email, prismaUser.username);
   }
 }

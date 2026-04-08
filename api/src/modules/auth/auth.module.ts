@@ -5,7 +5,7 @@ import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.r
 import { LoginService } from './application/services/login.service.js';
 import { AuthController } from './presentation/controllers/auth.controller.js';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthGuard } from './infrastructure/guards/jwt-auth.guard.js';
+import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard.js';
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy.js';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
