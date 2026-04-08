@@ -1,55 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtPayload } from '../../domain/object-values/jwt-payload.js';
 
 @Injectable()
 export class JwtService {
   constructor(
-    private readonly nestJwtService: NestJwtService,
-    private readonly configService: ConfigService,
+    private readonly jwt: NestJwtService,
+    private readonly config: ConfigService,
   ) {}
 
-  // ==================== ACCESS TOKEN ====================
-  generateAccessToken(payload: { sub: string; email: string }): string {
-    const secret = this.configService.get<string>('jwt.accessSecret');
+  // ==================== PRIVATE ====================
 
-    if (!secret) {
-      throw new Error('JWT_ACCESS_TOKEN_SECRET is not defined in .env');
+  private getOrThrow(key: string): string {
+    const value = this.config.get<string>(key);
+    if (!value) {
+      throw new InternalServerErrorException(`Missing config: ${key}`);
     }
+    return value;
+  }
 
-    return this.nestJwtService.sign(payload, {
-      secret: secret,
-      expiresIn: this.configService.get('jwt.accessExpiresIn') || '15m',
+  private signToken(
+    payload: JwtPayload,
+    secretKey: string,
+    expiresKey: string,
+  ): string {
+    return this.jwt.sign(payload, {
+      secret: this.getOrThrow(secretKey),
+      expiresIn: this.config.get(expiresKey),
     });
   }
 
-  // ==================== REFRESH TOKEN ====================
-  generateRefreshToken(payload: { sub: string; email: string }): string {
-    const secret = this.configService.get<string>('jwt.refreshSecret');
-
-    if (!secret) {
-      throw new Error('JWT_REFRESH_TOKEN_SECRET is not defined in .env');
-    }
-
-    return this.nestJwtService.sign(payload, {
-      secret: secret,
-      expiresIn: this.configService.get('jwt.refreshExpiresIn') || '7d',
+  private verifyToken(token: string, secretKey: string): JwtPayload {
+    return this.jwt.verify<JwtPayload>(token, {
+      secret: this.getOrThrow(secretKey),
     });
   }
 
-  // Verify Access Token
-  verifyAccessToken(token: string): any {
-    const secret = this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET');
-    if (!secret) throw new Error('JWT_ACCESS_TOKEN_SECRET is not defined');
+  // ==================== ACCESS ====================
 
-    return this.nestJwtService.verify(token, { secret });
+  generateAccessToken(payload: JwtPayload): string {
+    return this.signToken(payload, 'jwt.accessSecret', 'jwt.accessExpiresIn');
   }
 
-  // Verify Refresh Token
-  verifyRefreshToken(token: string): any {
-    const secret = this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET');
-    if (!secret) throw new Error('JWT_REFRESH_TOKEN_SECRET is not defined');
+  verifyAccessToken(token: string): JwtPayload {
+    return this.verifyToken(token, 'jwt.accessSecret');
+  }
 
-    return this.nestJwtService.verify(token, { secret });
+  // ==================== REFRESH ====================
+
+  generateRefreshToken(payload: JwtPayload): string {
+    return this.signToken(payload, 'jwt.refreshSecret', 'jwt.refreshExpiresIn');
+  }
+
+  verifyRefreshToken(token: string): JwtPayload {
+    return this.verifyToken(token, 'jwt.refreshSecret');
   }
 }

@@ -1,9 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthRepository } from '../../domain/repositories/auth.repository.interface.js';
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import { JwtUser } from '../../domain/types/jwt-user.type.js';
+import { JwtPayload } from '../../domain/object-values/jwt-payload.js';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,17 +19,23 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const secret = configService.get<string>('jwt.accessSecret');
 
     if (!secret) {
-      throw new Error('JWT_SECRET is not defined in environment variables');
+      throw new InternalServerErrorException(
+        'Missing config: jwt.accessSecret',
+      );
     }
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret, // ← Đảm bảo là string
+      secretOrKey: secret,
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<JwtUser> {
+    if (!payload?.sub) {
+      throw new UnauthorizedException('Invalid token payload');
+    }
+
     // Nên dùng findById thay vì findByEmail để hiệu suất tốt hơn
     const user = await this.authRepository.findByEmail(payload.email);
 
@@ -32,11 +43,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Trả về thông tin bạn muốn attach vào req.user
     return {
       userId: payload.sub,
       email: payload.email,
-      // name: payload.name, // nếu có
+      role: payload.role,
     };
   }
 }
