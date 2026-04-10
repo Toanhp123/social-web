@@ -1,21 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
+import { RequestIdInterceptor } from './core/interceptors/request-id.interceptor.js';
+import { GlobalExceptionFilter } from './core/exceptions/global-filter.exception.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableShutdownHooks();
+  app.useGlobalInterceptors(new RequestIdInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: (errors) => {
-        return new BadRequestException(
-          errors.map((err) => ({
-            field: err.property,
-            errors: Object.values(err.constraints || {}),
-          })),
-        );
-      },
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
