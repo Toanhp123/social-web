@@ -6,15 +6,22 @@ import { JwtPayload } from '../../domain/object-values/jwt-payload.js';
 import { User } from './../../../users/domain/entities/user.entity.js';
 import { UserRole } from './../../../../generated/prisma/enums.js';
 import { PrismaUserRepository } from './../../../users/infrastructure/persistence/prisma-user.repository.js';
-import { USER_REPOSITORY } from './../../../../common/constants/repo.constant.js';
+import {
+  UNIT_OF_WORK,
+  USER_REPOSITORY,
+} from './../../../../common/constants/repo.constant.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
 import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
+import type { UnitOfWork } from './../../../../core/databases/unit-of-work.interface.js';
 
 @Injectable()
 export class RegisterService {
   constructor(
     private authRepository: AuthRepository,
     private jwtService: JwtService,
+
+    @Inject(UNIT_OF_WORK)
+    private readonly uow: UnitOfWork,
 
     @Inject(USER_REPOSITORY)
     private readonly userRepository: PrismaUserRepository,
@@ -37,21 +44,30 @@ export class RegisterService {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(input.password, 10);
+    User.isPasswordStrong(input.password);
 
-    const newUser = await this.authRepository.register(
-      User.create(
-        input.fullName,
-        input.email,
-        hashedPassword,
-        UserRole.USER,
-        input.username || '',
-      ),
-    );
+    let payload: JwtPayload = {} as JwtPayload;
+    let accessToken = '';
+    let refreshToken = '';
 
-    const payload = JwtPayload.fromAuthUser(newUser);
-    const accessToken = this.jwtService.generateAccessToken(payload);
-    const refreshToken = this.jwtService.generateRefreshToken(payload);
+    await this.uow.execute(async (tx) => {
+      const hashedPassword = await bcrypt.hash(input.password, 10);
+
+      const newUser = await this.authRepository.register(
+        User.create(
+          input.fullName,
+          input.email,
+          hashedPassword,
+          UserRole.USER,
+          input.username || '',
+        ),
+        tx,
+      );
+
+      payload = JwtPayload.fromAuthUser(newUser);
+      accessToken = this.jwtService.generateAccessToken(payload);
+      refreshToken = this.jwtService.generateRefreshToken(payload);
+    });
 
     return { accessToken, refreshToken };
   }

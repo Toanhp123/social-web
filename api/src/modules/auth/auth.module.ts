@@ -12,6 +12,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtService } from './infrastructure/services/jwt.service.js';
 import { UserModule } from '../users/user.module.js';
 import { RegisterService } from './application/services/register.service.js';
+import { PrismaUnitOfWork } from './../../infrastructure/database/prisma-unit-of-work.js';
+import { UNIT_OF_WORK } from './../../common/constants/repo.constant.js';
 
 @Module({
   imports: [
@@ -25,6 +27,10 @@ import { RegisterService } from './application/services/register.service.js';
     PrismaService,
     LoginService,
     RegisterService,
+    {
+      provide: UNIT_OF_WORK,
+      useClass: PrismaUnitOfWork,
+    },
     {
       provide: AuthRepository,
       useClass: PrismaAuthRepository,

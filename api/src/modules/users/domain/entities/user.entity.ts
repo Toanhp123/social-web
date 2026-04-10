@@ -15,7 +15,7 @@ export class User {
   static create(
     fullName: string,
     email: string,
-    password: string,
+    hashPassword: string,
     role: UserRole = UserRole.USER,
     username: string,
   ): User {
@@ -23,15 +23,6 @@ export class User {
       throw new DomainError(
         ErrorCode.INVALID_EMAIL,
         'Invalid email address',
-        400,
-        { email },
-      );
-    }
-
-    if (!password.trim() || password.length < 8) {
-      throw new DomainError(
-        ErrorCode.WEAK_PASSWORD,
-        'Password is too weak',
         400,
         { email },
       );
@@ -59,13 +50,26 @@ export class User {
       '',
       fullName.trim(),
       email.toLowerCase().trim(),
-      password,
+      hashPassword,
       role,
       username.trim(),
     );
   }
 
-  isValidEmail(): boolean {
-    return this.email.includes('@');
+  static isValidEmail(email: string): boolean {
+    return email.includes('@');
+  }
+
+  static isPasswordStrong(password: string): boolean {
+    if (!password.trim() || password.length < 6) {
+      throw new DomainError(
+        ErrorCode.WEAK_PASSWORD,
+        'Password is too weak',
+        400,
+        { password },
+      );
+    }
+
+    return true;
   }
 }

@@ -16,4 +16,12 @@ export class JwtPayload {
   static fromAuthUser(user: AuthUser): JwtPayload {
     return new JwtPayload(user.id, user.email, user.role);
   }
+
+  toPlainObject() {
+    return {
+      id: this.id,
+      email: this.email,
+      role: this.role,
+    };
+  }
 }
