@@ -4,12 +4,15 @@ import { LoginDto } from '../dto/login.dto.js';
 import type { Response } from 'express';
 import { RegisterService } from '../../application/services/register.service.js';
 import { RegisterDto } from '../dto/register.dto.js';
+import { RefreshTokenService } from '../../application/services/refresh-token.service.js';
+import { RefreshToken } from '../decorators/refresh-token.decorator.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private loginService: LoginService,
     private registerService: RegisterService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   @Post('login')
@@ -24,7 +27,7 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,
+      // secure: true, //TODO: Uncomment this line when deploying to production with HTTPS
       sameSite: 'strict',
     });
 
@@ -44,6 +47,13 @@ export class AuthController {
       secure: true,
       sameSite: 'strict',
     });
+
+    return accessToken;
+  }
+
+  @Post('refresh')
+  refresh(@RefreshToken() refreshToken: string | undefined) {
+    const { accessToken } = this.refreshTokenService.execute(refreshToken);
 
     return accessToken;
   }

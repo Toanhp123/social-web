@@ -3,10 +3,12 @@ import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
 import { RequestIdInterceptor } from './core/interceptors/request-id.interceptor.js';
 import { GlobalExceptionFilter } from './core/filters/global-exception.filter.js';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(cookieParser());
   app.enableShutdownHooks();
   app.useGlobalInterceptors(new RequestIdInterceptor());
   app.useGlobalFilters(new GlobalExceptionFilter());

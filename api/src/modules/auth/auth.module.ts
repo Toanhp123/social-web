@@ -14,6 +14,7 @@ import { UserModule } from '../users/user.module.js';
 import { RegisterService } from './application/services/register.service.js';
 import { PrismaUnitOfWork } from './../../infrastructure/database/prisma-unit-of-work.js';
 import { UNIT_OF_WORK } from './../../common/constants/repo.constant.js';
+import { RefreshTokenService } from './application/services/refresh-token.service.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UNIT_OF_WORK } from './../../common/constants/repo.constant.js';
     PrismaService,
     LoginService,
     RegisterService,
+    RefreshTokenService,
     {
       provide: UNIT_OF_WORK,
       useClass: PrismaUnitOfWork,
