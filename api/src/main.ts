@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
 import { RequestIdInterceptor } from './core/interceptors/request-id.interceptor.js';
-import { GlobalExceptionFilter } from './core/exceptions/global-filter.exception.js';
+import { GlobalExceptionFilter } from './core/filters/global-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

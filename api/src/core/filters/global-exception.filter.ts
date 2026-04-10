@@ -6,15 +6,15 @@ import {
   BadRequestException,
   HttpException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { BaseException } from '../exceptions/base.exception.js';
 import { ErrorCode } from '../exceptions/error-codes.js';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const res = host.switchToHttp().getResponse<Response>();
-    const req = host.switchToHttp().getRequest();
+    const req = host.switchToHttp().getRequest<Request>();
 
     const requestId = req.requestId;
 
