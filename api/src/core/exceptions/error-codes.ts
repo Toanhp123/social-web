@@ -1,15 +1,53 @@
-// core/exceptions/error-codes.ts
 export enum ErrorCode {
-  // system
+  // =====================
+  // SYSTEM
+  // =====================
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-
-  // validation
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  DATABASE_ERROR = 'DATABASE_ERROR',
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
 
-  // domain
+  // =====================
+  // AUTH
+  // =====================
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+  INVALID_TOKEN = 'INVALID_TOKEN',
+  FORBIDDEN = 'FORBIDDEN',
+
+  // =====================
+  // USER
+  // =====================
   USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
+  USER_DISABLED = 'USER_DISABLED',
+  USER_EMAIL_NOT_VERIFIED = 'USER_EMAIL_NOT_VERIFIED',
 
-  // database
-  DATABASE_ERROR = 'DATABASE_ERROR',
+  // =====================
+  // INPUT VALIDATION (DOMAIN)
+  // =====================
+  INVALID_EMAIL = 'INVALID_EMAIL',
+  WEAK_PASSWORD = 'WEAK_PASSWORD',
+  INVALID_USERNAME = 'INVALID_USERNAME',
+  INVALID_FULLNAME = 'INVALID_FULLNAME',
+
+  // =====================
+  // BUSINESS LOGIC
+  // =====================
+  OPERATION_NOT_ALLOWED = 'OPERATION_NOT_ALLOWED',
+  RESOURCE_CONFLICT = 'RESOURCE_CONFLICT',
+  RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
+
+  // =====================
+  // DATABASE SPECIFIC (optional but useful)
+  // =====================
+  DUPLICATE_FIELD = 'DUPLICATE_FIELD',
+  RECORD_NOT_FOUND = 'RECORD_NOT_FOUND',
+
+  // =====================
+  // AUTHORIZATION (RBAC)
+  // =====================
+  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  ROLE_NOT_ALLOWED = 'ROLE_NOT_ALLOWED',
 }

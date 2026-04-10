@@ -1,6 +1,6 @@
+import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
 import { UserRole } from '../../../../generated/prisma/enums.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from './../../../../../dist/src/core/exceptions/error-codes.js';
 
 export class User {
   constructor(

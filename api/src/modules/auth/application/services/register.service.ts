@@ -8,7 +8,7 @@ import { UserRole } from './../../../../generated/prisma/enums.js';
 import { PrismaUserRepository } from './../../../users/infrastructure/persistence/prisma-user.repository.js';
 import { USER_REPOSITORY } from './../../../../common/constants/repo.constant.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from './../../../../../dist/src/core/exceptions/error-codes.js';
+import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
 
 @Injectable()
 export class RegisterService {
