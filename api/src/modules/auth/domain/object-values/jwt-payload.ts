@@ -1,13 +1,14 @@
 // src/auth/domain/value-objects/jwt-payload.ts
-import { AuthUser } from '../entities/auth-user.entity.js'; // entity của bạn
+import { UserRole } from './../../../../generated/prisma/enums.js';
+import { AuthUser } from './../../../users/domain/entities/auth-user.entity.js';
 
 export class JwtPayload {
-  sub: string;
+  id: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: UserRole;
 
-  constructor(sub: string, email: string, role: 'USER' | 'ADMIN') {
-    this.sub = sub;
+  constructor(id: string, email: string, role: UserRole) {
+    this.id = id;
     this.email = email;
     this.role = role;
   }

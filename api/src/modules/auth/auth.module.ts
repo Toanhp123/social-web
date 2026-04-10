@@ -10,18 +10,26 @@ import { JwtStrategy } from './infrastructure/strategies/jwt.strategy.js';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtService } from './infrastructure/services/jwt.service.js';
+import { UserModule } from '../users/user.module.js';
+import { RegisterService } from './application/services/register.service.js';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PassportModule, JwtModule.register({})],
+  imports: [
+    ConfigModule.forRoot(),
+    PassportModule,
+    JwtModule.register({}),
+    UserModule,
+  ],
   controllers: [AuthController],
   providers: [
     PrismaService,
     LoginService,
-    JwtService,
+    RegisterService,
     {
       provide: AuthRepository,
       useClass: PrismaAuthRepository,
     },
+    JwtService,
     JwtStrategy,
     JwtAuthGuard,
   ],

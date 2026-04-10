@@ -1,7 +1,7 @@
 import { Prisma } from '../../../../../generated/prisma/client.js';
-import { AuthUser } from './../../../../users/domain/entities/auth-user.entity.js';
+import { AuthUser } from './../../../domain/entities/auth-user.entity.js';
 
-type AuthPayload = Prisma.UserGetPayload<{
+type AuthUserPayload = Prisma.UserGetPayload<{
   select: {
     id: true;
     email: true;
@@ -9,8 +9,8 @@ type AuthPayload = Prisma.UserGetPayload<{
   };
 }>;
 
-export class AuthMapper {
-  static toDomain(prismaUser: AuthPayload): AuthUser {
+export class AuthUserMapper {
+  static toDomain(prismaUser: AuthUserPayload): AuthUser {
     return new AuthUser(prismaUser.id, prismaUser.email, prismaUser.role);
   }
 }
