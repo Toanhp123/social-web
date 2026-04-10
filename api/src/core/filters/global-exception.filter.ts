@@ -26,7 +26,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         requestId,
         code: exception.code,
         message: exception.message,
-        metadata: exception.metadata,
+        metadata: (exception as BaseException).metadata,
       });
     }
 
