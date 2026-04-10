@@ -32,9 +32,11 @@ export class JwtService {
   }
 
   private verifyToken(token: string, secretKey: string): JwtPayload {
-    return this.jwt.verify<JwtPayload>(token, {
+    const decoded = this.jwt.verify<JwtPayload>(token, {
       secret: this.getOrThrow(secretKey),
     });
+
+    return new JwtPayload(decoded.id, decoded.email, decoded.role);
   }
 
   // ==================== ACCESS ====================
