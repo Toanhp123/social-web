@@ -5,12 +5,18 @@ type AuthPayload = Prisma.UserGetPayload<{
   select: {
     id: true;
     email: true;
+    password: true;
     role: true;
   };
 }>;
 
 export class AuthMapper {
   static toDomain(prismaUser: AuthPayload): AuthUser {
-    return new AuthUser(prismaUser.id, prismaUser.email, prismaUser.role);
+    return new AuthUser(
+      prismaUser.id,
+      prismaUser.email,
+      prismaUser.password,
+      prismaUser.role,
+    );
   }
 }

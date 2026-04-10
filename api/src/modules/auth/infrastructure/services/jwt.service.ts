@@ -25,7 +25,7 @@ export class JwtService {
     secretKey: string,
     expiresKey: string,
   ): string {
-    return this.jwt.sign(payload, {
+    return this.jwt.sign(payload.toPlainObject(), {
       secret: this.getOrThrow(secretKey),
       expiresIn: this.config.get(expiresKey),
     });
