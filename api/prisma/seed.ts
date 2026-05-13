@@ -23,7 +23,7 @@ async function main(): Promise<void> {
   const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com';
   const password = process.env.SEED_ADMIN_PASSWORD ?? 'Admin123';
   const fullName = process.env.SEED_ADMIN_FULL_NAME ?? 'Admin User';
-  const username = process.env.SEED_ADMIN_USERNAME ?? 'admin';
+  const username = process.env.SEED_ADMIN_USERNAME ?? 'adminuser';
   const passwordHash = await bcrypt.hash(password, 10);
 
   const account = await prisma.authAccount.upsert({

@@ -58,20 +58,20 @@ export class LoginService {
       );
     }
 
-    if (account.isDisabled()) {
-      throw new DomainError(
-        ErrorCode.USER_DISABLED,
-        'User account is disabled',
-        403,
-        { email: normalizedEmail },
-      );
-    }
-
     if (!(await this.passwordHasher.compare(password, account.passwordHash))) {
       throw new DomainError(
         ErrorCode.INVALID_CREDENTIALS,
         'Email or password is incorrect',
         401,
+        { email: normalizedEmail },
+      );
+    }
+
+    if (account.isDisabled()) {
+      throw new DomainError(
+        ErrorCode.USER_DISABLED,
+        'User account is disabled',
+        403,
         { email: normalizedEmail },
       );
     }
