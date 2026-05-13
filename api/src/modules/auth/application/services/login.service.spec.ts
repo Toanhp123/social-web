@@ -158,6 +158,7 @@ describe('LoginService', () => {
         new Date(),
       ),
     );
+    passwordHasher.compare.mockResolvedValue(true);
 
     await expect(
       service.execute('user@example.com', 'plain-password'),
@@ -165,6 +166,31 @@ describe('LoginService', () => {
       code: ErrorCode.USER_DISABLED,
       statusCode: 403,
     });
-    expect(passwordHasher.compare).not.toHaveBeenCalled();
+    expect(passwordHasher.compare).toHaveBeenCalledWith(
+      'plain-password',
+      'hashed-password',
+    );
+  });
+
+  it('returns invalid credentials for disabled accounts with a wrong password', async () => {
+    authAccountRepository.findByEmail.mockResolvedValue(
+      new AuthAccount(
+        'user-1',
+        'user@example.com',
+        'hashed-password',
+        UserRole.USER,
+        null,
+        null,
+        new Date(),
+      ),
+    );
+    passwordHasher.compare.mockResolvedValue(false);
+
+    await expect(
+      service.execute('user@example.com', 'wrong-password'),
+    ).rejects.toMatchObject<Partial<DomainError>>({
+      code: ErrorCode.INVALID_CREDENTIALS,
+      statusCode: 401,
+    });
   });
 });

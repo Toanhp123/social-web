@@ -15,6 +15,7 @@ describe('App (e2e)', () => {
   let loginService: { execute: jest.Mock };
   let refreshTokenService: { execute: jest.Mock };
   let logoutService: { execute: jest.Mock };
+  let authRateLimiter: { assertAllowed: jest.Mock };
   const refreshTokenExpiresAt = new Date('2030-01-01T00:00:00.000Z');
 
   beforeAll(async () => {
@@ -36,6 +37,8 @@ describe('App (e2e)', () => {
       await import('../src/modules/auth/application/services/refresh-token.service.js');
     const { LogoutService } =
       await import('../src/modules/auth/application/services/logout.service.js');
+    const { AUTH_RATE_LIMITER } =
+      await import('../src/common/constants/provider-token.constant.js');
 
     registerService = {
       execute: jest.fn().mockResolvedValue({
@@ -60,6 +63,9 @@ describe('App (e2e)', () => {
     };
     logoutService = {
       execute: jest.fn().mockResolvedValue(undefined),
+    };
+    authRateLimiter = {
+      assertAllowed: jest.fn().mockResolvedValue(undefined),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -89,6 +95,8 @@ describe('App (e2e)', () => {
       .useValue(refreshTokenService)
       .overrideProvider(LogoutService)
       .useValue(logoutService)
+      .overrideProvider(AUTH_RATE_LIMITER)
+      .useValue(authRateLimiter)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -138,6 +146,13 @@ describe('App (e2e)', () => {
     const registerCookie = getRefreshTokenCookie(registerResponse);
 
     expect(registerCookie).toBe('refreshToken=register-refresh-token');
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'register',
+        subject: 'USER@example.com',
+        deviceId: 'device-1',
+      }),
+    );
     expect(registerService.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'USER@example.com',
@@ -161,6 +176,12 @@ describe('App (e2e)', () => {
     const loginCookie = getRefreshTokenCookie(loginResponse);
 
     expect(loginCookie).toBe('refreshToken=login-refresh-token');
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'login',
+        subject: 'USER@example.com',
+      }),
+    );
     expect(loginService.execute).toHaveBeenCalledWith(
       'USER@example.com',
       'secret123',
@@ -177,6 +198,11 @@ describe('App (e2e)', () => {
     const refreshCookie = getRefreshTokenCookie(refreshResponse);
 
     expect(refreshCookie).toBe('refreshToken=rotated-refresh-token');
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'refresh',
+      }),
+    );
     expect(refreshTokenService.execute).toHaveBeenCalledWith(
       'login-refresh-token',
     );

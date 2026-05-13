@@ -11,6 +11,7 @@ import { JwtService } from './infrastructure/services/jwt.service.js';
 import { RegisterService } from './application/services/register.service.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
+  AUTH_RATE_LIMITER,
   PASSWORD_HASHER,
   SESSION_REPOSITORY,
   TOKEN_HASHER,
@@ -21,6 +22,9 @@ import { DatabaseModule } from '../../infrastructure/database/database.module.js
 import { BcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service.js';
 import { Sha256TokenHasher } from './infrastructure/services/sha256-token-hasher.service.js';
 import { LogoutService } from './application/services/logout.service.js';
+import { PrismaAuthRateLimiterRepository } from './infrastructure/persistence/prisma-auth-rate-limiter.repository.js';
+import { AuthRequestContextFactory } from './presentation/http/auth-request-context.factory.js';
+import { RefreshTokenCookieService } from './presentation/http/refresh-token-cookie.service.js';
 
 @Module({
   imports: [
@@ -35,9 +39,15 @@ import { LogoutService } from './application/services/logout.service.js';
     RegisterService,
     RefreshTokenService,
     LogoutService,
+    AuthRequestContextFactory,
+    RefreshTokenCookieService,
     {
       provide: AUTH_ACCOUNT_REPOSITORY,
       useClass: PrismaAuthAccountRepository,
+    },
+    {
+      provide: AUTH_RATE_LIMITER,
+      useClass: PrismaAuthRateLimiterRepository,
     },
     {
       provide: SESSION_REPOSITORY,

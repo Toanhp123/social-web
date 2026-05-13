@@ -1,5 +1,12 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Inject,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { LoginService } from '../../application/services/login.service.js';
 import { LoginDto } from '../dto/login.dto.js';
 import type { Request, Response } from 'express';
@@ -9,7 +16,10 @@ import { RefreshTokenService } from '../../application/services/refresh-token.se
 import { RefreshToken } from '../decorators/refresh-token.decorator.js';
 import { AuthResponseDto } from '../dto/auth-response.dto.js';
 import { LogoutService } from '../../application/services/logout.service.js';
-import { AuthSessionMetadata } from '../../application/types/auth-session-metadata.type.js';
+import { AUTH_RATE_LIMITER } from '../../../../common/constants/provider-token.constant.js';
+import type { AuthRateLimiter } from '../../application/ports/auth-rate-limiter.port.js';
+import { AuthRequestContextFactory } from '../http/auth-request-context.factory.js';
+import { RefreshTokenCookieService } from '../http/refresh-token-cookie.service.js';
 
 @Controller('auth')
 export class AuthController {
@@ -18,49 +28,12 @@ export class AuthController {
     private registerService: RegisterService,
     private refreshTokenService: RefreshTokenService,
     private logoutService: LogoutService,
-    private configService: ConfigService,
+    private requestContextFactory: AuthRequestContextFactory,
+    private refreshTokenCookie: RefreshTokenCookieService,
+
+    @Inject(AUTH_RATE_LIMITER)
+    private authRateLimiter: AuthRateLimiter,
   ) {}
-
-  private setRefreshTokenCookie(
-    res: Response,
-    refreshToken: string,
-    expiresAt: Date,
-  ) {
-    const isProduction =
-      this.configService.get<string>('app.env') === 'production';
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      path: '/auth',
-      expires: expiresAt,
-    });
-  }
-
-  private clearRefreshTokenCookie(res: Response) {
-    const isProduction =
-      this.configService.get<string>('app.env') === 'production';
-
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      path: '/auth',
-    });
-  }
-
-  private getSessionMetadata(req: Request): AuthSessionMetadata {
-    const deviceId = req.header('x-device-id')?.trim();
-    const device = req.header('x-device-name')?.trim();
-
-    return {
-      ip: req.ip,
-      userAgent: req.header('user-agent'),
-      ...(deviceId ? { deviceId } : {}),
-      ...(device ? { device } : {}),
-    };
-  }
 
   @Post('login')
   @HttpCode(200)
@@ -69,14 +42,22 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
+    await this.authRateLimiter.assertAllowed(
+      this.requestContextFactory.createRateLimitInput(
+        req,
+        'login',
+        loginDto.email,
+      ),
+    );
+
     const { accessToken, refreshToken, refreshTokenExpiresAt } =
       await this.loginService.execute(
         loginDto.email,
         loginDto.password,
-        this.getSessionMetadata(req),
+        this.requestContextFactory.createSessionMetadata(req),
       );
 
-    this.setRefreshTokenCookie(res, refreshToken, refreshTokenExpiresAt);
+    this.refreshTokenCookie.set(res, refreshToken, refreshTokenExpiresAt);
 
     return AuthResponseDto.fromAccessToken(accessToken);
   }
@@ -88,13 +69,21 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
+    await this.authRateLimiter.assertAllowed(
+      this.requestContextFactory.createRateLimitInput(
+        req,
+        'register',
+        registerDto.email,
+      ),
+    );
+
     const { accessToken, refreshToken, refreshTokenExpiresAt } =
       await this.registerService.execute(
         registerDto,
-        this.getSessionMetadata(req),
+        this.requestContextFactory.createSessionMetadata(req),
       );
 
-    this.setRefreshTokenCookie(res, refreshToken, refreshTokenExpiresAt);
+    this.refreshTokenCookie.set(res, refreshToken, refreshTokenExpiresAt);
 
     return AuthResponseDto.fromAccessToken(accessToken);
   }
@@ -103,15 +92,20 @@ export class AuthController {
   @HttpCode(200)
   async refresh(
     @RefreshToken() refreshToken: string | undefined,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
+    await this.authRateLimiter.assertAllowed(
+      this.requestContextFactory.createRateLimitInput(req, 'refresh'),
+    );
+
     const {
       accessToken,
       refreshToken: nextRefreshToken,
       refreshTokenExpiresAt,
     } = await this.refreshTokenService.execute(refreshToken);
 
-    this.setRefreshTokenCookie(res, nextRefreshToken, refreshTokenExpiresAt);
+    this.refreshTokenCookie.set(res, nextRefreshToken, refreshTokenExpiresAt);
 
     return AuthResponseDto.fromAccessToken(accessToken);
   }
@@ -123,6 +117,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     await this.logoutService.execute(refreshToken);
-    this.clearRefreshTokenCookie(res);
+    this.refreshTokenCookie.clear(res);
   }
 }

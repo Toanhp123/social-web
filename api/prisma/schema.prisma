@@ -431,6 +431,7 @@ model Friendship {
   @@index([user1Id, createdAt])
   @@index([user2Id, createdAt])
   @@index([user1Id, user2Id])
+  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 }
 
 model FriendRequest {
@@ -452,6 +453,7 @@ model FriendRequest {
   @@index([receiverId, status])
   @@index([requesterId, status])
   @@index([createdAt])
+  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 }
 
 // =====================================================
