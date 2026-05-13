@@ -1,17 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
-import { RequestIdInterceptor } from './core/interceptors/request-id.interceptor.js';
-import { GlobalExceptionFilter } from './core/filters/global-exception.filter.js';
 import cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
+import { LoggerService } from './core/logger/logger.service.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
+  const logger = app.get(LoggerService);
+  const corsOrigins = config.get<string[]>('app.corsOrigins') ?? [];
+  const isProduction = config.get<string>('app.env') === 'production';
 
+  app.useLogger(logger);
   app.use(cookieParser());
+  app.enableCors({
+    origin: corsOrigins.length > 0 ? corsOrigins : !isProduction,
+    credentials: true,
+  });
   app.enableShutdownHooks();
-  app.useGlobalInterceptors(new RequestIdInterceptor());
-  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,6 +27,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(config.get<number>('app.port') ?? 3001);
 }
 void bootstrap();

@@ -1,37 +1,93 @@
-import bcrypt from 'bcrypt';
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtService } from '../../infrastructure/services/jwt.service.js';
-import { JwtPayload } from '../../domain/object-values/jwt-payload.js';
-import { UserRepository } from '../../../users/domain/repositories/user.repository.interface.js';
-import { USER_REPOSITORY } from './../../../../common/constants/repo.constant.js';
+import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import {
+  AUTH_ACCOUNT_REPOSITORY,
+  PASSWORD_HASHER,
+  SESSION_REPOSITORY,
+  TOKEN_HASHER,
+  TOKEN_SERVICE,
+} from './../../../../common/constants/provider-token.constant.js';
 import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
+import type { TokenService } from '../../application/ports/token-service.port.js';
+import type { PasswordHasher } from '../../application/ports/password-hasher.port.js';
+import type { TokenHasher } from '../ports/token-hasher.port.js';
+import { AuthSessionMetadata } from '../types/auth-session-metadata.type.js';
+import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
+import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
+import { EmailAddress } from '../../../../core/value-objects/email-address.js';
 
 @Injectable()
 export class LoginService {
   constructor(
-    private readonly jwtService: JwtService,
+    @Inject(TOKEN_SERVICE)
+    private readonly tokenService: TokenService,
 
-    @Inject(USER_REPOSITORY)
-    private readonly userRepository: UserRepository,
+    @Inject(PASSWORD_HASHER)
+    private readonly passwordHasher: PasswordHasher,
+
+    @Inject(SESSION_REPOSITORY)
+    private readonly sessionRepository: SessionRepository,
+
+    @Inject(TOKEN_HASHER)
+    private readonly tokenHasher: TokenHasher,
+
+    @Inject(AUTH_ACCOUNT_REPOSITORY)
+    private readonly authAccountRepository: AuthAccountRepository,
   ) {}
 
-  async execute(email: string, password: string) {
-    const user = await this.userRepository.findAuthByEmail(email);
+  async execute(
+    email: string,
+    password: string,
+    sessionMetadata: AuthSessionMetadata = {},
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    refreshTokenExpiresAt: Date;
+  }> {
+    const normalizedEmail = EmailAddress.normalizeAndValidate(email);
+    const account =
+      await this.authAccountRepository.findByEmail(normalizedEmail);
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!account) {
       throw new DomainError(
         ErrorCode.INVALID_CREDENTIALS,
         'Email or password is incorrect',
-        409,
-        { email, password },
+        401,
+        { email: normalizedEmail },
       );
     }
 
-    const payload = JwtPayload.fromAuthUser(user);
-    const accessToken = this.jwtService.generateAccessToken(payload);
-    const refreshToken = this.jwtService.generateRefreshToken(payload);
+    if (account.isDisabled()) {
+      throw new DomainError(
+        ErrorCode.USER_DISABLED,
+        'User account is disabled',
+        403,
+        { email: normalizedEmail },
+      );
+    }
 
-    return { accessToken, refreshToken };
+    if (!(await this.passwordHasher.compare(password, account.passwordHash))) {
+      throw new DomainError(
+        ErrorCode.INVALID_CREDENTIALS,
+        'Email or password is incorrect',
+        401,
+        { email: normalizedEmail },
+      );
+    }
+
+    const payload = JwtPayload.fromAuthAccount(account);
+    const accessToken = this.tokenService.generateAccessToken(payload);
+    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();
+
+    await this.sessionRepository.create({
+      authAccountId: account.id,
+      refreshTokenHash: this.tokenHasher.hash(refreshToken),
+      expiresAt: refreshTokenExpiresAt,
+      ...sessionMetadata,
+    });
+
+    return { accessToken, refreshToken, refreshTokenExpiresAt };
   }
 }

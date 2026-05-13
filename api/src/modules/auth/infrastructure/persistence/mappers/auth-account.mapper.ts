@@ -1,0 +1,43 @@
+import { Prisma } from '../../../../../generated/prisma/client.js';
+import type { UserRole as PrismaUserRole } from '../../../../../generated/prisma/enums.js';
+import { UserRole } from '../../../../../core/security/enums/user-role.enum.js';
+import { AuthAccount } from '../../../domain/entities/auth-account.entity.js';
+import { RegisterAuthAccountInput } from '../../../domain/repositories/auth-account.repository.interface.js';
+
+type AuthAccountPayload = Prisma.AuthAccountGetPayload<{
+  select: {
+    id: true;
+    email: true;
+    passwordHash: true;
+    role: true;
+    emailVerifiedAt: true;
+    passwordChangedAt: true;
+    disabledAt: true;
+  };
+}>;
+
+export class AuthAccountMapper {
+  static toPersistence(
+    input: RegisterAuthAccountInput,
+    accountId: string,
+  ): Prisma.AuthAccountCreateInput {
+    return {
+      id: accountId,
+      email: input.email,
+      passwordHash: input.passwordHash,
+      role: input.role as PrismaUserRole,
+    };
+  }
+
+  static toDomain(prismaUser: AuthAccountPayload): AuthAccount {
+    return new AuthAccount(
+      prismaUser.id,
+      prismaUser.email,
+      prismaUser.passwordHash,
+      prismaUser.role as UserRole,
+      prismaUser.emailVerifiedAt,
+      prismaUser.passwordChangedAt,
+      prismaUser.disabledAt,
+    );
+  }
+}

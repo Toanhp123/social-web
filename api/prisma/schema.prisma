@@ -119,18 +119,40 @@ enum Permission {
 }
 
 // =====================================================
+// AUTH ACCOUNT
+// =====================================================
+
+model AuthAccount {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
+
+  emailVerifiedAt   DateTime?
+  passwordChangedAt DateTime  @default(now())
+  disabledAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User?
+  sessions Session[]
+
+  @@index([role])
+  @@index([createdAt])
+  @@index([emailVerifiedAt])
+  @@index([disabledAt])
+}
+
+// =====================================================
 // USER CORE
 // =====================================================
 
 model User {
-  id        String  @id @default(uuid())
-  email     String  @unique
+  id        String  @id
   username  String? @unique
-  password  String
   fullName  String
   avatarUrl String?
-
-  role UserRole @default(USER)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -139,6 +161,7 @@ model User {
   followingCount Int     @default(0)
   isHighFollower Boolean @default(false)
 
+  authAccount      AuthAccount       @relation(fields: [id], references: [id], onDelete: Cascade)
   profile          UserProfile?
   posts            Post[]
   reactions        Reaction[]
@@ -168,7 +191,6 @@ model User {
   savedPosts SavedPost[]
   reports    Report[]
   stories    Story[]
-  sessions   Session[]
   storyViews StoryView[]
 
   @@index([createdAt])
@@ -291,8 +313,8 @@ model AuditLog {
 }
 
 model Session {
-  id     String @id @default(uuid())
-  userId String
+  id            String @id @default(uuid())
+  authAccountId String
 
   refreshTokenHash String @unique
 
@@ -309,11 +331,11 @@ model Session {
   expiresAt  DateTime
   lastUsedAt DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authAccount AuthAccount @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([userId, createdAt(sort: Desc)])
-  @@index([userId, isRevoked])
+  @@index([authAccountId])
+  @@index([authAccountId, createdAt(sort: Desc)])
+  @@index([authAccountId, isRevoked])
   @@index([expiresAt])
   @@index([isRevoked, expiresAt])
 }

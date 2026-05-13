@@ -1,0 +1,35 @@
+import { DatabaseTransaction } from '../../../../core/databases/unit-of-work.interface.js';
+import { Session } from '../entities/session.entity.js';
+
+export type CreateSessionInput = {
+  authAccountId: string;
+  refreshTokenHash: string;
+  expiresAt: Date;
+  device?: string;
+  deviceId?: string;
+  ip?: string;
+  userAgent?: string;
+};
+
+export abstract class SessionRepository {
+  abstract create(
+    input: CreateSessionInput,
+    tx?: DatabaseTransaction,
+  ): Promise<Session>;
+
+  abstract findByRefreshTokenHash(
+    refreshTokenHash: string,
+  ): Promise<Session | null>;
+
+  abstract rotateRefreshToken(input: {
+    sessionId: string;
+    currentRefreshTokenHash: string;
+    nextRefreshTokenHash: string;
+    expiresAt: Date;
+  }): Promise<boolean>;
+
+  abstract revokeByRefreshTokenHash(
+    refreshTokenHash: string,
+    reason: string,
+  ): Promise<void>;
+}

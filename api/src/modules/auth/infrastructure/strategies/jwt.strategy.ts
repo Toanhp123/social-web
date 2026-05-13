@@ -7,20 +7,18 @@ import {
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthRepository } from '../../domain/repositories/auth.repository.interface.js';
-import { JwtUser } from '../../domain/types/jwt-user.type.js';
-import { JwtPayload } from '../../domain/object-values/jwt-payload.js';
-import { PrismaUserRepository } from './../../../users/infrastructure/persistence/prisma-user.repository.js';
-import { USER_REPOSITORY } from './../../../../common/constants/repo.constant.js';
+import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import { AUTH_ACCOUNT_REPOSITORY } from './../../../../common/constants/provider-token.constant.js';
+import { AuthenticatedUser } from '../../../../core/security/types/authenticated-user.type.js';
+import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    private authRepository: AuthRepository,
 
-    @Inject(USER_REPOSITORY)
-    private userRepository: PrismaUserRepository,
+    @Inject(AUTH_ACCOUNT_REPOSITORY)
+    private authAccountRepository: AuthAccountRepository,
   ) {
     const secret = configService.get<string>('jwt.accessSecret');
 
@@ -37,21 +35,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<JwtUser> {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     if (!payload?.id) {
       throw new UnauthorizedException('Invalid token payload');
     }
 
-    const user = await this.userRepository.findById(payload.id);
+    const account = await this.authAccountRepository.findById(payload.id);
 
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+    if (!account) {
+      throw new UnauthorizedException('Account not found');
+    }
+
+    if (account.isDisabled()) {
+      throw new UnauthorizedException('Account disabled');
     }
 
     return {
-      userId: payload.id,
-      email: payload.email,
-      role: payload.role,
+      userId: account.id,
+      email: account.email,
+      role: account.role,
     };
   }
 }

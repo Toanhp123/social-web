@@ -1,7 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity.js';
 import { UserRepository } from '../../domain/repositories/user.repository.interface.js';
-import { USER_REPOSITORY } from './../../../../common/constants/repo.constant.js';
+import { USER_REPOSITORY } from './../../../../common/constants/provider-token.constant.js';
+import { DomainError } from './../../../../core/exceptions/domain.exception.js';
+import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
 
 @Injectable()
 export class GetUserService {
@@ -13,7 +15,12 @@ export class GetUserService {
   async execute(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new DomainError(
+        ErrorCode.USER_NOT_FOUND,
+        `User with id ${id} not found`,
+        404,
+        { id },
+      );
     }
     return user;
   }
