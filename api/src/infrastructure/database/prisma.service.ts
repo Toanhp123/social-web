@@ -12,8 +12,12 @@ export class PrismaService
     const adapter = new PrismaPg({
       connectionString: configService.get('database.url')!,
     });
+    const log: Array<'query' | 'error' | 'warn'> =
+      configService.get('app.env') === 'development'
+        ? ['query', 'error', 'warn']
+        : ['error', 'warn'];
 
-    super({ adapter, log: ['query', 'error', 'warn'] });
+    super({ adapter, log });
   }
 
   async onModuleInit() {

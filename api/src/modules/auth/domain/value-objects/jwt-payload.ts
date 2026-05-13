@@ -1,6 +1,5 @@
-// src/auth/domain/value-objects/jwt-payload.ts
-import { UserRole } from './../../../../generated/prisma/enums.js';
-import { AuthUser } from './../../../users/domain/entities/auth-user.entity.js';
+import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
+import { AuthAccount } from '../entities/auth-account.entity.js';
 
 export class JwtPayload {
   id: string;
@@ -13,8 +12,8 @@ export class JwtPayload {
     this.role = role;
   }
 
-  static fromAuthUser(user: AuthUser): JwtPayload {
-    return new JwtPayload(user.id, user.email, user.role);
+  static fromAuthAccount(account: AuthAccount): JwtPayload {
+    return new JwtPayload(account.id, account.email, account.role);
   }
 
   toPlainObject() {

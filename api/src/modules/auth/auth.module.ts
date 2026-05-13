@@ -1,46 +1,62 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../../infrastructure/database/prisma.service.js';
-import { AuthRepository } from './domain/repositories/auth.repository.interface.js';
-import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.repository.js';
+import { PrismaAuthAccountRepository } from './infrastructure/persistence/prisma-auth-account.repository.js';
+import { PrismaSessionRepository } from './infrastructure/persistence/prisma-session.repository.js';
 import { LoginService } from './application/services/login.service.js';
 import { AuthController } from './presentation/controllers/auth.controller.js';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard.js';
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy.js';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtService } from './infrastructure/services/jwt.service.js';
-import { UserModule } from '../users/user.module.js';
 import { RegisterService } from './application/services/register.service.js';
-import { PrismaUnitOfWork } from './../../infrastructure/database/prisma-unit-of-work.js';
-import { UNIT_OF_WORK } from './../../common/constants/repo.constant.js';
+import {
+  AUTH_ACCOUNT_REPOSITORY,
+  PASSWORD_HASHER,
+  SESSION_REPOSITORY,
+  TOKEN_HASHER,
+  TOKEN_SERVICE,
+} from '../../common/constants/provider-token.constant.js';
 import { RefreshTokenService } from './application/services/refresh-token.service.js';
+import { DatabaseModule } from '../../infrastructure/database/database.module.js';
+import { BcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service.js';
+import { Sha256TokenHasher } from './infrastructure/services/sha256-token-hasher.service.js';
+import { LogoutService } from './application/services/logout.service.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule,
     PassportModule,
     JwtModule.register({}),
-    UserModule,
+    DatabaseModule,
   ],
   controllers: [AuthController],
   providers: [
-    PrismaService,
     LoginService,
     RegisterService,
     RefreshTokenService,
+    LogoutService,
     {
-      provide: UNIT_OF_WORK,
-      useClass: PrismaUnitOfWork,
+      provide: AUTH_ACCOUNT_REPOSITORY,
+      useClass: PrismaAuthAccountRepository,
     },
     {
-      provide: AuthRepository,
-      useClass: PrismaAuthRepository,
+      provide: SESSION_REPOSITORY,
+      useClass: PrismaSessionRepository,
     },
-    JwtService,
+    {
+      provide: TOKEN_SERVICE,
+      useClass: JwtService,
+    },
+    {
+      provide: TOKEN_HASHER,
+      useClass: Sha256TokenHasher,
+    },
+    {
+      provide: PASSWORD_HASHER,
+      useClass: BcryptPasswordHasher,
+    },
     JwtStrategy,
-    JwtAuthGuard,
   ],
-  exports: [JwtAuthGuard, JwtStrategy],
+  exports: [JwtStrategy],
 })
 export class AuthModule {}

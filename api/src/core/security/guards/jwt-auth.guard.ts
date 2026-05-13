@@ -4,13 +4,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtUser } from '../../domain/types/jwt-user.type.js';
-import { AUTH_ERROR } from '../../domain/constants/auth-error.js';
-import { extractMessage } from './../../../../common/utils/extract-message.util.js';
+import { extractMessage } from '../../../common/utils/extract-message.util.js';
+import { AUTH_ERROR } from '../constants/auth-error.constant.js';
+import { AuthenticatedUser } from '../types/authenticated-user.type.js';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  handleRequest<TUser = JwtUser>(
+  handleRequest<TUser = AuthenticatedUser>(
     err: unknown,
     user: unknown,
     info: unknown,

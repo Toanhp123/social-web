@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaService } from './infrastructure/database/prisma.service.js';
+import { APP_FILTER } from '@nestjs/core';
 import { UserModule } from './modules/users/user.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import {
@@ -9,6 +9,9 @@ import {
   jwtConfig,
   validationSchema,
 } from './infrastructure/config/index.js';
+import { GlobalExceptionFilter } from './core/filters/global-exception.filter.js';
+import { LoggerService } from './core/logger/logger.service.js';
+import { RequestContextMiddleware } from './core/middleware/request-context.middleware.js';
 
 @Module({
   imports: [
@@ -22,6 +25,16 @@ import {
     AuthModule,
   ],
   controllers: [],
-  providers: [PrismaService],
+  providers: [
+    LoggerService,
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestContextMiddleware).forRoutes('*');
+  }
+}

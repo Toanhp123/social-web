@@ -1,75 +1,66 @@
 import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../generated/prisma/enums.js';
+import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
+import { EmailAddress } from '../../../../core/value-objects/email-address.js';
 
 export class User {
   constructor(
     public readonly id: string,
     public readonly fullName: string,
     public readonly email: string,
-    public readonly password: string,
     public readonly role: UserRole,
     public readonly username: string | null,
   ) {}
 
-  static create(
-    fullName: string,
-    email: string,
-    hashPassword: string,
-    role: UserRole = UserRole.USER,
-    username: string,
-  ): User {
-    if (!email || !email.includes('@')) {
+  static create(input: {
+    id: string;
+    fullName: string;
+    email: string;
+    role?: UserRole;
+    username?: string | null;
+  }): User {
+    const id = input.id.trim();
+    const normalizedEmail = EmailAddress.normalizeAndValidate(input.email);
+    const normalizedFullName = input.fullName.trim();
+    const normalizedUsername = input.username?.trim() || null;
+
+    if (!id) {
       throw new DomainError(
-        ErrorCode.INVALID_EMAIL,
-        'Invalid email address',
+        ErrorCode.INVALID_USER_ID,
+        'User id is required',
         400,
-        { email },
+        { email: normalizedEmail },
       );
     }
 
-    if (!fullName.trim() || fullName.length < 5) {
+    if (!normalizedFullName || normalizedFullName.length < 5) {
       throw new DomainError(
         ErrorCode.INVALID_FULLNAME,
         'FullName must be at least 5 characters',
         400,
-        { email },
+        { email: normalizedEmail },
       );
     }
 
-    if (username.trim() && username.length < 6) {
+    if (normalizedUsername && normalizedUsername.length < 6) {
       throw new DomainError(
         ErrorCode.INVALID_USERNAME,
         'Username must be at least 6 characters',
         400,
-        { email },
+        { email: normalizedEmail },
       );
     }
 
     return new User(
-      '',
-      fullName.trim(),
-      email.toLowerCase().trim(),
-      hashPassword,
-      role,
-      username.trim(),
+      id,
+      normalizedFullName,
+      normalizedEmail,
+      input.role ?? UserRole.USER,
+      normalizedUsername,
     );
   }
 
   static isValidEmail(email: string): boolean {
-    return email.includes('@');
-  }
-
-  static isPasswordStrong(password: string): boolean {
-    if (!password.trim() || password.length < 6) {
-      throw new DomainError(
-        ErrorCode.WEAK_PASSWORD,
-        'Password is too weak',
-        400,
-        { password },
-      );
-    }
-
-    return true;
+    return EmailAddress.isValid(email);
   }
 }
