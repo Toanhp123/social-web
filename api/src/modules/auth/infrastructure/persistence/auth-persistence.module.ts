@@ -25,6 +25,11 @@ import { PrismaSessionRepository } from '@/modules/auth/infrastructure/persisten
       useClass: PrismaSessionRepository,
     },
   ],
-  exports: [AUTH_ACCOUNT_REPOSITORY, AUTH_RATE_LIMITER, SESSION_REPOSITORY],
+  exports: [
+    AUTH_ACCOUNT_REPOSITORY,
+    AUTH_RATE_LIMITER,
+    SESSION_REPOSITORY,
+    DatabaseModule,
+  ],
 })
 export class AuthPersistenceModule {}
