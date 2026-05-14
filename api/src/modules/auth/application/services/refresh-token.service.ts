@@ -3,6 +3,7 @@ import { DomainError } from './../../../../core/exceptions/domain.exception.js';
 import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
+  AUTH_RATE_LIMITER,
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
@@ -12,6 +13,10 @@ import type { TokenHasher } from '../ports/token-hasher.port.js';
 import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
 import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import type {
+  AuthRateLimitInput,
+  AuthRateLimiter,
+} from '../ports/auth-rate-limiter.port.js';
 
 @Injectable()
 export class RefreshTokenService {
@@ -27,13 +32,21 @@ export class RefreshTokenService {
 
     @Inject(AUTH_ACCOUNT_REPOSITORY)
     private readonly authAccountRepository: AuthAccountRepository,
+
+    @Inject(AUTH_RATE_LIMITER)
+    private readonly authRateLimiter: AuthRateLimiter,
   ) {}
 
-  async execute(refreshToken: string | undefined): Promise<{
+  async execute(
+    refreshToken: string | undefined,
+    rateLimit: AuthRateLimitInput,
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
+    await this.authRateLimiter.assertAllowed(rateLimit);
+
     if (!refreshToken) {
       throw new DomainError(
         ErrorCode.INVALID_REFRESH_TOKEN,

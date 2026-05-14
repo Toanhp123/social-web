@@ -1,47 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { DomainError } from '../../../../core/exceptions/domain.exception.js';
 import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { mapPrismaError } from '../../../../core/mappers/prisma-error.mapper.js';
+import { mapPrismaError } from '../../../../infrastructure/database/prisma-error.mapper.js';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service.js';
 import type {
-  AuthRateLimitAction,
   AuthRateLimitInput,
   AuthRateLimiter,
 } from '../../application/ports/auth-rate-limiter.port.js';
-
-type AuthRateLimitPolicy = {
-  limit: number;
-  windowSeconds: number;
-  blockSeconds: number;
-};
-
-const AUTH_RATE_LIMIT_POLICIES: Record<
-  AuthRateLimitAction,
-  AuthRateLimitPolicy
-> = {
-  login: {
-    limit: 5,
-    windowSeconds: 15 * 60,
-    blockSeconds: 15 * 60,
-  },
-  register: {
-    limit: 5,
-    windowSeconds: 60 * 60,
-    blockSeconds: 60 * 60,
-  },
-  refresh: {
-    limit: 60,
-    windowSeconds: 60,
-    blockSeconds: 60,
-  },
-};
+import {
+  getAuthRateLimitPolicy,
+  type AuthRateLimitPolicy,
+} from '../../application/policies/auth-rate-limit.policy.js';
 
 @Injectable()
 export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {
   constructor(private readonly prisma: PrismaService) {}
 
   async assertAllowed(input: AuthRateLimitInput): Promise<void> {
-    const policy = AUTH_RATE_LIMIT_POLICIES[input.action];
+    const policy = getAuthRateLimitPolicy(input.action);
     const action = `auth:${input.action}`;
 
     for (const identifier of this.getIdentifiers(input)) {

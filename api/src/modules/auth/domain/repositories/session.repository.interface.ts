@@ -1,4 +1,3 @@
-import { DatabaseTransaction } from '../../../../core/databases/unit-of-work.interface.js';
 import { Session } from '../entities/session.entity.js';
 
 export type CreateSessionInput = {
@@ -12,10 +11,7 @@ export type CreateSessionInput = {
 };
 
 export abstract class SessionRepository {
-  abstract create(
-    input: CreateSessionInput,
-    tx?: DatabaseTransaction,
-  ): Promise<Session>;
+  abstract create(input: CreateSessionInput): Promise<Session>;
 
   abstract findByRefreshTokenHash(
     refreshTokenHash: string,

@@ -11,6 +11,8 @@ import { TokenService } from '../../application/ports/token-service.port.js';
 import { TokenHasher } from '../ports/token-hasher.port.js';
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
 import { RegisterService } from './register.service.js';
+import { UserRepository } from '../../../users/domain/repositories/user.repository.interface.js';
+import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
 
 describe('RegisterService', () => {
   const createdAuthAccount = new AuthAccount(
@@ -21,25 +23,36 @@ describe('RegisterService', () => {
   );
 
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
+  let userRepository: jest.Mocked<UserRepository>;
   let tokenService: jest.Mocked<TokenService>;
   let passwordHasher: jest.Mocked<PasswordHasher>;
   let sessionRepository: jest.Mocked<SessionRepository>;
   let tokenHasher: jest.Mocked<TokenHasher>;
+  let authRateLimiter: jest.Mocked<AuthRateLimiter>;
   let uow: UnitOfWork;
   let executeTransaction: jest.Mock;
-  let tx: unknown;
   let service: RegisterService;
 
+  const registerContext = {
+    rateLimit: {
+      action: 'register' as const,
+      ip: '127.0.0.1',
+      subject: 'user@example.com',
+    },
+  };
+
   beforeEach(() => {
-    tx = { tx: true };
-    executeTransaction = jest.fn((fn: (tx: never) => Promise<unknown>) =>
-      fn(tx as never),
-    );
+    executeTransaction = jest.fn((fn: () => Promise<unknown>) => fn());
 
     authAccountRepository = {
       findById: jest.fn(),
       findByEmail: jest.fn(),
       register: jest.fn(),
+    };
+
+    userRepository = {
+      create: jest.fn(),
+      findById: jest.fn(),
     };
 
     tokenService = {
@@ -72,13 +85,19 @@ describe('RegisterService', () => {
       hash: jest.fn().mockReturnValue('refresh-token-hash'),
     };
 
+    authRateLimiter = {
+      assertAllowed: jest.fn().mockResolvedValue(undefined),
+    };
+
     service = new RegisterService(
       authAccountRepository,
+      userRepository,
       tokenService,
       passwordHasher,
       sessionRepository,
       tokenHasher,
       uow,
+      authRateLimiter,
     );
   });
 
@@ -86,12 +105,15 @@ describe('RegisterService', () => {
     authAccountRepository.findByEmail.mockResolvedValue(null);
     authAccountRepository.register.mockResolvedValue(createdAuthAccount);
 
-    const result = await service.execute({
-      fullName: 'Example User',
-      email: 'USER@example.com',
-      password: 'secret123',
-      username: 'exampleuser',
-    });
+    const result = await service.execute(
+      {
+        fullName: 'Example User',
+        email: 'USER@example.com',
+        password: 'secret123',
+        username: 'exampleuser',
+      },
+      registerContext,
+    );
 
     expect(result).toEqual({
       accessToken: 'access-token',
@@ -99,39 +121,44 @@ describe('RegisterService', () => {
       refreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
     expect(executeTransaction).toHaveBeenCalledTimes(1);
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      registerContext.rateLimit,
+    );
     expect(passwordHasher.hash).toHaveBeenCalledWith('secret123');
     expect(passwordHasher.hash.mock.invocationCallOrder[0]).toBeLessThan(
       executeTransaction.mock.invocationCallOrder[0],
     );
     expect(authAccountRepository.register).toHaveBeenCalledWith(
       expect.objectContaining({
-        fullName: 'Example User',
         email: 'user@example.com',
         passwordHash: 'hashed-password',
         role: UserRole.USER,
-        username: 'exampleuser',
       }),
-      tx,
     );
-    expect(sessionRepository.create).toHaveBeenCalledWith(
-      {
-        authAccountId: 'user-1',
-        refreshTokenHash: 'refresh-token-hash',
-        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
-      },
-      tx,
-    );
+    expect(userRepository.create).toHaveBeenCalledWith({
+      id: 'user-1',
+      fullName: 'Example User',
+      username: 'exampleuser',
+    });
+    expect(sessionRepository.create).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      refreshTokenHash: 'refresh-token-hash',
+      expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+    });
   });
 
   it('throws when email already exists', async () => {
     authAccountRepository.findByEmail.mockResolvedValue(createdAuthAccount);
 
     await expect(
-      service.execute({
-        fullName: 'Example User',
-        email: 'user@example.com',
-        password: 'secret123',
-      }),
+      service.execute(
+        {
+          fullName: 'Example User',
+          email: 'user@example.com',
+          password: 'secret123',
+        },
+        registerContext,
+      ),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.USER_ALREADY_EXISTS,
       statusCode: 409,
@@ -139,6 +166,7 @@ describe('RegisterService', () => {
 
     expect(executeTransaction).not.toHaveBeenCalled();
     expect(authAccountRepository.register).not.toHaveBeenCalled();
+    expect(userRepository.create).not.toHaveBeenCalled();
     expect(sessionRepository.create).not.toHaveBeenCalled();
   });
 
@@ -154,11 +182,14 @@ describe('RegisterService', () => {
     );
 
     await expect(
-      service.execute({
-        fullName: 'Example User',
-        email: 'user@example.com',
-        password: 'secret123',
-      }),
+      service.execute(
+        {
+          fullName: 'Example User',
+          email: 'user@example.com',
+          password: 'secret123',
+        },
+        registerContext,
+      ),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.USER_ALREADY_EXISTS,
       statusCode: 409,
@@ -169,7 +200,8 @@ describe('RegisterService', () => {
 
   it('maps duplicate username to username already exists', async () => {
     authAccountRepository.findByEmail.mockResolvedValue(null);
-    authAccountRepository.register.mockRejectedValue(
+    authAccountRepository.register.mockResolvedValue(createdAuthAccount);
+    userRepository.create.mockRejectedValue(
       new DatabaseError(
         'Duplicate field',
         { meta: { target: ['username'] } },
@@ -179,12 +211,15 @@ describe('RegisterService', () => {
     );
 
     await expect(
-      service.execute({
-        fullName: 'Example User',
-        email: 'user@example.com',
-        password: 'secret123',
-        username: 'exampleuser',
-      }),
+      service.execute(
+        {
+          fullName: 'Example User',
+          email: 'user@example.com',
+          password: 'secret123',
+          username: 'exampleuser',
+        },
+        registerContext,
+      ),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.USERNAME_ALREADY_EXISTS,
       statusCode: 409,
@@ -197,11 +232,14 @@ describe('RegisterService', () => {
     authAccountRepository.findByEmail.mockResolvedValue(null);
 
     await expect(
-      service.execute({
-        fullName: 'Example User',
-        email: 'user@example.com',
-        password: '123',
-      }),
+      service.execute(
+        {
+          fullName: 'Example User',
+          email: 'user@example.com',
+          password: '123',
+        },
+        registerContext,
+      ),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.WEAK_PASSWORD,
       statusCode: 400,
