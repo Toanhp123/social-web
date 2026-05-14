@@ -1,10 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { TokenService } from '../../application/ports/token-service.port.js';
+import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
 
 @Injectable()
 export class JwtService implements TokenService {

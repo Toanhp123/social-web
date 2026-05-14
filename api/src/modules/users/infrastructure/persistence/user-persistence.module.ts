@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { USER_REPOSITORY } from '../../../../common/constants/provider-token.constant.js';
-import { DatabaseModule } from '../../../../infrastructure/database/database.module.js';
-import { PrismaUserRepository } from './prisma-user.repository.js';
+import { USER_REPOSITORY } from '@/common/constants/provider-token.constant.js';
+import { DatabaseModule } from '@/infrastructure/database/database.module.js';
+import { PrismaUserRepository } from '@/modules/users/infrastructure/persistence/prisma-user.repository.js';
 
 @Module({
   imports: [DatabaseModule],

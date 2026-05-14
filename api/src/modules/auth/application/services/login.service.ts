@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
   AUTH_RATE_LIMITER,
@@ -7,20 +7,20 @@ import {
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
-} from './../../../../common/constants/provider-token.constant.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import type { TokenService } from '../../application/ports/token-service.port.js';
-import type { PasswordHasher } from '../../application/ports/password-hasher.port.js';
-import type { TokenHasher } from '../ports/token-hasher.port.js';
-import { AuthSessionMetadata } from '../types/auth-session-metadata.type.js';
-import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { EmailAddress } from '../../../../core/value-objects/email-address.js';
+} from '@/common/constants/provider-token.constant.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
+import type { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
+import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { EmailAddress } from '@/core/value-objects/email-address.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
-} from '../ports/auth-rate-limiter.port.js';
+} from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 export type LoginContext = {
   rateLimit: AuthRateLimitInput;

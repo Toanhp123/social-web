@@ -28,19 +28,18 @@ describe('App (e2e)', () => {
     process.env.JWT_ACCESS_TOKEN_SECRET ??= 'test-access-secret';
     process.env.JWT_REFRESH_TOKEN_SECRET ??= 'test-refresh-secret';
 
-    const { AppModule } = await import('../src/app.module.js');
+    const { AppModule } = await import('@/app.module.js');
     const { PrismaService } =
-      await import('../src/infrastructure/database/prisma.service.js');
-    const { LoggerService } =
-      await import('../src/core/logger/logger.service.js');
+      await import('@/infrastructure/database/prisma.service.js');
+    const { LoggerService } = await import('@/core/logger/logger.service.js');
     const { RegisterService } =
-      await import('../src/modules/auth/application/services/register.service.js');
+      await import('@/modules/auth/application/services/register.service.js');
     const { LoginService } =
-      await import('../src/modules/auth/application/services/login.service.js');
+      await import('@/modules/auth/application/services/login.service.js');
     const { RefreshTokenService } =
-      await import('../src/modules/auth/application/services/refresh-token.service.js');
+      await import('@/modules/auth/application/services/refresh-token.service.js');
     const { LogoutService } =
-      await import('../src/modules/auth/application/services/logout.service.js');
+      await import('@/modules/auth/application/services/logout.service.js');
 
     registerService = {
       execute: jest.fn().mockResolvedValue({

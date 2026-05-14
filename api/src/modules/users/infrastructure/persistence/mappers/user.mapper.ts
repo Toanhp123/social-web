@@ -1,6 +1,6 @@
-import { Prisma } from '../../../../../generated/prisma/client.js';
-import { UserRole } from '../../../../../core/security/enums/user-role.enum.js';
-import { User } from '../../../domain/entities/user.entity.js';
+import { Prisma } from '@/generated/prisma/client.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
 
 type UserPayload = Prisma.UserGetPayload<{
   select: {

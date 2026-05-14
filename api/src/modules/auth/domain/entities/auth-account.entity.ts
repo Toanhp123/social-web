@@ -1,4 +1,4 @@
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
 
 export class AuthAccount {
   constructor(

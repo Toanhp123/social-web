@@ -1,15 +1,15 @@
 import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { LoginService } from '../../application/services/login.service.js';
-import { LoginDto } from '../dto/login.dto.js';
+import { LoginService } from '@/modules/auth/application/services/login.service.js';
+import { LoginDto } from '@/modules/auth/presentation/dto/login.dto.js';
 import type { Request, Response } from 'express';
-import { RegisterService } from '../../application/services/register.service.js';
-import { RegisterDto } from '../dto/register.dto.js';
-import { RefreshTokenService } from '../../application/services/refresh-token.service.js';
-import { RefreshToken } from '../decorators/refresh-token.decorator.js';
-import { AuthResponseDto } from '../dto/auth-response.dto.js';
-import { LogoutService } from '../../application/services/logout.service.js';
-import { AuthRequestContextFactory } from '../http/auth-request-context.factory.js';
-import { RefreshTokenCookieService } from '../http/refresh-token-cookie.service.js';
+import { RegisterService } from '@/modules/auth/application/services/register.service.js';
+import { RegisterDto } from '@/modules/auth/presentation/dto/register.dto.js';
+import { RefreshTokenService } from '@/modules/auth/application/services/refresh-token.service.js';
+import { RefreshToken } from '@/modules/auth/presentation/decorators/refresh-token.decorator.js';
+import { AuthResponseDto } from '@/modules/auth/presentation/dto/auth-response.dto.js';
+import { LogoutService } from '@/modules/auth/application/services/logout.service.js';
+import { AuthRequestContextFactory } from '@/modules/auth/presentation/http/auth-request-context.factory.js';
+import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refresh-token-cookie.service.js';
 
 @Controller('auth')
 export class AuthController {

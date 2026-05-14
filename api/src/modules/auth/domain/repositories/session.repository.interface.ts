@@ -1,4 +1,4 @@
-import { Session } from '../entities/session.entity.js';
+import { Session } from '@/modules/auth/domain/entities/session.entity.js';
 
 export type CreateSessionInput = {
   authAccountId: string;

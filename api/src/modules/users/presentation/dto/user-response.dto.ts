@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { User } from '../../domain/entities/user.entity.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
 
 export class UserResponseDto {
   @Expose() id!: string;

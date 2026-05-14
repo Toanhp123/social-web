@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { mapPrismaError } from '../../../../infrastructure/database/prisma-error.mapper.js';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
+import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
-} from '../../application/ports/auth-rate-limiter.port.js';
+} from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 import {
   getAuthRateLimitPolicy,
   type AuthRateLimitPolicy,
-} from '../../application/policies/auth-rate-limit.policy.js';
+} from '@/modules/auth/application/policies/auth-rate-limit.policy.js';
 
 @Injectable()
 export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {

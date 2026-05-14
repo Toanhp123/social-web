@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { DatabaseError } from '../../../../core/exceptions/database.exception.js';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UnitOfWork } from '../../../../core/databases/unit-of-work.interface.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { AuthAccount } from '../../domain/entities/auth-account.entity.js';
-import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
-import { PasswordHasher } from '../../application/ports/password-hasher.port.js';
-import { TokenService } from '../../application/ports/token-service.port.js';
-import { TokenHasher } from '../ports/token-hasher.port.js';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { RegisterService } from './register.service.js';
-import { UserRepository } from '../../../users/domain/repositories/user.repository.interface.js';
-import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
+import { DatabaseError } from '@/core/exceptions/database.exception.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
+import { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
+import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { RegisterService } from '@/modules/auth/application/services/register.service.js';
+import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 describe('RegisterService', () => {
   const createdAuthAccount = new AuthAccount(

@@ -1,7 +1,7 @@
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import { EmailAddress } from '../../../../core/value-objects/email-address.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { EmailAddress } from '@/core/value-objects/email-address.js';
 
 export class User {
   constructor(

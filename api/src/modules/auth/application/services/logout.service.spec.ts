@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { TokenHasher } from '../ports/token-hasher.port.js';
-import { LogoutService } from './logout.service.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { LogoutService } from '@/modules/auth/application/services/logout.service.js';
 
 describe('LogoutService', () => {
   let tokenHasher: jest.Mocked<TokenHasher>;

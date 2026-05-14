@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
-import { TokenService } from '../../application/ports/token-service.port.js';
-import { AuthAccount } from '../../domain/entities/auth-account.entity.js';
-import { Session } from '../../domain/entities/session.entity.js';
-import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { TokenHasher } from '../ports/token-hasher.port.js';
-import { RefreshTokenService } from './refresh-token.service.js';
-import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
+import { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { Session } from '@/modules/auth/domain/entities/session.entity.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { RefreshTokenService } from '@/modules/auth/application/services/refresh-token.service.js';
+import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 describe('RefreshTokenService', () => {
   let tokenService: jest.Mocked<TokenService>;

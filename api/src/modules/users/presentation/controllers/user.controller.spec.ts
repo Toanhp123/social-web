@@ -1,8 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import type { AuthenticatedUser } from '../../../../core/security/types/authenticated-user.type.js';
-import { User } from '../../domain/entities/user.entity.js';
-import { UserController } from './user.controller.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
+import { UserController } from '@/modules/users/presentation/controllers/user.controller.js';
 
 describe('UserController', () => {
   const user = new User(

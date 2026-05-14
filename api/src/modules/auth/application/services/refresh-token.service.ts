@@ -1,22 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
   AUTH_RATE_LIMITER,
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
-} from './../../../../common/constants/provider-token.constant.js';
-import type { TokenService } from '../../application/ports/token-service.port.js';
-import type { TokenHasher } from '../ports/token-hasher.port.js';
-import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+} from '@/common/constants/provider-token.constant.js';
+import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
+import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
-} from '../ports/auth-rate-limiter.port.js';
+} from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 @Injectable()
 export class RefreshTokenService {

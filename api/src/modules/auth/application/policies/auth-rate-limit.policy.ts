@@ -1,4 +1,4 @@
-import type { AuthRateLimitAction } from '../ports/auth-rate-limiter.port.js';
+import type { AuthRateLimitAction } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 export type AuthRateLimitPolicy = {
   limit: number;

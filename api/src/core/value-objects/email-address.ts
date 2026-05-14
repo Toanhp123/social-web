@@ -1,5 +1,5 @@
-import { DomainError } from '../exceptions/domain.exception.js';
-import { ErrorCode } from '../exceptions/error-codes.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 export class EmailAddress {
   private static readonly pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

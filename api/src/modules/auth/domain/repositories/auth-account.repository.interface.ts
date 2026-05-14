@@ -1,5 +1,5 @@
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { AuthAccount } from '../entities/auth-account.entity.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
 
 export type RegisterAuthAccountInput = {
   email: string;

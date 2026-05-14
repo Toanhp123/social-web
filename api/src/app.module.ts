@@ -1,17 +1,17 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
-import { UserModule } from './modules/users/user.module.js';
-import { AuthModule } from './modules/auth/auth.module.js';
+import { UserModule } from '@/modules/users/user.module.js';
+import { AuthModule } from '@/modules/auth/auth.module.js';
 import {
   appConfig,
   databaseConfig,
   jwtConfig,
   validationSchema,
-} from './infrastructure/config/index.js';
-import { GlobalExceptionFilter } from './core/filters/global-exception.filter.js';
-import { LoggerService } from './core/logger/logger.service.js';
-import { RequestContextMiddleware } from './core/middleware/request-context.middleware.js';
+} from '@/infrastructure/config/index.js';
+import { GlobalExceptionFilter } from '@/core/filters/global-exception.filter.js';
+import { LoggerService } from '@/core/logger/logger.service.js';
+import { RequestContextMiddleware } from '@/core/middleware/request-context.middleware.js';
 
 @Module({
   imports: [

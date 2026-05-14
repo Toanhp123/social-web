@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import { AppModule } from '@/app.module.js';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from './core/logger/logger.service.js';
+import { LoggerService } from '@/core/logger/logger.service.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

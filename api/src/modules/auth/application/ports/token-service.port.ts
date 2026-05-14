@@ -1,4 +1,4 @@
-import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
+import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
 
 export interface TokenService {
   generateAccessToken(payload: JwtPayload): string;

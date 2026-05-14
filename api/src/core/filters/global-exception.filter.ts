@@ -7,11 +7,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { getRequestId } from '../context/request-context.service.js';
-import { BaseException } from '../exceptions/base.exception.js';
-import { ErrorCode } from '../exceptions/error-codes.js';
-import { LoggerService } from '../logger/logger.service.js';
-import { redactValue } from '../logger/redaction.util.js';
+import { getRequestId } from '@/core/context/request-context.service.js';
+import { BaseException } from '@/core/exceptions/base.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { LoggerService } from '@/core/logger/logger.service.js';
+import { redactValue } from '@/core/logger/redaction.util.js';
 
 @Injectable()
 @Catch()

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
-import { DomainError } from '../exceptions/domain.exception.js';
-import { ErrorCode } from '../exceptions/error-codes.js';
-import { EmailAddress } from './email-address.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { EmailAddress } from '@/core/value-objects/email-address.js';
 
 describe('EmailAddress', () => {
   it('normalizes email casing and whitespace', () => {

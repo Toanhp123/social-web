@@ -1,6 +1,6 @@
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { EmailAddress } from '../../../../core/value-objects/email-address.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { EmailAddress } from '@/core/value-objects/email-address.js';
 
 export type RegistrationProfileInput = {
   fullName: string;

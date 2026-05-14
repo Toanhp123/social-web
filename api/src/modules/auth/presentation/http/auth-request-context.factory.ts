@@ -3,8 +3,8 @@ import type { Request } from 'express';
 import type {
   AuthRateLimitAction,
   AuthRateLimitInput,
-} from '../../application/ports/auth-rate-limiter.port.js';
-import type { AuthSessionMetadata } from '../../application/types/auth-session-metadata.type.js';
+} from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
+import type { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
 
 @Injectable()
 export class AuthRequestContextFactory {
