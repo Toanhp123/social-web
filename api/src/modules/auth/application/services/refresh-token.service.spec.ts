@@ -10,13 +10,20 @@ import { AuthAccountRepository } from '../../domain/repositories/auth-account.re
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
 import { TokenHasher } from '../ports/token-hasher.port.js';
 import { RefreshTokenService } from './refresh-token.service.js';
+import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
 
 describe('RefreshTokenService', () => {
   let tokenService: jest.Mocked<TokenService>;
   let tokenHasher: jest.Mocked<TokenHasher>;
   let sessionRepository: jest.Mocked<SessionRepository>;
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
+  let authRateLimiter: jest.Mocked<AuthRateLimiter>;
   let service: RefreshTokenService;
+
+  const refreshRateLimit = {
+    action: 'refresh' as const,
+    ip: '127.0.0.1',
+  };
 
   beforeEach(() => {
     tokenService = {
@@ -74,18 +81,23 @@ describe('RefreshTokenService', () => {
       register: jest.fn(),
     };
 
+    authRateLimiter = {
+      assertAllowed: jest.fn().mockResolvedValue(undefined),
+    };
+
     service = new RefreshTokenService(
       tokenService,
       tokenHasher,
       sessionRepository,
       authAccountRepository,
+      authRateLimiter,
     );
   });
 
   it('rotates refresh token and returns a new access token when refresh token is valid', async () => {
     tokenService.generateRefreshToken.mockReturnValue('next-refresh-token');
 
-    const result = await service.execute('refresh-token');
+    const result = await service.execute('refresh-token', refreshRateLimit);
 
     expect(result).toEqual({
       accessToken: 'new-access-token',
@@ -94,6 +106,9 @@ describe('RefreshTokenService', () => {
     });
     expect(tokenService.verifyRefreshToken).toHaveBeenCalledWith(
       'refresh-token',
+    );
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      refreshRateLimit,
     );
     expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledWith(
       'old-refresh-token-hash',
@@ -114,9 +129,9 @@ describe('RefreshTokenService', () => {
   });
 
   it('throws when refresh token is missing', async () => {
-    await expect(service.execute(undefined)).rejects.toMatchObject<
-      Partial<DomainError>
-    >({
+    await expect(
+      service.execute(undefined, refreshRateLimit),
+    ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_REFRESH_TOKEN,
       statusCode: 401,
     });
@@ -126,9 +141,9 @@ describe('RefreshTokenService', () => {
   it('throws when session is not found', async () => {
     sessionRepository.findByRefreshTokenHash.mockResolvedValue(null);
 
-    await expect(service.execute('refresh-token')).rejects.toMatchObject<
-      Partial<DomainError>
-    >({
+    await expect(
+      service.execute('refresh-token', refreshRateLimit),
+    ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_REFRESH_TOKEN,
       statusCode: 401,
     });
@@ -138,9 +153,9 @@ describe('RefreshTokenService', () => {
   it('throws when refresh token rotation loses the race', async () => {
     sessionRepository.rotateRefreshToken.mockResolvedValue(false);
 
-    await expect(service.execute('refresh-token')).rejects.toMatchObject<
-      Partial<DomainError>
-    >({
+    await expect(
+      service.execute('refresh-token', refreshRateLimit),
+    ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_REFRESH_TOKEN,
       statusCode: 401,
     });

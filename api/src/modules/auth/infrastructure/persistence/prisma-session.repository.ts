@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { DatabaseTransaction } from '../../../../core/databases/unit-of-work.interface.js';
-import { mapPrismaError } from '../../../../core/mappers/prisma-error.mapper.js';
+import { mapPrismaError } from '../../../../infrastructure/database/prisma-error.mapper.js';
 import type { Prisma } from '../../../../generated/prisma/client.js';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service.js';
+import { PrismaTransactionContext } from '../../../../infrastructure/database/prisma-transaction-context.js';
 import {
   CreateSessionInput,
   SessionRepository,
@@ -14,17 +14,17 @@ type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 
 @Injectable()
 export class PrismaSessionRepository implements SessionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly txContext: PrismaTransactionContext,
+  ) {}
 
-  private getClient(tx?: DatabaseTransaction): PrismaClientLike {
-    return tx ? (tx as unknown as Prisma.TransactionClient) : this.prisma;
+  private getClient(): PrismaClientLike {
+    return this.txContext.getClient() ?? this.prisma;
   }
 
-  async create(
-    input: CreateSessionInput,
-    tx?: DatabaseTransaction,
-  ): Promise<Session> {
-    const client = this.getClient(tx);
+  async create(input: CreateSessionInput): Promise<Session> {
+    const client = this.getClient();
 
     try {
       const session = await client.session.create({
@@ -41,8 +41,10 @@ export class PrismaSessionRepository implements SessionRepository {
   async findByRefreshTokenHash(
     refreshTokenHash: string,
   ): Promise<Session | null> {
+    const client = this.getClient();
+
     try {
-      const session = await this.prisma.session.findUnique({
+      const session = await client.session.findUnique({
         where: { refreshTokenHash },
         select: this.selectSession(),
       });
@@ -59,8 +61,10 @@ export class PrismaSessionRepository implements SessionRepository {
     nextRefreshTokenHash: string;
     expiresAt: Date;
   }): Promise<boolean> {
+    const client = this.getClient();
+
     try {
-      const result = await this.prisma.session.updateMany({
+      const result = await client.session.updateMany({
         where: {
           id: input.sessionId,
           refreshTokenHash: input.currentRefreshTokenHash,
@@ -86,8 +90,10 @@ export class PrismaSessionRepository implements SessionRepository {
     refreshTokenHash: string,
     reason: string,
   ): Promise<void> {
+    const client = this.getClient();
+
     try {
-      await this.prisma.session.updateMany({
+      await client.session.updateMany({
         where: {
           refreshTokenHash,
           isRevoked: false,

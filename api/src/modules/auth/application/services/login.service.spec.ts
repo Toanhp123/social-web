@@ -9,6 +9,7 @@ import { TokenService } from '../../application/ports/token-service.port.js';
 import { TokenHasher } from '../ports/token-hasher.port.js';
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
 import { LoginService } from './login.service.js';
+import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
 
 describe('LoginService', () => {
   const authAccount = new AuthAccount(
@@ -23,7 +24,16 @@ describe('LoginService', () => {
   let sessionRepository: jest.Mocked<SessionRepository>;
   let tokenHasher: jest.Mocked<TokenHasher>;
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
+  let authRateLimiter: jest.Mocked<AuthRateLimiter>;
   let service: LoginService;
+
+  const loginContext = {
+    rateLimit: {
+      action: 'login' as const,
+      ip: '127.0.0.1',
+      subject: 'user@example.com',
+    },
+  };
 
   beforeEach(() => {
     tokenService = {
@@ -58,12 +68,17 @@ describe('LoginService', () => {
       hash: jest.fn().mockReturnValue('refresh-token-hash'),
     };
 
+    authRateLimiter = {
+      assertAllowed: jest.fn().mockResolvedValue(undefined),
+    };
+
     service = new LoginService(
       tokenService,
       passwordHasher,
       sessionRepository,
       tokenHasher,
       authAccountRepository,
+      authRateLimiter,
     );
   });
 
@@ -71,7 +86,11 @@ describe('LoginService', () => {
     authAccountRepository.findByEmail.mockResolvedValue(authAccount);
     passwordHasher.compare.mockResolvedValue(true);
 
-    const result = await service.execute('user@example.com', 'plain-password');
+    const result = await service.execute(
+      'user@example.com',
+      'plain-password',
+      loginContext,
+    );
 
     expect(result).toEqual({
       accessToken: 'access-token',
@@ -80,6 +99,9 @@ describe('LoginService', () => {
     });
     expect(authAccountRepository.findByEmail).toHaveBeenCalledWith(
       'user@example.com',
+    );
+    expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
+      loginContext.rateLimit,
     );
     expect(passwordHasher.compare).toHaveBeenCalledWith(
       'plain-password',
@@ -103,7 +125,7 @@ describe('LoginService', () => {
     authAccountRepository.findByEmail.mockResolvedValue(authAccount);
     passwordHasher.compare.mockResolvedValue(true);
 
-    await service.execute(' USER@example.com ', 'plain-password');
+    await service.execute(' USER@example.com ', 'plain-password', loginContext);
 
     expect(authAccountRepository.findByEmail).toHaveBeenCalledWith(
       'user@example.com',
@@ -112,7 +134,7 @@ describe('LoginService', () => {
 
   it('throws invalid email before looking up the account', async () => {
     await expect(
-      service.execute('invalid-email', 'plain-password'),
+      service.execute('invalid-email', 'plain-password', loginContext),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_EMAIL,
       statusCode: 400,
@@ -126,7 +148,7 @@ describe('LoginService', () => {
     authAccountRepository.findByEmail.mockResolvedValue(null);
 
     await expect(
-      service.execute('missing@example.com', 'plain-password'),
+      service.execute('missing@example.com', 'plain-password', loginContext),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_CREDENTIALS,
       statusCode: 401,
@@ -139,7 +161,7 @@ describe('LoginService', () => {
     passwordHasher.compare.mockResolvedValue(false);
 
     await expect(
-      service.execute('user@example.com', 'wrong-password'),
+      service.execute('user@example.com', 'wrong-password', loginContext),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_CREDENTIALS,
       statusCode: 401,
@@ -161,7 +183,7 @@ describe('LoginService', () => {
     passwordHasher.compare.mockResolvedValue(true);
 
     await expect(
-      service.execute('user@example.com', 'plain-password'),
+      service.execute('user@example.com', 'plain-password', loginContext),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.USER_DISABLED,
       statusCode: 403,
@@ -187,7 +209,7 @@ describe('LoginService', () => {
     passwordHasher.compare.mockResolvedValue(false);
 
     await expect(
-      service.execute('user@example.com', 'wrong-password'),
+      service.execute('user@example.com', 'wrong-password', loginContext),
     ).rejects.toMatchObject<Partial<DomainError>>({
       code: ErrorCode.INVALID_CREDENTIALS,
       statusCode: 401,

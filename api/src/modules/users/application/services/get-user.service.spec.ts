@@ -25,6 +25,7 @@ describe('GetUserService', () => {
 
   beforeEach(() => {
     userRepository = {
+      create: jest.fn(),
       findById: jest.fn().mockResolvedValue(user),
     };
     service = new GetUserService(userRepository);

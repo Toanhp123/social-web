@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
+  AUTH_RATE_LIMITER,
   PASSWORD_HASHER,
   SESSION_REPOSITORY,
   TOKEN_HASHER,
@@ -16,6 +17,15 @@ import { AuthSessionMetadata } from '../types/auth-session-metadata.type.js';
 import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
 import { EmailAddress } from '../../../../core/value-objects/email-address.js';
+import type {
+  AuthRateLimitInput,
+  AuthRateLimiter,
+} from '../ports/auth-rate-limiter.port.js';
+
+export type LoginContext = {
+  rateLimit: AuthRateLimitInput;
+  sessionMetadata?: AuthSessionMetadata;
+};
 
 @Injectable()
 export class LoginService {
@@ -34,18 +44,24 @@ export class LoginService {
 
     @Inject(AUTH_ACCOUNT_REPOSITORY)
     private readonly authAccountRepository: AuthAccountRepository,
+
+    @Inject(AUTH_RATE_LIMITER)
+    private readonly authRateLimiter: AuthRateLimiter,
   ) {}
 
   async execute(
     email: string,
     password: string,
-    sessionMetadata: AuthSessionMetadata = {},
+    context: LoginContext,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
+    await this.authRateLimiter.assertAllowed(context.rateLimit);
+
     const normalizedEmail = EmailAddress.normalizeAndValidate(email);
+    const sessionMetadata = context.sessionMetadata ?? {};
     const account =
       await this.authAccountRepository.findByEmail(normalizedEmail);
 

@@ -3,11 +3,13 @@ import { JwtPayload } from '../../domain/value-objects/jwt-payload.js';
 import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
 import {
   AUTH_ACCOUNT_REPOSITORY,
+  AUTH_RATE_LIMITER,
   PASSWORD_HASHER,
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
   UNIT_OF_WORK,
+  USER_REPOSITORY,
 } from './../../../../common/constants/provider-token.constant.js';
 import { DatabaseError } from '../../../../core/exceptions/database.exception.js';
 import { DomainError } from './../../../../core/exceptions/domain.exception.js';
@@ -21,12 +23,25 @@ import { PasswordPolicy } from '../../domain/policies/password.policy.js';
 import { RegistrationProfilePolicy } from '../../domain/policies/registration-profile.policy.js';
 import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
+import { UserRepository } from '../../../users/domain/repositories/user.repository.interface.js';
+import type {
+  AuthRateLimitInput,
+  AuthRateLimiter,
+} from '../ports/auth-rate-limiter.port.js';
+
+export type RegisterContext = {
+  rateLimit: AuthRateLimitInput;
+  sessionMetadata?: AuthSessionMetadata;
+};
 
 @Injectable()
 export class RegisterService {
   constructor(
     @Inject(AUTH_ACCOUNT_REPOSITORY)
     private readonly authAccountRepository: AuthAccountRepository,
+
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: UserRepository,
 
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenService,
@@ -42,6 +57,9 @@ export class RegisterService {
 
     @Inject(UNIT_OF_WORK)
     private readonly uow: UnitOfWork,
+
+    @Inject(AUTH_RATE_LIMITER)
+    private readonly authRateLimiter: AuthRateLimiter,
   ) {}
 
   async execute(
@@ -51,13 +69,16 @@ export class RegisterService {
       password: string;
       username?: string;
     },
-    sessionMetadata: AuthSessionMetadata = {},
+    context: RegisterContext,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
+    await this.authRateLimiter.assertAllowed(context.rateLimit);
+
     const profile = RegistrationProfilePolicy.normalize(input);
+    const sessionMetadata = context.sessionMetadata ?? {};
     const account = await this.authAccountRepository.findByEmail(profile.email);
 
     if (account) {
@@ -73,17 +94,18 @@ export class RegisterService {
     const passwordHash = await this.passwordHasher.hash(input.password);
 
     try {
-      return await this.uow.execute(async (tx) => {
-        const newAccount = await this.authAccountRepository.register(
-          {
-            fullName: profile.fullName,
-            email: profile.email,
-            username: profile.username,
-            passwordHash,
-            role: UserRole.USER,
-          },
-          tx,
-        );
+      return await this.uow.execute(async () => {
+        const newAccount = await this.authAccountRepository.register({
+          email: profile.email,
+          passwordHash,
+          role: UserRole.USER,
+        });
+
+        await this.userRepository.create({
+          id: newAccount.id,
+          fullName: profile.fullName,
+          username: profile.username,
+        });
 
         const payload = JwtPayload.fromAuthAccount(newAccount);
         const accessToken = this.tokenService.generateAccessToken(payload);
@@ -91,15 +113,12 @@ export class RegisterService {
         const refreshTokenExpiresAt =
           this.tokenService.getRefreshTokenExpiresAt();
 
-        await this.sessionRepository.create(
-          {
-            authAccountId: newAccount.id,
-            refreshTokenHash: this.tokenHasher.hash(refreshToken),
-            expiresAt: refreshTokenExpiresAt,
-            ...sessionMetadata,
-          },
-          tx,
-        );
+        await this.sessionRepository.create({
+          authAccountId: newAccount.id,
+          refreshTokenHash: this.tokenHasher.hash(refreshToken),
+          expiresAt: refreshTokenExpiresAt,
+          ...sessionMetadata,
+        });
 
         return { accessToken, refreshToken, refreshTokenExpiresAt };
       });
