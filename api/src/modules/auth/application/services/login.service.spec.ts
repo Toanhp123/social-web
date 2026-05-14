@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { AuthAccount } from '../../domain/entities/auth-account.entity.js';
-import { AuthAccountRepository } from '../../domain/repositories/auth-account.repository.interface.js';
-import { PasswordHasher } from '../../application/ports/password-hasher.port.js';
-import { TokenService } from '../../application/ports/token-service.port.js';
-import { TokenHasher } from '../ports/token-hasher.port.js';
-import { SessionRepository } from '../../domain/repositories/session.repository.interface.js';
-import { LoginService } from './login.service.js';
-import { AuthRateLimiter } from '../ports/auth-rate-limiter.port.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
+import { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
+import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { LoginService } from '@/modules/auth/application/services/login.service.js';
+import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 
 describe('LoginService', () => {
   const authAccount = new AuthAccount(

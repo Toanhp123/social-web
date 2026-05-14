@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { mapPrismaError } from '../../../../infrastructure/database/prisma-error.mapper.js';
-import type { Prisma } from '../../../../generated/prisma/client.js';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service.js';
-import { PrismaTransactionContext } from '../../../../infrastructure/database/prisma-transaction-context.js';
+import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
+import type { Prisma } from '@/generated/prisma/client.js';
+import { PrismaService } from '@/infrastructure/database/prisma.service.js';
+import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import {
   AuthAccountRepository,
   RegisterAuthAccountInput,
-} from '../../domain/repositories/auth-account.repository.interface.js';
-import { AuthAccount } from '../../domain/entities/auth-account.entity.js';
-import { AuthAccountMapper } from './mappers/auth-account.mapper.js';
+} from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { AuthAccountMapper } from '@/modules/auth/infrastructure/persistence/mappers/auth-account.mapper.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 

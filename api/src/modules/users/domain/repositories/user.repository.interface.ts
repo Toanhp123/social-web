@@ -1,4 +1,4 @@
-import { User } from '../entities/user.entity.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
 
 export type CreateUserInput = {
   id: string;

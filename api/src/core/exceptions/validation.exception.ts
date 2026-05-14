@@ -1,5 +1,5 @@
-import { BaseException } from './base.exception.js';
-import { ErrorCode } from './error-codes.js';
+import { BaseException } from '@/core/exceptions/base.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 export class ValidationError extends BaseException {
   constructor(errors: any[]) {

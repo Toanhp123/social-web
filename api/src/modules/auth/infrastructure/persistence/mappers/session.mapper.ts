@@ -1,5 +1,5 @@
-import { Prisma } from '../../../../../generated/prisma/client.js';
-import { Session } from '../../../domain/entities/session.entity.js';
+import { Prisma } from '@/generated/prisma/client.js';
+import { Session } from '@/modules/auth/domain/entities/session.entity.js';
 
 type SessionPayload = Prisma.SessionGetPayload<{
   select: {

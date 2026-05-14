@@ -1,6 +1,6 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { DatabaseError } from '../../core/exceptions/database.exception.js';
-import { ErrorCode } from '../../core/exceptions/error-codes.js';
+import { DatabaseError } from '@/core/exceptions/database.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 export function mapPrismaError(error: unknown): DatabaseError {
   if (error instanceof PrismaClientKnownRequestError) {

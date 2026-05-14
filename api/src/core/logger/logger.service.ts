@@ -1,6 +1,6 @@
 import { Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
-import { getRequestId } from '../context/request-context.service.js';
-import { redactValue } from './redaction.util.js';
+import { getRequestId } from '@/core/context/request-context.service.js';
+import { redactValue } from '@/core/logger/redaction.util.js';
 
 type LogLevel = 'log' | 'error' | 'warn' | 'debug' | 'verbose' | 'fatal';
 type LogMetadata = Record<string, unknown>;

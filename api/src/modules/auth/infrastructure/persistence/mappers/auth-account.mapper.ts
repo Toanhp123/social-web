@@ -1,8 +1,8 @@
-import { Prisma } from '../../../../../generated/prisma/client.js';
-import type { UserRole as PrismaUserRole } from '../../../../../generated/prisma/enums.js';
-import { UserRole } from '../../../../../core/security/enums/user-role.enum.js';
-import { AuthAccount } from '../../../domain/entities/auth-account.entity.js';
-import { RegisterAuthAccountInput } from '../../../domain/repositories/auth-account.repository.interface.js';
+import { Prisma } from '@/generated/prisma/client.js';
+import type { UserRole as PrismaUserRole } from '@/generated/prisma/enums.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { RegisterAuthAccountInput } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 
 type AuthAccountPayload = Prisma.AuthAccountGetPayload<{
   select: {

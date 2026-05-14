@@ -1,6 +1,6 @@
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
 
 export type ViewPrivateProfileAccessInput = {
   requesterId: string;

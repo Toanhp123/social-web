@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import { User } from './user.entity.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
 
 describe('User', () => {
   it('creates a normalized user with a required id', () => {

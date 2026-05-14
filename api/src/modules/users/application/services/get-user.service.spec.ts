@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { DomainError } from '../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import { UserRole } from '../../../../core/security/enums/user-role.enum.js';
-import type { AuthenticatedUser } from '../../../../core/security/types/authenticated-user.type.js';
-import { User } from '../../domain/entities/user.entity.js';
-import type { UserRepository } from '../../domain/repositories/user.repository.interface.js';
-import { GetUserService } from './get-user.service.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { UserRole } from '@/core/security/enums/user-role.enum.js';
+import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
+import type { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { GetUserService } from '@/modules/users/application/services/get-user.service.js';
 
 describe('GetUserService', () => {
   const user = new User(

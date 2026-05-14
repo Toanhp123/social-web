@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from '../../domain/entities/user.entity.js';
-import { UserRepository } from '../../domain/repositories/user.repository.interface.js';
-import { USER_REPOSITORY } from './../../../../common/constants/provider-token.constant.js';
-import { DomainError } from './../../../../core/exceptions/domain.exception.js';
-import { ErrorCode } from '../../../../core/exceptions/error-codes.js';
-import type { AuthenticatedUser } from '../../../../core/security/types/authenticated-user.type.js';
-import { UserProfileAccessPolicy } from '../../domain/policies/user-profile-access.policy.js';
+import { User } from '@/modules/users/domain/entities/user.entity.js';
+import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { USER_REPOSITORY } from '@/common/constants/provider-token.constant.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
+import { UserProfileAccessPolicy } from '@/modules/users/domain/policies/user-profile-access.policy.js';
 
 @Injectable()
 export class GetUserService {

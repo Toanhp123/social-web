@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { mapPrismaError } from '../../../../infrastructure/database/prisma-error.mapper.js';
-import type { Prisma } from '../../../../generated/prisma/client.js';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service.js';
-import { PrismaTransactionContext } from '../../../../infrastructure/database/prisma-transaction-context.js';
+import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
+import type { Prisma } from '@/generated/prisma/client.js';
+import { PrismaService } from '@/infrastructure/database/prisma.service.js';
+import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import {
   CreateSessionInput,
   SessionRepository,
-} from '../../domain/repositories/session.repository.interface.js';
-import { Session } from '../../domain/entities/session.entity.js';
-import { SessionMapper } from './mappers/session.mapper.js';
+} from '@/modules/auth/domain/repositories/session.repository.interface.js';
+import { Session } from '@/modules/auth/domain/entities/session.entity.js';
+import { SessionMapper } from '@/modules/auth/infrastructure/persistence/mappers/session.mapper.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 

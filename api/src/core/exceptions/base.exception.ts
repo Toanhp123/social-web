@@ -1,4 +1,4 @@
-import { ErrorCode } from './error-codes.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 export abstract class BaseException<T = unknown> extends Error {
   constructor(
