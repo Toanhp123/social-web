@@ -13,6 +13,7 @@ import { SessionRepository } from '@/modules/auth/domain/repositories/session.re
 import { RegisterService } from '@/modules/auth/application/services/register.service.js';
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
 import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
+import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 
 describe('RegisterService', () => {
   const createdAuthAccount = new AuthAccount(
@@ -29,6 +30,7 @@ describe('RegisterService', () => {
   let sessionRepository: jest.Mocked<SessionRepository>;
   let tokenHasher: jest.Mocked<TokenHasher>;
   let authRateLimiter: jest.Mocked<AuthRateLimiter>;
+  let deviceSessionService: jest.Mocked<DeviceSessionService>;
   let uow: UnitOfWork;
   let executeTransaction: jest.Mock;
   let service: RegisterService;
@@ -90,6 +92,10 @@ describe('RegisterService', () => {
       assertAllowed: jest.fn().mockResolvedValue(undefined),
     };
 
+    deviceSessionService = {
+      replaceActiveSessionForDevice: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<DeviceSessionService>;
+
     service = new RegisterService(
       authAccountRepository,
       userRepository,
@@ -99,6 +105,7 @@ describe('RegisterService', () => {
       tokenHasher,
       uow,
       authRateLimiter,
+      deviceSessionService,
     );
   });
 
@@ -167,9 +174,14 @@ describe('RegisterService', () => {
       },
     );
 
-    expect(sessionRepository.revokeActiveByDevice).toHaveBeenCalledWith({
+    expect(
+      deviceSessionService.replaceActiveSessionForDevice,
+    ).toHaveBeenCalledWith({
       authAccountId: 'user-1',
-      deviceId: 'device-1',
+      sessionMetadata: {
+        deviceId: 'device-1',
+        device: 'Chrome',
+      },
       reason: 'REPLACED_BY_REGISTER',
     });
     expect(sessionRepository.create).toHaveBeenCalledWith({

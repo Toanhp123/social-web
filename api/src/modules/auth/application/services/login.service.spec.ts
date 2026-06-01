@@ -10,6 +10,7 @@ import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { LoginService } from '@/modules/auth/application/services/login.service.js';
 import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
+import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 
 describe('LoginService', () => {
   const authAccount = new AuthAccount(
@@ -25,6 +26,7 @@ describe('LoginService', () => {
   let tokenHasher: jest.Mocked<TokenHasher>;
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
   let authRateLimiter: jest.Mocked<AuthRateLimiter>;
+  let deviceSessionService: jest.Mocked<DeviceSessionService>;
   let service: LoginService;
 
   const loginContext = {
@@ -73,6 +75,10 @@ describe('LoginService', () => {
       assertAllowed: jest.fn().mockResolvedValue(undefined),
     };
 
+    deviceSessionService = {
+      replaceActiveSessionForDevice: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<DeviceSessionService>;
+
     service = new LoginService(
       tokenService,
       passwordHasher,
@@ -80,6 +86,7 @@ describe('LoginService', () => {
       tokenHasher,
       authAccountRepository,
       authRateLimiter,
+      deviceSessionService,
     );
   });
 
@@ -134,9 +141,14 @@ describe('LoginService', () => {
       },
     });
 
-    expect(sessionRepository.revokeActiveByDevice).toHaveBeenCalledWith({
+    expect(
+      deviceSessionService.replaceActiveSessionForDevice,
+    ).toHaveBeenCalledWith({
       authAccountId: 'user-1',
-      deviceId: 'device-1',
+      sessionMetadata: {
+        deviceId: 'device-1',
+        device: 'Chrome',
+      },
       reason: 'REPLACED_BY_LOGIN',
     });
     expect(sessionRepository.create).toHaveBeenCalledWith({

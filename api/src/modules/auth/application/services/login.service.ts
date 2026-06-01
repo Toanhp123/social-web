@@ -17,6 +17,7 @@ import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-sessi
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { EmailAddress } from '@/core/value-objects/email-address.js';
+import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
@@ -47,6 +48,8 @@ export class LoginService {
 
     @Inject(AUTH_RATE_LIMITER)
     private readonly authRateLimiter: AuthRateLimiter,
+
+    private readonly deviceSessionService: DeviceSessionService,
   ) {}
 
   async execute(
@@ -97,7 +100,11 @@ export class LoginService {
     const refreshToken = this.tokenService.generateRefreshToken(payload);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
-    await this.revokePreviousDeviceSession(account.id, sessionMetadata);
+    await this.deviceSessionService.replaceActiveSessionForDevice({
+      authAccountId: account.id,
+      sessionMetadata,
+      reason: 'REPLACED_BY_LOGIN',
+    });
 
     await this.sessionRepository.create({
       authAccountId: account.id,
@@ -107,20 +114,5 @@ export class LoginService {
     });
 
     return { accessToken, refreshToken, refreshTokenExpiresAt };
-  }
-
-  private async revokePreviousDeviceSession(
-    authAccountId: string,
-    sessionMetadata: AuthSessionMetadata,
-  ): Promise<void> {
-    if (!sessionMetadata.deviceId) {
-      return;
-    }
-
-    await this.sessionRepository.revokeActiveByDevice({
-      authAccountId,
-      deviceId: sessionMetadata.deviceId,
-      reason: 'REPLACED_BY_LOGIN',
-    });
   }
 }
