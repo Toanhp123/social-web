@@ -59,6 +59,7 @@ describe('LoginService', () => {
 
     sessionRepository = {
       create: jest.fn(),
+      revokeActiveByDevice: jest.fn(),
       findByRefreshTokenHash: jest.fn(),
       rotateRefreshToken: jest.fn(),
       revokeByRefreshTokenHash: jest.fn(),
@@ -118,6 +119,32 @@ describe('LoginService', () => {
       authAccountId: 'user-1',
       refreshTokenHash: 'refresh-token-hash',
       expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+    });
+  });
+
+  it('revokes an active session for the same device before creating a new one', async () => {
+    authAccountRepository.findByEmail.mockResolvedValue(authAccount);
+    passwordHasher.compare.mockResolvedValue(true);
+
+    await service.execute('user@example.com', 'plain-password', {
+      ...loginContext,
+      sessionMetadata: {
+        deviceId: 'device-1',
+        device: 'Chrome',
+      },
+    });
+
+    expect(sessionRepository.revokeActiveByDevice).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      deviceId: 'device-1',
+      reason: 'REPLACED_BY_LOGIN',
+    });
+    expect(sessionRepository.create).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      refreshTokenHash: 'refresh-token-hash',
+      expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      deviceId: 'device-1',
+      device: 'Chrome',
     });
   });
 

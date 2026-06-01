@@ -113,6 +113,8 @@ export class RegisterService {
         const refreshTokenExpiresAt =
           this.tokenService.getRefreshTokenExpiresAt();
 
+        await this.revokePreviousDeviceSession(newAccount.id, sessionMetadata);
+
         await this.sessionRepository.create({
           authAccountId: newAccount.id,
           refreshTokenHash: this.tokenHasher.hash(refreshToken),
@@ -168,5 +170,20 @@ export class RegisterService {
     }
 
     return typeof target === 'string' && target.includes(field);
+  }
+
+  private async revokePreviousDeviceSession(
+    authAccountId: string,
+    sessionMetadata: AuthSessionMetadata,
+  ): Promise<void> {
+    if (!sessionMetadata.deviceId) {
+      return;
+    }
+
+    await this.sessionRepository.revokeActiveByDevice({
+      authAccountId,
+      deviceId: sessionMetadata.deviceId,
+      reason: 'REPLACED_BY_REGISTER',
+    });
   }
 }
