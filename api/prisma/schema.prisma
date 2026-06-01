@@ -327,17 +327,32 @@ model Session {
   revokeReason String?
   revokedAt    DateTime?
 
-  createdAt  DateTime  @default(now())
-  expiresAt  DateTime
-  lastUsedAt DateTime?
+  createdAt             DateTime  @default(now())
+  expiresAt             DateTime
+  lastUsedAt            DateTime?
+  refreshTokenRotatedAt DateTime?
 
-  authAccount AuthAccount @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
+  authAccount          AuthAccount           @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
+  rotatedRefreshTokens RotatedRefreshToken[]
 
   @@index([authAccountId])
   @@index([authAccountId, createdAt(sort: Desc)])
   @@index([authAccountId, isRevoked])
   @@index([expiresAt])
   @@index([isRevoked, expiresAt])
+}
+
+model RotatedRefreshToken {
+  refreshTokenHash String @id
+  sessionId        String
+
+  rotatedAt DateTime @default(now())
+  expiresAt DateTime
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([expiresAt])
 }
 
 model RateLimit {

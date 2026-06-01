@@ -50,6 +50,7 @@ describe('RefreshTokenService', () => {
     sessionRepository = {
       create: jest.fn(),
       revokeActiveByDevice: jest.fn(),
+      revokeActiveByAuthAccount: jest.fn(),
       findByRefreshTokenHash: jest
         .fn()
         .mockResolvedValue(
@@ -63,6 +64,7 @@ describe('RefreshTokenService', () => {
             null,
           ),
         ),
+      findByRotatedRefreshTokenHash: jest.fn().mockResolvedValue(null),
       rotateRefreshToken: jest.fn().mockResolvedValue(true),
       revokeByRefreshTokenHash: jest.fn(),
     };
@@ -124,8 +126,9 @@ describe('RefreshTokenService', () => {
     expect(sessionRepository.rotateRefreshToken).toHaveBeenCalledWith({
       sessionId: 'session-1',
       currentRefreshTokenHash: 'old-refresh-token-hash',
+      currentRefreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
       nextRefreshTokenHash: 'new-refresh-token-hash',
-      expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      nextRefreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
   });
 
@@ -148,6 +151,37 @@ describe('RefreshTokenService', () => {
       code: ErrorCode.INVALID_REFRESH_TOKEN,
       statusCode: 401,
     });
+    expect(
+      sessionRepository.findByRotatedRefreshTokenHash,
+    ).toHaveBeenCalledWith('old-refresh-token-hash');
+    expect(sessionRepository.revokeActiveByAuthAccount).not.toHaveBeenCalled();
+    expect(sessionRepository.rotateRefreshToken).not.toHaveBeenCalled();
+  });
+
+  it('revokes active account sessions when a rotated refresh token is reused', async () => {
+    sessionRepository.findByRefreshTokenHash.mockResolvedValue(null);
+    sessionRepository.findByRotatedRefreshTokenHash.mockResolvedValue(
+      new Session(
+        'session-1',
+        'user-1',
+        'new-refresh-token-hash',
+        false,
+        new Date('2030-01-01T00:00:00.000Z'),
+        new Date('2029-01-01T00:00:00.000Z'),
+        new Date('2029-06-01T00:00:00.000Z'),
+      ),
+    );
+
+    await expect(
+      service.execute('refresh-token', refreshRateLimit),
+    ).rejects.toMatchObject<Partial<DomainError>>({
+      code: ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
+      statusCode: 401,
+    });
+    expect(sessionRepository.revokeActiveByAuthAccount).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      reason: 'REFRESH_TOKEN_REUSE',
+    });
     expect(sessionRepository.rotateRefreshToken).not.toHaveBeenCalled();
   });
 
@@ -157,8 +191,12 @@ describe('RefreshTokenService', () => {
     await expect(
       service.execute('refresh-token', refreshRateLimit),
     ).rejects.toMatchObject<Partial<DomainError>>({
-      code: ErrorCode.INVALID_REFRESH_TOKEN,
+      code: ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
       statusCode: 401,
+    });
+    expect(sessionRepository.revokeActiveByAuthAccount).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      reason: 'REFRESH_TOKEN_REUSE',
     });
   });
 });

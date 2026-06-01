@@ -55,6 +55,29 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
+  async findByRotatedRefreshTokenHash(
+    refreshTokenHash: string,
+  ): Promise<Session | null> {
+    const client = this.getClient();
+
+    try {
+      const rotatedRefreshToken = await client.rotatedRefreshToken.findUnique({
+        where: { refreshTokenHash },
+        select: {
+          session: {
+            select: this.selectSession(),
+          },
+        },
+      });
+
+      return rotatedRefreshToken
+        ? SessionMapper.toDomain(rotatedRefreshToken.session)
+        : null;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   async revokeActiveByDevice(input: {
     authAccountId: string;
     deviceId: string;
@@ -83,35 +106,97 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
-  async rotateRefreshToken(input: {
-    sessionId: string;
-    currentRefreshTokenHash: string;
-    nextRefreshTokenHash: string;
-    expiresAt: Date;
-  }): Promise<boolean> {
+  async revokeActiveByAuthAccount(input: {
+    authAccountId: string;
+    reason: string;
+  }): Promise<void> {
     const client = this.getClient();
 
     try {
-      const result = await client.session.updateMany({
+      await client.session.updateMany({
         where: {
-          id: input.sessionId,
-          refreshTokenHash: input.currentRefreshTokenHash,
+          authAccountId: input.authAccountId,
           isRevoked: false,
           expiresAt: {
             gt: new Date(),
           },
         },
         data: {
-          refreshTokenHash: input.nextRefreshTokenHash,
-          expiresAt: input.expiresAt,
-          lastUsedAt: new Date(),
+          isRevoked: true,
+          revokeReason: input.reason,
+          revokedAt: new Date(),
         },
       });
-
-      return result.count === 1;
     } catch (error) {
       throw mapPrismaError(error);
     }
+  }
+
+  async rotateRefreshToken(input: {
+    sessionId: string;
+    currentRefreshTokenHash: string;
+    currentRefreshTokenExpiresAt: Date;
+    nextRefreshTokenHash: string;
+    nextRefreshTokenExpiresAt: Date;
+  }): Promise<boolean> {
+    const txClient = this.txContext.getClient();
+
+    try {
+      if (txClient) {
+        return await this.rotateRefreshTokenWithClient(txClient, input);
+      }
+
+      return await this.prisma.$transaction((tx) =>
+        this.rotateRefreshTokenWithClient(tx, input),
+      );
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  private async rotateRefreshTokenWithClient(
+    client: PrismaClientLike,
+    input: {
+      sessionId: string;
+      currentRefreshTokenHash: string;
+      currentRefreshTokenExpiresAt: Date;
+      nextRefreshTokenHash: string;
+      nextRefreshTokenExpiresAt: Date;
+    },
+  ): Promise<boolean> {
+    const now = new Date();
+
+    const result = await client.session.updateMany({
+      where: {
+        id: input.sessionId,
+        refreshTokenHash: input.currentRefreshTokenHash,
+        isRevoked: false,
+        expiresAt: {
+          gt: now,
+        },
+      },
+      data: {
+        refreshTokenHash: input.nextRefreshTokenHash,
+        expiresAt: input.nextRefreshTokenExpiresAt,
+        lastUsedAt: now,
+        refreshTokenRotatedAt: now,
+      },
+    });
+
+    if (result.count !== 1) {
+      return false;
+    }
+
+    await client.rotatedRefreshToken.create({
+      data: {
+        refreshTokenHash: input.currentRefreshTokenHash,
+        sessionId: input.sessionId,
+        rotatedAt: now,
+        expiresAt: input.currentRefreshTokenExpiresAt,
+      },
+    });
+
+    return true;
   }
 
   async revokeByRefreshTokenHash(

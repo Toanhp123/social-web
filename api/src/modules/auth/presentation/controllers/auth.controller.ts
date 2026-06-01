@@ -10,6 +10,8 @@ import { AuthResponseDto } from '@/modules/auth/presentation/dto/auth-response.d
 import { LogoutService } from '@/modules/auth/application/services/logout.service.js';
 import { AuthRequestContextFactory } from '@/modules/auth/presentation/http/auth-request-context.factory.js';
 import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refresh-token-cookie.service.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 @Controller('auth')
 export class AuthController {
@@ -73,18 +75,26 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
-    const {
-      accessToken,
-      refreshToken: nextRefreshToken,
-      refreshTokenExpiresAt,
-    } = await this.refreshTokenService.execute(
-      refreshToken,
-      this.requestContextFactory.createRateLimitInput(req, 'refresh'),
-    );
+    try {
+      const {
+        accessToken,
+        refreshToken: nextRefreshToken,
+        refreshTokenExpiresAt,
+      } = await this.refreshTokenService.execute(
+        refreshToken,
+        this.requestContextFactory.createRateLimitInput(req, 'refresh'),
+      );
 
-    this.refreshTokenCookie.set(res, nextRefreshToken, refreshTokenExpiresAt);
+      this.refreshTokenCookie.set(res, nextRefreshToken, refreshTokenExpiresAt);
 
-    return AuthResponseDto.fromAccessToken(accessToken);
+      return AuthResponseDto.fromAccessToken(accessToken);
+    } catch (error) {
+      if (this.isRefreshTokenFailure(error)) {
+        this.refreshTokenCookie.clear(res);
+      }
+
+      throw error;
+    }
   }
 
   @Post('logout')
@@ -95,5 +105,15 @@ export class AuthController {
   ): Promise<void> {
     await this.logoutService.execute(refreshToken);
     this.refreshTokenCookie.clear(res);
+  }
+
+  private isRefreshTokenFailure(error: unknown): boolean {
+    return (
+      error instanceof DomainError &&
+      [
+        ErrorCode.INVALID_REFRESH_TOKEN,
+        ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
+      ].includes(error.code)
+    );
   }
 }
