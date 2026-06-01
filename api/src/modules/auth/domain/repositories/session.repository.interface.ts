@@ -13,6 +13,12 @@ export type CreateSessionInput = {
 export abstract class SessionRepository {
   abstract create(input: CreateSessionInput): Promise<Session>;
 
+  abstract revokeActiveByDevice(input: {
+    authAccountId: string;
+    deviceId: string;
+    reason: string;
+  }): Promise<void>;
+
   abstract findByRefreshTokenHash(
     refreshTokenHash: string,
   ): Promise<Session | null>;

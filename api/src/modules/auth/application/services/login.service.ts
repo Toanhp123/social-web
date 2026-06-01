@@ -97,6 +97,8 @@ export class LoginService {
     const refreshToken = this.tokenService.generateRefreshToken(payload);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
+    await this.revokePreviousDeviceSession(account.id, sessionMetadata);
+
     await this.sessionRepository.create({
       authAccountId: account.id,
       refreshTokenHash: this.tokenHasher.hash(refreshToken),
@@ -105,5 +107,20 @@ export class LoginService {
     });
 
     return { accessToken, refreshToken, refreshTokenExpiresAt };
+  }
+
+  private async revokePreviousDeviceSession(
+    authAccountId: string,
+    sessionMetadata: AuthSessionMetadata,
+  ): Promise<void> {
+    if (!sessionMetadata.deviceId) {
+      return;
+    }
+
+    await this.sessionRepository.revokeActiveByDevice({
+      authAccountId,
+      deviceId: sessionMetadata.deviceId,
+      reason: 'REPLACED_BY_LOGIN',
+    });
   }
 }

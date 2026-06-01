@@ -76,6 +76,7 @@ describe('RegisterService', () => {
 
     sessionRepository = {
       create: jest.fn(),
+      revokeActiveByDevice: jest.fn(),
       findByRefreshTokenHash: jest.fn(),
       rotateRefreshToken: jest.fn(),
       revokeByRefreshTokenHash: jest.fn(),
@@ -144,6 +145,39 @@ describe('RegisterService', () => {
       authAccountId: 'user-1',
       refreshTokenHash: 'refresh-token-hash',
       expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+    });
+  });
+
+  it('revokes an active session for the same device before creating a registration session', async () => {
+    authAccountRepository.findByEmail.mockResolvedValue(null);
+    authAccountRepository.register.mockResolvedValue(createdAuthAccount);
+
+    await service.execute(
+      {
+        fullName: 'Example User',
+        email: 'USER@example.com',
+        password: 'secret123',
+      },
+      {
+        ...registerContext,
+        sessionMetadata: {
+          deviceId: 'device-1',
+          device: 'Chrome',
+        },
+      },
+    );
+
+    expect(sessionRepository.revokeActiveByDevice).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      deviceId: 'device-1',
+      reason: 'REPLACED_BY_REGISTER',
+    });
+    expect(sessionRepository.create).toHaveBeenCalledWith({
+      authAccountId: 'user-1',
+      refreshTokenHash: 'refresh-token-hash',
+      expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      deviceId: 'device-1',
+      device: 'Chrome',
     });
   });
 

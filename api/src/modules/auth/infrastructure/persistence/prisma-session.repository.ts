@@ -55,6 +55,34 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
+  async revokeActiveByDevice(input: {
+    authAccountId: string;
+    deviceId: string;
+    reason: string;
+  }): Promise<void> {
+    const client = this.getClient();
+
+    try {
+      await client.session.updateMany({
+        where: {
+          authAccountId: input.authAccountId,
+          deviceId: input.deviceId,
+          isRevoked: false,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+        data: {
+          isRevoked: true,
+          revokeReason: input.reason,
+          revokedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   async rotateRefreshToken(input: {
     sessionId: string;
     currentRefreshTokenHash: string;

@@ -49,6 +49,7 @@ describe('RefreshTokenService', () => {
 
     sessionRepository = {
       create: jest.fn(),
+      revokeActiveByDevice: jest.fn(),
       findByRefreshTokenHash: jest
         .fn()
         .mockResolvedValue(

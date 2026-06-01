@@ -15,6 +15,7 @@ describe('LogoutService', () => {
 
     sessionRepository = {
       create: jest.fn(),
+      revokeActiveByDevice: jest.fn(),
       findByRefreshTokenHash: jest.fn(),
       rotateRefreshToken: jest.fn(),
       revokeByRefreshTokenHash: jest.fn(),
