@@ -61,6 +61,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     try {
       const createdAccount = await client.authAccount.create({
         data: AuthAccountMapper.toPersistence(input, accountId),
+        select: this.selectAuthAccount(),
       });
 
       return AuthAccountMapper.toDomain(createdAccount);
