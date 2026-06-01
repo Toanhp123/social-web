@@ -1,3 +1,1 @@
-export default function Home() {
-  return <div>Hello World</div>;
-}
+export { HomePage as default } from "@/views/home";
