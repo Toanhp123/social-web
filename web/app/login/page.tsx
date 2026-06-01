@@ -1,3 +1,1 @@
-export default function Home() {
-  return <div>Login Page</div>;
-}
+export { LoginPage as default } from "@/views/login";
