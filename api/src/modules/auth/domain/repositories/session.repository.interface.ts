@@ -19,15 +19,25 @@ export abstract class SessionRepository {
     reason: string;
   }): Promise<void>;
 
+  abstract revokeActiveByAuthAccount(input: {
+    authAccountId: string;
+    reason: string;
+  }): Promise<void>;
+
   abstract findByRefreshTokenHash(
+    refreshTokenHash: string,
+  ): Promise<Session | null>;
+
+  abstract findByRotatedRefreshTokenHash(
     refreshTokenHash: string,
   ): Promise<Session | null>;
 
   abstract rotateRefreshToken(input: {
     sessionId: string;
     currentRefreshTokenHash: string;
+    currentRefreshTokenExpiresAt: Date;
     nextRefreshTokenHash: string;
-    expiresAt: Date;
+    nextRefreshTokenExpiresAt: Date;
   }): Promise<boolean>;
 
   abstract revokeByRefreshTokenHash(

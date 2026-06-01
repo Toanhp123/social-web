@@ -62,7 +62,9 @@ describe('LoginService', () => {
     sessionRepository = {
       create: jest.fn(),
       revokeActiveByDevice: jest.fn(),
+      revokeActiveByAuthAccount: jest.fn(),
       findByRefreshTokenHash: jest.fn(),
+      findByRotatedRefreshTokenHash: jest.fn(),
       rotateRefreshToken: jest.fn(),
       revokeByRefreshTokenHash: jest.fn(),
     };

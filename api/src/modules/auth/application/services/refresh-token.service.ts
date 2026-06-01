@@ -61,11 +61,18 @@ export class RefreshTokenService {
       currentRefreshTokenHash,
     );
 
-    if (
-      !session ||
-      session.authAccountId !== payload.id ||
-      !session.isActive()
-    ) {
+    if (!session) {
+      const isRefreshTokenReuse = await this.handleMissingCurrentSession(
+        currentRefreshTokenHash,
+        payload,
+      );
+
+      throw isRefreshTokenReuse
+        ? this.createRefreshTokenReuseError()
+        : this.createInvalidRefreshTokenError();
+    }
+
+    if (session.authAccountId !== payload.id || !session.isActive()) {
       throw new DomainError(
         ErrorCode.INVALID_REFRESH_TOKEN,
         'Invalid refresh token',
@@ -93,16 +100,15 @@ export class RefreshTokenService {
     const rotated = await this.sessionRepository.rotateRefreshToken({
       sessionId: session.id,
       currentRefreshTokenHash,
+      currentRefreshTokenExpiresAt: session.expiresAt,
       nextRefreshTokenHash,
-      expiresAt: refreshTokenExpiresAt,
+      nextRefreshTokenExpiresAt: refreshTokenExpiresAt,
     });
 
     if (!rotated) {
-      throw new DomainError(
-        ErrorCode.INVALID_REFRESH_TOKEN,
-        'Invalid refresh token',
-        401,
-      );
+      await this.revokeSessionsAfterRefreshTokenReuse(session.authAccountId);
+
+      throw this.createRefreshTokenReuseError();
     }
 
     return {
@@ -110,5 +116,50 @@ export class RefreshTokenService {
       refreshToken: nextRefreshToken,
       refreshTokenExpiresAt,
     };
+  }
+
+  private async handleMissingCurrentSession(
+    refreshTokenHash: string,
+    payload: JwtPayload,
+  ): Promise<boolean> {
+    const rotatedSession =
+      await this.sessionRepository.findByRotatedRefreshTokenHash(
+        refreshTokenHash,
+      );
+
+    if (!rotatedSession || rotatedSession.authAccountId !== payload.id) {
+      return false;
+    }
+
+    await this.revokeSessionsAfterRefreshTokenReuse(
+      rotatedSession.authAccountId,
+    );
+
+    return true;
+  }
+
+  private async revokeSessionsAfterRefreshTokenReuse(
+    authAccountId: string,
+  ): Promise<void> {
+    await this.sessionRepository.revokeActiveByAuthAccount({
+      authAccountId,
+      reason: 'REFRESH_TOKEN_REUSE',
+    });
+  }
+
+  private createInvalidRefreshTokenError(): DomainError {
+    return new DomainError(
+      ErrorCode.INVALID_REFRESH_TOKEN,
+      'Invalid refresh token',
+      401,
+    );
+  }
+
+  private createRefreshTokenReuseError(): DomainError {
+    return new DomainError(
+      ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
+      'Refresh token reuse detected',
+      401,
+    );
   }
 }
