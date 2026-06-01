@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/shared/lib/utils";
+import { QueryProvider } from "@/app/providers/query-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -37,7 +38,9 @@ export default function RootLayout({
         inter.variable,
       )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }
