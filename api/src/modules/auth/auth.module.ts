@@ -8,6 +8,7 @@ import { AuthRequestContextFactory } from '@/modules/auth/presentation/http/auth
 import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refresh-token-cookie.service.js';
 import { UserModule } from '@/modules/users/user.module.js';
 import { AuthInfrastructureModule } from '@/modules/auth/infrastructure/auth-infrastructure.module.js';
+import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 
 @Module({
   imports: [AuthInfrastructureModule, UserModule],
@@ -15,6 +16,7 @@ import { AuthInfrastructureModule } from '@/modules/auth/infrastructure/auth-inf
   providers: [
     LoginService,
     RegisterService,
+    DeviceSessionService,
     RefreshTokenService,
     LogoutService,
     AuthRequestContextFactory,

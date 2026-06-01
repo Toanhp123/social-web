@@ -24,6 +24,7 @@ import { RegistrationProfilePolicy } from '@/modules/auth/domain/policies/regist
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
@@ -60,6 +61,8 @@ export class RegisterService {
 
     @Inject(AUTH_RATE_LIMITER)
     private readonly authRateLimiter: AuthRateLimiter,
+
+    private readonly deviceSessionService: DeviceSessionService,
   ) {}
 
   async execute(
@@ -113,7 +116,11 @@ export class RegisterService {
         const refreshTokenExpiresAt =
           this.tokenService.getRefreshTokenExpiresAt();
 
-        await this.revokePreviousDeviceSession(newAccount.id, sessionMetadata);
+        await this.deviceSessionService.replaceActiveSessionForDevice({
+          authAccountId: newAccount.id,
+          sessionMetadata,
+          reason: 'REPLACED_BY_REGISTER',
+        });
 
         await this.sessionRepository.create({
           authAccountId: newAccount.id,
@@ -170,20 +177,5 @@ export class RegisterService {
     }
 
     return typeof target === 'string' && target.includes(field);
-  }
-
-  private async revokePreviousDeviceSession(
-    authAccountId: string,
-    sessionMetadata: AuthSessionMetadata,
-  ): Promise<void> {
-    if (!sessionMetadata.deviceId) {
-      return;
-    }
-
-    await this.sessionRepository.revokeActiveByDevice({
-      authAccountId,
-      deviceId: sessionMetadata.deviceId,
-      reason: 'REPLACED_BY_REGISTER',
-    });
   }
 }
