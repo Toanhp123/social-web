@@ -6,11 +6,15 @@ import type { LoginRequestDto, LoginResultDto } from "../model/login.types";
 
 export async function authLoginApi(
   body: LoginRequestDto,
+  deviceId: string,
 ): Promise<LoginResultDto> {
   const { data, response } = await apiFetchWithResponse<{ accessToken: string }>(
     "/auth/login",
     {
       method: "POST",
+      headers: {
+        "x-device-id": deviceId,
+      },
       body: JSON.stringify(body),
     },
   );

@@ -9,11 +9,15 @@ import type {
 
 export async function authRegisterApi(
   body: RegisterRequestDto,
+  deviceId: string,
 ): Promise<RegisterResultDto> {
   const { data, response } = await apiFetchWithResponse<{ accessToken: string }>(
     "/auth/register",
     {
       method: "POST",
+      headers: {
+        "x-device-id": deviceId,
+      },
       body: JSON.stringify(body),
     },
   );

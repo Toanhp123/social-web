@@ -1,6 +1,6 @@
 "use server";
 
-import { setAuthCookies } from "@/entities/session/server";
+import { getOrCreateDeviceId, setAuthCookies } from "@/entities/session/server";
 import { ApiError } from "@/shared/api/api-error";
 import { authRegisterApi } from "../api/register-api.server";
 import { registerSchema } from "./register.schema";
@@ -27,7 +27,10 @@ export async function registerAction(
   }
 
   try {
-    const result = await authRegisterApi(parsedInput.data);
+    const result = await authRegisterApi(
+      parsedInput.data,
+      await getOrCreateDeviceId(),
+    );
 
     await setAuthCookies({
       accessToken: result.accessToken,
