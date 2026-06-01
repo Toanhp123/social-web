@@ -3,6 +3,7 @@ import { apiFetchWithResponse } from "@/shared/api/api-fetch.server";
 import { readResponseCookie } from "@/shared/lib/set-cookie";
 import {
   clearAuthCookies,
+  getOrCreateDeviceId,
   getRefreshToken,
   setAuthCookies,
 } from "./auth-cookie.server";
@@ -32,6 +33,7 @@ export async function refreshAuthSession() {
         method: "POST",
         headers: {
           Cookie: `${REFRESH_TOKEN_COOKIE_NAME}=${encodeURIComponent(refreshToken)}`,
+          "x-device-id": await getOrCreateDeviceId(),
         },
       },
     );

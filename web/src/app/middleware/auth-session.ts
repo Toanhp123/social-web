@@ -1,6 +1,7 @@
 import type { NextRequest, NextResponse } from "next/server";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
+  DEVICE_ID_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
 } from "@/entities/session";
 import { env } from "@/shared/config/env.server";
@@ -8,6 +9,7 @@ import { readResponseCookie } from "@/shared/lib/set-cookie";
 
 const ACCESS_TOKEN_MAX_AGE_SECONDS = 60 * 15;
 const REFRESH_TOKEN_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+const DEVICE_ID_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 const EXPIRATION_SKEW_SECONDS = 30;
 
 type RefreshResponseDto = {
@@ -24,9 +26,32 @@ export function hasRefreshToken(request: NextRequest) {
   return Boolean(request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value);
 }
 
+export function getMiddlewareDeviceId(request: NextRequest) {
+  return request.cookies.get(DEVICE_ID_COOKIE_NAME)?.value ?? crypto.randomUUID();
+}
+
+export function persistDeviceIdIfMissing(
+  request: NextRequest,
+  response: NextResponse,
+  deviceId: string,
+) {
+  if (request.cookies.has(DEVICE_ID_COOKIE_NAME)) {
+    return;
+  }
+
+  response.cookies.set(DEVICE_ID_COOKIE_NAME, deviceId, {
+    httpOnly: true,
+    secure: env.IS_PRODUCTION,
+    sameSite: "lax",
+    path: "/",
+    maxAge: DEVICE_ID_MAX_AGE_SECONDS,
+  });
+}
+
 export async function refreshAuthSessionInMiddleware(
   request: NextRequest,
   response: NextResponse,
+  deviceId: string,
 ) {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
 
@@ -40,6 +65,7 @@ export async function refreshAuthSessionInMiddleware(
     method: "POST",
     headers: {
       Cookie: `${REFRESH_TOKEN_COOKIE_NAME}=${encodeURIComponent(refreshToken)}`,
+      "x-device-id": deviceId,
     },
     cache: "no-store",
   });

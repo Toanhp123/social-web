@@ -1,6 +1,6 @@
 "use server";
 
-import { setAuthCookies } from "@/entities/session/server";
+import { getOrCreateDeviceId, setAuthCookies } from "@/entities/session/server";
 import { ApiError } from "@/shared/api/api-error";
 import { authLoginApi } from "../api/login-api.server";
 import { loginSchema } from "./login.schema";
@@ -22,7 +22,10 @@ export async function loginAction(formData: FormData): Promise<LoginActionResult
   }
 
   try {
-    const result = await authLoginApi(parsedInput.data);
+    const result = await authLoginApi(
+      parsedInput.data,
+      await getOrCreateDeviceId(),
+    );
 
     await setAuthCookies({
       accessToken: result.accessToken,

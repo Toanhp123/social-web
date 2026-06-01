@@ -1,6 +1,8 @@
 export {
   clearAuthCookies,
   getAccessToken,
+  getDeviceId,
+  getOrCreateDeviceId,
   getRefreshToken,
   setAuthCookies,
 } from "./lib/auth-cookie.server";

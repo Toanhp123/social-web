@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   clearAuthCookies,
+  getMiddlewareDeviceId,
   hasFreshAccessToken,
   hasRefreshToken,
+  persistDeviceIdIfMissing,
   refreshAuthSessionInMiddleware,
 } from "./auth-session";
 import { PROTECTED_ROUTES } from "./protected-routes";
@@ -15,29 +17,44 @@ import { getPostAuthRedirectPath } from "@/shared/lib/auth-redirect";
 
 export async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const deviceId = getMiddlewareDeviceId(request);
 
   if (isProtectedPath(pathname)) {
-    return handleProtectedRoute(request);
+    return handleProtectedRoute(request, deviceId);
   }
 
   if (isAuthPath(pathname)) {
-    return handleAuthRoute(request);
+    return handleAuthRoute(request, deviceId);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  persistDeviceIdIfMissing(request, response, deviceId);
+
+  return response;
 }
 
-async function handleProtectedRoute(request: NextRequest) {
+async function handleProtectedRoute(request: NextRequest, deviceId: string) {
   if (hasFreshAccessToken(request)) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+
+    persistDeviceIdIfMissing(request, response, deviceId);
+
+    return response;
   }
 
   const response = NextResponse.next();
 
   if (hasRefreshToken(request)) {
-    const refreshed = await refreshAuthSessionInMiddleware(request, response);
+    const refreshed = await refreshAuthSessionInMiddleware(
+      request,
+      response,
+      deviceId,
+    );
 
     if (refreshed) {
+      persistDeviceIdIfMissing(request, response, deviceId);
+
       return response;
     }
   }
@@ -47,24 +64,37 @@ async function handleProtectedRoute(request: NextRequest) {
   );
 
   clearAuthCookies(redirectResponse);
+  persistDeviceIdIfMissing(request, redirectResponse, deviceId);
 
   return redirectResponse;
 }
 
-async function handleAuthRoute(request: NextRequest) {
+async function handleAuthRoute(request: NextRequest, deviceId: string) {
   if (hasFreshAccessToken(request)) {
-    return redirectToCallbackOrDashboard(request);
+    const response = redirectToCallbackOrDashboard(request);
+
+    persistDeviceIdIfMissing(request, response, deviceId);
+
+    return response;
   }
 
   const response = NextResponse.next();
 
   if (!hasRefreshToken(request)) {
+    persistDeviceIdIfMissing(request, response, deviceId);
+
     return response;
   }
 
-  const refreshed = await refreshAuthSessionInMiddleware(request, response);
+  const refreshed = await refreshAuthSessionInMiddleware(
+    request,
+    response,
+    deviceId,
+  );
 
   if (!refreshed) {
+    persistDeviceIdIfMissing(request, response, deviceId);
+
     return response;
   }
 
@@ -73,6 +103,8 @@ async function handleAuthRoute(request: NextRequest) {
   response.cookies.getAll().forEach((cookie) => {
     redirectResponse.cookies.set(cookie);
   });
+
+  persistDeviceIdIfMissing(request, redirectResponse, deviceId);
 
   return redirectResponse;
 }
