@@ -7,9 +7,11 @@ import {
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
+  UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
 import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
+import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
@@ -40,6 +42,9 @@ export class RefreshTokenService {
 
     @Inject(AUTH_RATE_LIMITER)
     private readonly authRateLimiter: AuthRateLimiter,
+
+    @Inject(UNIT_OF_WORK)
+    private readonly uow: UnitOfWork,
   ) {}
 
   async execute(
@@ -102,16 +107,20 @@ export class RefreshTokenService {
     const nextRefreshTokenHash = this.tokenHasher.hash(nextRefreshToken);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
-    const rotated = await this.sessionRepository.rotateRefreshToken({
-      sessionId: session.id,
-      currentRefreshTokenHash,
-      currentRefreshTokenExpiresAt: session.expiresAt,
-      nextRefreshTokenHash,
-      nextRefreshTokenExpiresAt: refreshTokenExpiresAt,
-    });
+    const rotated = await this.uow.execute(() =>
+      this.sessionRepository.rotateRefreshToken({
+        sessionId: session.id,
+        currentRefreshTokenHash,
+        currentRefreshTokenExpiresAt: session.expiresAt,
+        nextRefreshTokenHash,
+        nextRefreshTokenExpiresAt: refreshTokenExpiresAt,
+      }),
+    );
 
     if (!rotated) {
-      await this.revokeSessionsAfterRefreshTokenReuse(session.authAccountId);
+      await this.uow.execute(() =>
+        this.revokeSessionsAfterRefreshTokenReuse(session.authAccountId),
+      );
 
       throw this.createRefreshTokenReuseError();
     }
@@ -134,20 +143,22 @@ export class RefreshTokenService {
     refreshTokenHash: string,
     payload: JwtPayload,
   ): Promise<boolean> {
-    const rotatedSession =
-      await this.sessionRepository.findByRotatedRefreshTokenHash(
-        refreshTokenHash,
+    return await this.uow.execute(async () => {
+      const rotatedSession =
+        await this.sessionRepository.findByRotatedRefreshTokenHash(
+          refreshTokenHash,
+        );
+
+      if (!rotatedSession || rotatedSession.authAccountId !== payload.id) {
+        return false;
+      }
+
+      await this.revokeSessionsAfterRefreshTokenReuse(
+        rotatedSession.authAccountId,
       );
 
-    if (!rotatedSession || rotatedSession.authAccountId !== payload.id) {
-      return false;
-    }
-
-    await this.revokeSessionsAfterRefreshTokenReuse(
-      rotatedSession.authAccountId,
-    );
-
-    return true;
+      return true;
+    });
   }
 
   private async revokeSessionsAfterRefreshTokenReuse(

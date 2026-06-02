@@ -11,6 +11,7 @@ import { SessionRepository } from '@/modules/auth/domain/repositories/session.re
 import { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
 import { RefreshTokenService } from '@/modules/auth/application/services/refresh-token.service.js';
 import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
+import { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 
 describe('RefreshTokenService', () => {
   let tokenService: jest.Mocked<TokenService>;
@@ -18,6 +19,8 @@ describe('RefreshTokenService', () => {
   let sessionRepository: jest.Mocked<SessionRepository>;
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
   let authRateLimiter: jest.Mocked<AuthRateLimiter>;
+  let uow: UnitOfWork;
+  let executeTransaction: jest.Mock;
   let service: RefreshTokenService;
 
   const refreshRateLimit = {
@@ -26,6 +29,8 @@ describe('RefreshTokenService', () => {
   };
 
   beforeEach(() => {
+    executeTransaction = jest.fn((fn: () => Promise<unknown>) => fn());
+
     tokenService = {
       generateAccessToken: jest.fn().mockReturnValue('new-access-token'),
       generateRefreshToken: jest.fn(),
@@ -88,12 +93,17 @@ describe('RefreshTokenService', () => {
       assertAllowed: jest.fn().mockResolvedValue(undefined),
     };
 
+    uow = {
+      execute: executeTransaction,
+    } as unknown as UnitOfWork;
+
     service = new RefreshTokenService(
       tokenService,
       tokenHasher,
       sessionRepository,
       authAccountRepository,
       authRateLimiter,
+      uow,
     );
   });
 
@@ -130,6 +140,7 @@ describe('RefreshTokenService', () => {
       nextRefreshTokenHash: 'new-refresh-token-hash',
       nextRefreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
+    expect(executeTransaction).toHaveBeenCalledTimes(1);
   });
 
   it('throws when refresh token is missing', async () => {
