@@ -140,7 +140,7 @@ describe('RefreshTokenService', () => {
       nextRefreshTokenHash: 'new-refresh-token-hash',
       nextRefreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
-    expect(executeTransaction).toHaveBeenCalledTimes(1);
+    expect(executeTransaction).toHaveBeenCalledTimes(2);
   });
 
   it('throws when refresh token is missing', async () => {
