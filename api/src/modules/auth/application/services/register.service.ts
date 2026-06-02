@@ -78,9 +78,12 @@ export class RegisterService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    await this.authRateLimiter.assertAllowed(context.rateLimit);
-
     const profile = RegistrationProfilePolicy.normalize(input);
+    await this.authRateLimiter.assertAllowed({
+      ...context.rateLimit,
+      subject: profile.email,
+    });
+
     const sessionMetadata = context.sessionMetadata ?? {};
     const account = await this.authAccountRepository.findByEmail(profile.email);
 

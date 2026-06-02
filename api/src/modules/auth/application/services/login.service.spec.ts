@@ -11,6 +11,7 @@ import { SessionRepository } from '@/modules/auth/domain/repositories/session.re
 import { LoginService } from '@/modules/auth/application/services/login.service.js';
 import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
+import { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 
 describe('LoginService', () => {
   const authAccount = new AuthAccount(
@@ -27,6 +28,8 @@ describe('LoginService', () => {
   let authAccountRepository: jest.Mocked<AuthAccountRepository>;
   let authRateLimiter: jest.Mocked<AuthRateLimiter>;
   let deviceSessionService: jest.Mocked<DeviceSessionService>;
+  let uow: UnitOfWork;
+  let executeTransaction: jest.Mock;
   let service: LoginService;
 
   const loginContext = {
@@ -38,6 +41,8 @@ describe('LoginService', () => {
   };
 
   beforeEach(() => {
+    executeTransaction = jest.fn((fn: () => Promise<unknown>) => fn());
+
     tokenService = {
       generateAccessToken: jest.fn().mockReturnValue('access-token'),
       generateRefreshToken: jest.fn().mockReturnValue('refresh-token'),
@@ -81,6 +86,10 @@ describe('LoginService', () => {
       replaceActiveSessionForDevice: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<DeviceSessionService>;
 
+    uow = {
+      execute: executeTransaction,
+    } as unknown as UnitOfWork;
+
     service = new LoginService(
       tokenService,
       passwordHasher,
@@ -88,6 +97,7 @@ describe('LoginService', () => {
       tokenHasher,
       authAccountRepository,
       authRateLimiter,
+      uow,
       deviceSessionService,
     );
   });
@@ -113,6 +123,7 @@ describe('LoginService', () => {
     expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
       loginContext.rateLimit,
     );
+    expect(executeTransaction).toHaveBeenCalledTimes(1);
     expect(passwordHasher.compare).toHaveBeenCalledWith(
       'plain-password',
       'hashed-password',
