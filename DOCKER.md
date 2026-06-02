@@ -1,6 +1,6 @@
 # Docker
 
-This setup runs the backend API with a local PostgreSQL database.
+This setup runs the web app, backend API, and a local PostgreSQL database.
 
 ## Development
 
@@ -8,6 +8,12 @@ From the repository root:
 
 ```sh
 docker compose up --build
+```
+
+Web:
+
+```txt
+http://localhost:3000
 ```
 
 API:
@@ -31,6 +37,18 @@ The API container runs:
 npm run generate
 npx prisma migrate deploy
 npm run dev
+```
+
+The web container runs:
+
+```sh
+npm run dev -- --hostname 0.0.0.0
+```
+
+Inside Docker, the web app calls the API through:
+
+```txt
+API_URL=http://api:3001
 ```
 
 ## Seed
