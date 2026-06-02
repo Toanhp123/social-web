@@ -31,6 +31,11 @@ COPY nest-cli.json tsconfig*.json ./
 COPY src ./src
 RUN npm run build
 
+FROM deps AS migration
+ENV NODE_ENV=production
+
+CMD ["npx", "prisma", "migrate", "deploy"]
+
 FROM base AS production-deps
 ENV NODE_ENV=production
 
@@ -40,10 +45,12 @@ RUN npm ci --omit=dev --ignore-scripts \
 
 FROM base AS production
 ENV NODE_ENV=production
+ENV PORT=3001
 
-COPY --from=production-deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY package*.json ./
+COPY --from=production-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/dist ./dist
+COPY --chown=node:node package*.json ./
 
+USER node
 EXPOSE 3001
 CMD ["node", "dist/src/main.js"]

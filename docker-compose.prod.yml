@@ -1,0 +1,82 @@
+name: social-web-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: social-web-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-social_web}
+      POSTGRES_USER: ${POSTGRES_USER:-social_web}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    container_name: social-web-migrate-prod
+    build:
+      context: ./api
+      target: migration
+    restart: 'no'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-social_web}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-social_web}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    container_name: social-web-api-prod
+    build:
+      context: ./api
+      target: production
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-social_web}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-social_web}?schema=public
+      JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:?Set JWT_ACCESS_TOKEN_SECRET}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_TOKEN_SECRET: ${JWT_REFRESH_TOKEN_SECRET:?Set JWT_REFRESH_TOKEN_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PRISMA_QUERY_LOG: ${PRISMA_QUERY_LOG:-false}
+    expose:
+      - '3001'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    container_name: social-web-web-prod
+    build:
+      context: ./web
+      target: production
+      args:
+        API_URL: ${API_URL:-http://api:3001}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      API_URL: ${API_URL:-http://api:3001}
+      NEXT_TELEMETRY_DISABLED: 1
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  postgres_prod_data:
