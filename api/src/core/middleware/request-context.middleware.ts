@@ -32,11 +32,6 @@ export class RequestContextMiddleware implements NestMiddleware {
           return;
         }
 
-        if (res.statusCode >= 400) {
-          this.logger.warn('HTTP request completed', metadata);
-          return;
-        }
-
         this.logger.log('HTTP request completed', metadata);
       });
 

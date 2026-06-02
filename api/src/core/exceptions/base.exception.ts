@@ -9,5 +9,6 @@ export abstract class BaseException<T = unknown> extends Error {
     options?: ErrorOptions,
   ) {
     super(message, options);
+    this.name = new.target.name;
   }
 }
