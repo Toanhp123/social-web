@@ -20,6 +20,11 @@ import type {
 
 @Injectable()
 export class RefreshTokenService {
+  private static readonly refreshTokenFailureCodes = new Set<ErrorCode>([
+    ErrorCode.INVALID_REFRESH_TOKEN,
+    ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
+  ]);
+
   constructor(
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenService,
@@ -116,6 +121,13 @@ export class RefreshTokenService {
       refreshToken: nextRefreshToken,
       refreshTokenExpiresAt,
     };
+  }
+
+  isRefreshTokenFailure(error: unknown): boolean {
+    return (
+      error instanceof DomainError &&
+      RefreshTokenService.refreshTokenFailureCodes.has(error.code)
+    );
   }
 
   private async handleMissingCurrentSession(

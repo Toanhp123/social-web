@@ -199,4 +199,31 @@ describe('RefreshTokenService', () => {
       reason: 'REFRESH_TOKEN_REUSE',
     });
   });
+
+  it('identifies refresh token failures', () => {
+    expect(
+      service.isRefreshTokenFailure(
+        new DomainError(
+          ErrorCode.INVALID_REFRESH_TOKEN,
+          'Invalid refresh token',
+          401,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      service.isRefreshTokenFailure(
+        new DomainError(
+          ErrorCode.REFRESH_TOKEN_REUSE_DETECTED,
+          'Refresh token reuse detected',
+          401,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      service.isRefreshTokenFailure(
+        new DomainError(ErrorCode.INVALID_TOKEN, 'Invalid token', 401),
+      ),
+    ).toBe(false);
+    expect(service.isRefreshTokenFailure(new Error('Unknown'))).toBe(false);
+  });
 });
