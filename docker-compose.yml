@@ -1,77 +1,23 @@
-# Development stack. For production use docker-compose.prod.yml.
-
 name: social-web-dev
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: social-web-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: social_web
-      POSTGRES_USER: social_web
-      POSTGRES_PASSWORD: social_web
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U social_web -d social_web']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  api:
-    container_name: social-web-api
-    build:
-      context: ./api
-      target: development
-    restart: unless-stopped
-    environment:
-      NODE_ENV: development
-      PORT: 3001
-      CORS_ORIGIN: http://localhost:3000
-      DATABASE_URL: postgresql://social_web:social_web@postgres:5432/social_web?schema=public
-      JWT_ACCESS_TOKEN_SECRET: docker-dev-access-secret
-      JWT_ACCESS_EXPIRES_IN: 15m
-      JWT_REFRESH_TOKEN_SECRET: docker-dev-refresh-secret
-      JWT_REFRESH_EXPIRES_IN: 7d
-      LOG_FORMAT: pretty
-      LOG_LEVEL: debug
-      PRISMA_QUERY_LOG: false
-    ports:
-      - '3001:3001'
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./api:/app
-      - api_node_modules:/app/node_modules
-    command: sh -c "npm run generate && npx prisma migrate deploy && npm run dev"
-
-  web:
-    container_name: social-web-web
-    build:
-      context: ./web
-      target: development
-    restart: unless-stopped
-    environment:
-      NODE_ENV: development
-      API_URL: http://api:3001
-      NEXT_TELEMETRY_DISABLED: 1
-    ports:
-      - '3000:3000'
-    depends_on:
-      api:
-        condition: service_started
-    volumes:
-      - ./web:/app
-      - web_node_modules:/app/node_modules
-      - web_next:/app/.next
-    command: npm run dev -- --hostname 0.0.0.0
+    postgres:
+        image: postgres:16-alpine
+        container_name: social-web-postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: social_web
+            POSTGRES_USER: social_web
+            POSTGRES_PASSWORD: social_web
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U social_web -d social_web"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
-  postgres_data:
-  api_node_modules:
-  web_node_modules:
-  web_next:
+    postgres_data:
