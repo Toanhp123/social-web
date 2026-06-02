@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import {
   AUTH_ACCOUNT_REPOSITORY,
-  AUTH_RATE_LIMITER,
   SESSION_REPOSITORY,
 } from '@/common/constants/provider-token.constant.js';
 import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { PrismaAuthAccountRepository } from '@/modules/auth/infrastructure/persistence/prisma-auth-account.repository.js';
-import { PrismaAuthRateLimiterRepository } from '@/modules/auth/infrastructure/persistence/prisma-auth-rate-limiter.repository.js';
 import { PrismaSessionRepository } from '@/modules/auth/infrastructure/persistence/prisma-session.repository.js';
 
 @Module({
@@ -17,19 +15,10 @@ import { PrismaSessionRepository } from '@/modules/auth/infrastructure/persisten
       useClass: PrismaAuthAccountRepository,
     },
     {
-      provide: AUTH_RATE_LIMITER,
-      useClass: PrismaAuthRateLimiterRepository,
-    },
-    {
       provide: SESSION_REPOSITORY,
       useClass: PrismaSessionRepository,
     },
   ],
-  exports: [
-    AUTH_ACCOUNT_REPOSITORY,
-    AUTH_RATE_LIMITER,
-    SESSION_REPOSITORY,
-    DatabaseModule,
-  ],
+  exports: [AUTH_ACCOUNT_REPOSITORY, SESSION_REPOSITORY, DatabaseModule],
 })
 export class AuthPersistenceModule {}
