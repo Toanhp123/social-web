@@ -128,17 +128,45 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     exception: BaseException | HttpException,
     metadata: Record<string, unknown>,
   ): void {
-    const payload = {
-      ...metadata,
-      exception: this.serializeException(exception),
-    };
-
     if (this.getStatusCode(exception) >= 500) {
-      this.logger.error('Request failed', payload);
+      this.logger.error('Request failed', {
+        ...metadata,
+        exception: this.serializeException(exception),
+      });
       return;
     }
 
-    this.logger.warn('Request rejected', payload);
+    this.logger.warn('Request rejected', {
+      ...metadata,
+      exception: this.serializeClientException(exception),
+    });
+  }
+
+  private serializeClientException(
+    exception: BaseException | HttpException,
+  ): Record<string, unknown> {
+    if (exception instanceof BaseException) {
+      return {
+        name: exception.name,
+        code: exception.code,
+        message: exception.message,
+        ...(exception.metadata
+          ? { metadata: this.sanitizeMetadata(exception.metadata) }
+          : {}),
+      };
+    }
+
+    const response = exception.getResponse();
+    const body =
+      response && typeof response === 'object'
+        ? (response as Record<string, unknown>)
+        : undefined;
+
+    return {
+      name: exception.name,
+      code: body?.code ?? this.getDefaultHttpCode(exception.getStatus()),
+      message: body?.message ?? exception.message,
+    };
   }
 
   private serializeException(exception: unknown): unknown {
