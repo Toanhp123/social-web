@@ -15,6 +15,7 @@ export const validationSchema = Joi.object({
   // Database Validate
   DATABASE_URL: Joi.string().required(),
   PRISMA_QUERY_LOG: Joi.boolean().default(false),
+  REDIS_URL: Joi.string().uri().default('redis://localhost:6379'),
 
   // JWT Validate
   JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
