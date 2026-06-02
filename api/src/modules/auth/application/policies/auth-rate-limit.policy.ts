@@ -13,7 +13,7 @@ const AUTH_RATE_LIMIT_POLICIES: Record<
   login: {
     limit: 5,
     windowSeconds: 15 * 60,
-    blockSeconds: 15 * 60,
+    blockSeconds: 5 * 60,
   },
   register: {
     limit: 5,
