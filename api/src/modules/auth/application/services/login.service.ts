@@ -7,6 +7,7 @@ import {
   SESSION_REPOSITORY,
   TOKEN_HASHER,
   TOKEN_SERVICE,
+  UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
@@ -16,12 +17,13 @@ import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.
 import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
-import { EmailAddress } from '@/core/value-objects/email-address.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
 } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
+import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
+import { EmailAddress } from '@/core/value-objects/email-address.js';
 
 export type LoginContext = {
   rateLimit: AuthRateLimitInput;
@@ -49,6 +51,9 @@ export class LoginService {
     @Inject(AUTH_RATE_LIMITER)
     private readonly authRateLimiter: AuthRateLimiter,
 
+    @Inject(UNIT_OF_WORK)
+    private readonly uow: UnitOfWork,
+
     private readonly deviceSessionService: DeviceSessionService,
   ) {}
 
@@ -61,9 +66,12 @@ export class LoginService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    await this.authRateLimiter.assertAllowed(context.rateLimit);
-
     const normalizedEmail = EmailAddress.normalizeAndValidate(email);
+    await this.authRateLimiter.assertAllowed({
+      ...context.rateLimit,
+      subject: normalizedEmail,
+    });
+
     const sessionMetadata = context.sessionMetadata ?? {};
     const account =
       await this.authAccountRepository.findByEmail(normalizedEmail);
@@ -100,19 +108,21 @@ export class LoginService {
     const refreshToken = this.tokenService.generateRefreshToken(payload);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
-    await this.deviceSessionService.replaceActiveSessionForDevice({
-      authAccountId: account.id,
-      sessionMetadata,
-      reason: 'REPLACED_BY_LOGIN',
-    });
+    return await this.uow.execute(async () => {
+      await this.deviceSessionService.replaceActiveSessionForDevice({
+        authAccountId: account.id,
+        sessionMetadata,
+        reason: 'REPLACED_BY_LOGIN',
+      });
 
-    await this.sessionRepository.create({
-      authAccountId: account.id,
-      refreshTokenHash: this.tokenHasher.hash(refreshToken),
-      expiresAt: refreshTokenExpiresAt,
-      ...sessionMetadata,
-    });
+      await this.sessionRepository.create({
+        authAccountId: account.id,
+        refreshTokenHash: this.tokenHasher.hash(refreshToken),
+        expiresAt: refreshTokenExpiresAt,
+        ...sessionMetadata,
+      });
 
-    return { accessToken, refreshToken, refreshTokenExpiresAt };
+      return { accessToken, refreshToken, refreshTokenExpiresAt };
+    });
   }
 }
