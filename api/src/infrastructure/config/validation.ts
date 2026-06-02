@@ -7,6 +7,7 @@ export const validationSchema = Joi.object({
     .default('development'),
   PORT: Joi.number().default(3001),
   CORS_ORIGIN: Joi.string().allow('').optional(),
+  LOG_FORMAT: Joi.string().valid('json', 'pretty').optional(),
 
   // Database Validate
   DATABASE_URL: Joi.string().required(),
