@@ -57,6 +57,7 @@ describe('LoggerService', () => {
     expect(output).toContain(ErrorCode.INVALID_CREDENTIALS);
     expect(output).toContain('Email or password is incorrect');
     expect(output).toContain('request-1');
+    expect(output).toContain('\x1b[1m\x1b[36mrequest-1\x1b[0m');
   });
 
   it('keeps production logs as single-line json', () => {

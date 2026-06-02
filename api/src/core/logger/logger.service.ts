@@ -186,7 +186,7 @@ export class LoggerService implements NestLoggerService {
 
     if (requestId) {
       lines.push(
-        `  ${this.color('requestId', ANSI.dim)} ${this.color(requestId, ANSI.gray)}`,
+        `  ${this.color('requestId', ANSI.dim)} ${this.highlight(requestId)}`,
       );
     }
 
@@ -383,6 +383,14 @@ export class LoggerService implements NestLoggerService {
     }
 
     return `${color}${value}${ANSI.reset}`;
+  }
+
+  private highlight(value: string): string {
+    if (process.env.NO_COLOR !== undefined) {
+      return value;
+    }
+
+    return `${ANSI.bold}${ANSI.cyan}${value}${ANSI.reset}`;
   }
 
   private safeStringify(value: unknown, space?: number): string {
