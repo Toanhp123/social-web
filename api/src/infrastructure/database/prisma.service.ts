@@ -12,10 +12,11 @@ export class PrismaService
     const adapter = new PrismaPg({
       connectionString: configService.get('database.url')!,
     });
-    const log: Array<'query' | 'error' | 'warn'> =
-      configService.get('app.env') === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error', 'warn'];
+    const log: Array<'query' | 'error' | 'warn'> = configService.get<boolean>(
+      'database.logQueries',
+    )
+      ? ['query', 'error', 'warn']
+      : ['error', 'warn'];
 
     super({ adapter, log });
   }
