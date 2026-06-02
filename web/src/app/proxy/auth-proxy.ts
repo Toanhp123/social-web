@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   clearAuthCookies,
-  getMiddlewareDeviceId,
+  getProxyDeviceId,
   hasFreshAccessToken,
   hasRefreshToken,
   persistDeviceIdIfMissing,
-  refreshAuthSessionInMiddleware,
+  refreshAuthSessionInProxy,
 } from "./auth-session";
 import { PROTECTED_ROUTES } from "./protected-routes";
 import {
@@ -15,9 +15,9 @@ import {
 } from "@/shared/config/routes";
 import { getPostAuthRedirectPath } from "@/shared/lib/auth-redirect";
 
-export async function authMiddleware(request: NextRequest) {
+export async function authProxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const deviceId = getMiddlewareDeviceId(request);
+  const deviceId = getProxyDeviceId(request);
 
   if (isProtectedPath(pathname)) {
     return handleProtectedRoute(request, deviceId);
@@ -46,7 +46,7 @@ async function handleProtectedRoute(request: NextRequest, deviceId: string) {
   const response = NextResponse.next();
 
   if (hasRefreshToken(request)) {
-    const refreshed = await refreshAuthSessionInMiddleware(
+    const refreshed = await refreshAuthSessionInProxy(
       request,
       response,
       deviceId,
@@ -86,7 +86,7 @@ async function handleAuthRoute(request: NextRequest, deviceId: string) {
     return response;
   }
 
-  const refreshed = await refreshAuthSessionInMiddleware(
+  const refreshed = await refreshAuthSessionInProxy(
     request,
     response,
     deviceId,
