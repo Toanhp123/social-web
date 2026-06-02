@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
+import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import { PrismaAuthRateLimiterRepository } from '@/modules/auth/infrastructure/persistence/prisma-auth-rate-limiter.repository.js';
 
 describe('PrismaAuthRateLimiterRepository', () => {
@@ -41,7 +42,10 @@ describe('PrismaAuthRateLimiterRepository', () => {
         },
       ),
     } as unknown as PrismaService;
-    const repository = new PrismaAuthRateLimiterRepository(prisma);
+    const txContext = {
+      getClient: jest.fn().mockReturnValue(undefined),
+    } as unknown as PrismaTransactionContext;
+    const repository = new PrismaAuthRateLimiterRepository(prisma, txContext);
 
     await expect(
       repository.assertAllowed({ action: 'login', ip: '127.0.0.1' }),
@@ -62,5 +66,38 @@ describe('PrismaAuthRateLimiterRepository', () => {
       new Date('2026-06-02T00:15:00.000Z'),
     );
     expect(updateInput.data.expiresAt).toEqual(updateInput.data.blockedUntil);
+  });
+
+  it('uses the transaction context client when one is active', async () => {
+    const now = new Date('2026-06-02T00:00:00.000Z');
+    jest.useFakeTimers().setSystemTime(now);
+
+    const tx = {
+      rateLimit: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue(null),
+        upsert: jest.fn().mockResolvedValue(null),
+      },
+    };
+    const prisma = {
+      $transaction: jest.fn(),
+    } as unknown as PrismaService;
+    const txContext = {
+      getClient: jest.fn().mockReturnValue(tx),
+    } as unknown as PrismaTransactionContext;
+    const repository = new PrismaAuthRateLimiterRepository(prisma, txContext);
+
+    await repository.assertAllowed({ action: 'login', ip: '127.0.0.1' });
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(tx.rateLimit.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          identifier: 'ip:127.0.0.1',
+          action: 'auth:login',
+          count: 1,
+        }),
+      }),
+    );
   });
 });
