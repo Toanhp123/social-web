@@ -34,28 +34,24 @@ export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {
   async assertAllowed(input: AuthRateLimitInput): Promise<void> {
     const policy = getAuthRateLimitPolicy(input.action);
     const action = `auth:${input.action}`;
-
     const client = this.getClient();
 
     try {
-      const consumeAll = async (tx: PrismaClientLike) => {
-        for (const identifier of this.getIdentifiers(input)) {
-          const violation = await this.consume(identifier, action, policy, tx);
+      for (const identifier of this.getIdentifiers(input)) {
+        const violation = await this.consume(
+          identifier,
+          action,
+          policy,
+          client,
+        );
 
-          if (violation) {
-            return violation;
-          }
+        if (violation) {
+          throw this.createRateLimitError(
+            action,
+            violation.retryAt,
+            new Date(),
+          );
         }
-
-        return null;
-      };
-      const violation =
-        this.txContext.getClient() === client
-          ? await consumeAll(client)
-          : await this.prisma.$transaction((tx) => consumeAll(tx));
-
-      if (violation) {
-        throw this.createRateLimitError(action, violation.retryAt, new Date());
       }
     } catch (error) {
       if (error instanceof DomainError) {

@@ -139,16 +139,10 @@ export class PrismaSessionRepository implements SessionRepository {
     nextRefreshTokenHash: string;
     nextRefreshTokenExpiresAt: Date;
   }): Promise<boolean> {
-    const txClient = this.txContext.getClient();
+    const client = this.getClient();
 
     try {
-      if (txClient) {
-        return await this.rotateRefreshTokenWithClient(txClient, input);
-      }
-
-      return await this.prisma.$transaction((tx) =>
-        this.rotateRefreshTokenWithClient(tx, input),
-      );
+      return await this.rotateRefreshTokenWithClient(client, input);
     } catch (error) {
       throw mapPrismaError(error);
     }

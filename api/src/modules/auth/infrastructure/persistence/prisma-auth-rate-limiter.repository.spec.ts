@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
+import { getAuthRateLimitPolicy } from '@/modules/auth/application/policies/auth-rate-limit.policy.js';
 import { PrismaAuthRateLimiterRepository } from '@/modules/auth/infrastructure/persistence/prisma-auth-rate-limiter.repository.js';
 
 describe('PrismaAuthRateLimiterRepository', () => {
@@ -12,6 +13,10 @@ describe('PrismaAuthRateLimiterRepository', () => {
   it('persists blockedUntil before throwing when a limit is exceeded', async () => {
     const now = new Date('2026-06-02T00:00:00.000Z');
     jest.useFakeTimers().setSystemTime(now);
+    const policy = getAuthRateLimitPolicy('login');
+    const expectedBlockedUntil = new Date(
+      now.getTime() + policy.blockSeconds * 1_000,
+    );
 
     const currentRateLimit = {
       identifier: 'ip:127.0.0.1',
@@ -19,7 +24,7 @@ describe('PrismaAuthRateLimiterRepository', () => {
       count: 5,
       window: 900,
       lastRequestAt: now,
-      expiresAt: new Date('2026-06-02T00:10:00.000Z'),
+      expiresAt: new Date('2026-06-02T00:01:00.000Z'),
       blockedUntil: null,
     };
     const tx = {
@@ -29,18 +34,8 @@ describe('PrismaAuthRateLimiterRepository', () => {
         upsert: jest.fn().mockResolvedValue(null),
       },
     };
-    let transactionRejected = false;
     const prisma = {
-      $transaction: jest.fn(
-        async (fn: (client: typeof tx) => Promise<unknown>) => {
-          try {
-            return await fn(tx);
-          } catch (error) {
-            transactionRejected = true;
-            throw error;
-          }
-        },
-      ),
+      rateLimit: tx.rateLimit,
     } as unknown as PrismaService;
     const txContext = {
       getClient: jest.fn().mockReturnValue(undefined),
@@ -61,10 +56,7 @@ describe('PrismaAuthRateLimiterRepository', () => {
       };
     };
 
-    expect(transactionRejected).toBe(false);
-    expect(updateInput.data.blockedUntil).toEqual(
-      new Date('2026-06-02T00:15:00.000Z'),
-    );
+    expect(updateInput.data.blockedUntil).toEqual(expectedBlockedUntil);
     expect(updateInput.data.expiresAt).toEqual(updateInput.data.blockedUntil);
   });
 
@@ -79,9 +71,7 @@ describe('PrismaAuthRateLimiterRepository', () => {
         upsert: jest.fn().mockResolvedValue(null),
       },
     };
-    const prisma = {
-      $transaction: jest.fn(),
-    } as unknown as PrismaService;
+    const prisma = {} as unknown as PrismaService;
     const txContext = {
       getClient: jest.fn().mockReturnValue(tx),
     } as unknown as PrismaTransactionContext;
@@ -89,7 +79,6 @@ describe('PrismaAuthRateLimiterRepository', () => {
 
     await repository.assertAllowed({ action: 'login', ip: '127.0.0.1' });
 
-    expect(prisma.$transaction).not.toHaveBeenCalled();
     expect(tx.rateLimit.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({
