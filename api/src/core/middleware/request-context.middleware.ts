@@ -19,6 +19,7 @@ export class RequestContextMiddleware implements NestMiddleware {
       res.on('finish', () => {
         const durationMs =
           Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+
         const metadata = {
           requestId,
           method: req.method,
@@ -29,6 +30,11 @@ export class RequestContextMiddleware implements NestMiddleware {
 
         if (res.statusCode >= 500) {
           this.logger.error('HTTP request completed', metadata);
+          return;
+        }
+
+        if (res.statusCode >= 400) {
+          this.logger.warn('HTTP request completed', metadata);
           return;
         }
 
