@@ -355,24 +355,6 @@ model RotatedRefreshToken {
   @@index([expiresAt])
 }
 
-model RateLimit {
-  identifier String // userId hoặc IP
-  action     String // login, send_message, etc.
-
-  count Int
-
-  // window control
-  window        Int // seconds
-  lastRequestAt DateTime
-  expiresAt     DateTime
-
-  // optional abuse control
-  blockedUntil DateTime?
-
-  @@id([identifier, action])
-  @@index([expiresAt])
-}
-
 // =====================================================
 // USER PROFILE
 // =====================================================
