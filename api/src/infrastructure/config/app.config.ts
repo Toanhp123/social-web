@@ -6,6 +6,8 @@ export default () => ({
     env,
     logFormat:
       process.env.LOG_FORMAT ?? (env === 'production' ? 'json' : 'pretty'),
+    logLevel:
+      process.env.LOG_LEVEL ?? (env === 'production' ? 'info' : 'debug'),
     corsOrigins:
       process.env.CORS_ORIGIN?.split(',')
         .map((origin) => origin.trim())

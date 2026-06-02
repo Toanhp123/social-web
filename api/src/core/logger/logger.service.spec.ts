@@ -12,11 +12,15 @@ import { LoggerService } from '@/core/logger/logger.service.js';
 
 describe('LoggerService', () => {
   const originalNoColor = process.env.NO_COLOR;
+  let stdout: string[];
 
   beforeEach(() => {
     delete process.env.NO_COLOR;
-    jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    stdout = [];
+    jest.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown) => {
+      stdout.push(String(chunk));
+      return true;
+    });
   });
 
   afterEach(() => {
@@ -45,7 +49,7 @@ describe('LoggerService', () => {
       },
     });
 
-    const output = getConsoleOutput(console.error);
+    const output = getOutput();
 
     expect(output).toContain('\n');
     expect(output).toContain('\x1b[');
@@ -57,7 +61,7 @@ describe('LoggerService', () => {
     expect(output).toContain(ErrorCode.INVALID_CREDENTIALS);
     expect(output).toContain('Email or password is incorrect');
     expect(output).toContain('request-1');
-    expect(output).toContain('\x1b[1m\x1b[36mrequest-1\x1b[0m');
+    expect(output).toContain('\x1b[1m\x1b[36mrequest-1');
   });
 
   it('keeps production logs as single-line json', () => {
@@ -71,35 +75,40 @@ describe('LoggerService', () => {
       durationMs: 3314.16,
     });
 
-    const output = getConsoleOutput(console.log);
+    const output = getOutput().trim();
     const entry = JSON.parse(output) as Record<string, unknown>;
 
     expect(output).not.toContain('\n');
     expect(entry).toEqual(
       expect.objectContaining({
-        level: 'log',
+        level: 'info',
         requestId: 'request-1',
         message: 'HTTP request completed',
-        metadata: expect.objectContaining({
-          requestId: 'request-1',
-          method: 'POST',
-          path: '/auth/login',
-          statusCode: 401,
-          durationMs: 3314.16,
-        }),
+        method: 'POST',
+        path: '/auth/login',
+        statusCode: 401,
+        durationMs: 3314.16,
       }),
     );
   });
+
+  function getOutput(): string {
+    return stdout.join('');
+  }
 });
 
 function createLogger(format: 'json' | 'pretty'): LoggerService {
   return new LoggerService({
-    get: jest.fn((key: string) =>
-      key === 'app.logFormat' ? format : undefined,
-    ),
-  } as unknown as ConfigService);
-}
+    get: jest.fn((key: string) => {
+      if (key === 'app.logFormat') {
+        return format;
+      }
 
-function getConsoleOutput(method: (...data: unknown[]) => void): string {
-  return String(jest.mocked(method).mock.calls[0][0]);
+      if (key === 'app.logLevel') {
+        return 'debug';
+      }
+
+      return undefined;
+    }),
+  } as unknown as ConfigService);
 }

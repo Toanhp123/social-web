@@ -4,36 +4,57 @@ import {
   Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import pino, { Logger as PinoLogger, LoggerOptions } from 'pino';
+import pretty from 'pino-pretty';
 import { getRequestId } from '@/core/context/request-context.service.js';
 import { redactValue } from '@/core/logger/redaction.util.js';
 
 type LogLevel = 'log' | 'error' | 'warn' | 'debug' | 'verbose' | 'fatal';
+type PinoLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 type LogFormat = 'json' | 'pretty';
 type LogMetadata = Record<string, unknown>;
-type LogEntry = {
-  level: LogLevel;
-  timestamp: string;
-  requestId?: string;
-  message: string;
-  metadata?: LogMetadata;
+type PrettyColors = {
+  bold(value: string): string;
+  cyan(value: string): string;
+  gray(value: string): string;
+  green(value: string): string;
+  red(value: string): string;
+  yellow(value: string): string;
 };
 
-const ANSI = {
-  reset: '\x1b[0m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  gray: '\x1b[90m',
-} as const;
+const REDACT_PATHS = [
+  'authorization',
+  'cookie',
+  'credentials',
+  'jwt',
+  'password',
+  'passwordHash',
+  'privateKey',
+  'refreshToken',
+  'secret',
+  'session',
+  'sessionId',
+  'setCookie',
+  'token',
+  'accessToken',
+  'headers.authorization',
+  'headers.cookie',
+  'req.headers.authorization',
+  'req.headers.cookie',
+  'metadata.authorization',
+  'metadata.cookie',
+  'metadata.password',
+  'metadata.refreshToken',
+  'metadata.token',
+];
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
-  constructor(@Optional() private readonly configService?: ConfigService) {}
+  private readonly logger: PinoLogger;
+
+  constructor(@Optional() private readonly configService?: ConfigService) {
+    this.logger = this.createLogger();
+  }
 
   log(message: unknown, contextOrMeta?: string | LogMetadata): void {
     this.write('log', message, this.normalizeMetadata(contextOrMeta));
@@ -75,6 +96,61 @@ export class LoggerService implements NestLoggerService {
     );
   }
 
+  private createLogger(): PinoLogger {
+    const options: LoggerOptions = {
+      base: undefined,
+      level: this.getLogLevel(),
+      messageKey: 'message',
+      redact: {
+        paths: REDACT_PATHS,
+        censor: '[REDACTED]',
+      },
+      timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+      formatters: {
+        level: (label) => ({ level: label }),
+      },
+    };
+
+    if (this.getLogFormat() !== 'pretty') {
+      return pino(options);
+    }
+
+    return pino(options, this.createPrettyStream());
+  }
+
+  private createPrettyStream() {
+    return pretty({
+      colorize: process.env.NO_COLOR === undefined,
+      colorizeObjects: true,
+      destination: process.stdout,
+      errorLikeObjectKeys: ['err', 'error', 'exception'],
+      ignore: 'pid,hostname,method,path,statusCode,durationMs',
+      messageKey: 'message',
+      sync: true,
+      translateTime: 'SYS:HH:MM:ss.l',
+      customPrettifiers: {
+        exception: (value, _key, _log, { colors }) =>
+          this.formatPrettyException(value, colors),
+        requestId: (value, _key, _log, { colors }) => {
+          const requestId =
+            typeof value === 'string' ? value : this.safeStringify(value);
+
+          return colors.bold(colors.cyan(requestId));
+        },
+      },
+      messageFormat: (log, messageKey, _levelLabel, { colors }) => {
+        const message = this.toText(log[messageKey]) ?? '';
+        const http = this.formatPrettyHttp(log, colors);
+
+        if (!http) {
+          return colors.bold(message);
+        }
+
+        return `${colors.bold(message)}\n    ${colors.gray('http')}      ${http}`;
+      },
+    });
+  }
+
   private normalizeMetadata(
     contextOrMeta?: string | LogMetadata,
   ): LogMetadata | undefined {
@@ -113,33 +189,36 @@ export class LoggerService implements NestLoggerService {
     message: unknown,
     metadata?: LogMetadata,
   ): void {
+    const payload = this.createPayload(metadata);
+    const messageText = this.formatMessage(message);
+    const method = this.toPinoLevel(level);
+
+    if (Object.keys(payload).length === 0) {
+      this.logger[method](messageText);
+      return;
+    }
+
+    this.logger[method](payload, messageText);
+  }
+
+  private createPayload(metadata?: LogMetadata): LogMetadata {
     const safeMetadata = metadata
       ? (redactValue(metadata) as LogMetadata)
       : undefined;
+    const payload: LogMetadata = {
+      ...(safeMetadata ?? {}),
+    };
     const requestId =
       getRequestId() ??
       (typeof safeMetadata?.requestId === 'string'
         ? safeMetadata.requestId
         : undefined);
-    const entry: LogEntry = {
-      level,
-      timestamp: new Date().toISOString(),
-      requestId,
-      message: this.formatMessage(message),
-      ...(safeMetadata ? { metadata: safeMetadata } : {}),
-    };
 
-    const line =
-      this.getLogFormat() === 'pretty'
-        ? this.formatPrettyEntry(entry)
-        : this.safeStringify(entry);
-
-    if (level === 'error' || level === 'fatal' || level === 'warn') {
-      console.error(line);
-      return;
+    if (requestId) {
+      payload.requestId = requestId;
     }
 
-    console.log(line);
+    return payload;
   }
 
   private formatMessage(message: unknown): string {
@@ -159,197 +238,132 @@ export class LoggerService implements NestLoggerService {
     );
   }
 
-  private formatPrettyEntry(entry: LogEntry): string {
-    const metadata = entry.metadata ?? {};
-    const lines = [
-      `${this.color(`[${this.formatTime(entry.timestamp)}]`, ANSI.gray)} ${this.formatLevel(entry.level)} ${this.color(entry.message, ANSI.bold)}`,
-    ];
-    const requestLine = this.formatRequestLine(metadata);
-    const exceptionLines = this.formatExceptionLines(metadata.exception);
-    const requestId = this.resolveEntryRequestId(entry, metadata);
-    const remainingMetadata = this.omitMetadata(metadata, [
-      'requestId',
-      'method',
-      'path',
-      'statusCode',
-      'durationMs',
-      'exception',
-    ]);
-
-    if (requestLine) {
-      lines.push(`  ${this.color('http', ANSI.dim)}      ${requestLine}`);
-    }
-
-    if (exceptionLines.length > 0) {
-      lines.push(...exceptionLines);
-    }
-
-    if (requestId) {
-      lines.push(
-        `  ${this.color('requestId', ANSI.dim)} ${this.highlight(requestId)}`,
-      );
-    }
-
-    lines.push(...this.formatMetadataLines(remainingMetadata));
-
-    return lines.join('\n');
+  private getLogLevel(): PinoLevel {
+    return (
+      this.configService?.get<PinoLevel>('app.logLevel') ??
+      (process.env.NODE_ENV === 'production' ? 'info' : 'debug')
+    );
   }
 
-  private formatTime(timestamp: string): string {
-    const date = new Date(timestamp);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-
-    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-  }
-
-  private formatLevel(level: LogLevel): string {
-    const levelText: Record<LogLevel, string> = {
-      log: 'INFO ',
-      error: 'ERROR',
-      warn: 'WARN ',
-      debug: 'DEBUG',
-      verbose: 'TRACE',
-      fatal: 'FATAL',
-    };
-    const levelColor: Record<LogLevel, string> = {
-      log: ANSI.green,
-      error: ANSI.red,
-      warn: ANSI.yellow,
-      debug: ANSI.cyan,
-      verbose: ANSI.magenta,
-      fatal: ANSI.red,
+  private toPinoLevel(level: LogLevel): PinoLevel {
+    const levels: Record<LogLevel, PinoLevel> = {
+      log: 'info',
+      error: 'error',
+      warn: 'warn',
+      debug: 'debug',
+      verbose: 'trace',
+      fatal: 'fatal',
     };
 
-    return this.color(levelText[level], levelColor[level]);
+    return levels[level];
   }
 
-  private formatRequestLine(metadata: LogMetadata): string | undefined {
-    const method = this.toText(metadata.method);
-    const path = this.toText(metadata.path);
+  private formatPrettyHttp(
+    log: Record<string, unknown>,
+    colors: PrettyColors,
+  ): string | undefined {
+    const method = this.toText(log.method);
+    const path = this.toText(log.path);
     const statusCode =
-      typeof metadata.statusCode === 'number' ? metadata.statusCode : undefined;
+      typeof log.statusCode === 'number' ? log.statusCode : undefined;
     const durationMs =
-      typeof metadata.durationMs === 'number' ? metadata.durationMs : undefined;
+      typeof log.durationMs === 'number' ? log.durationMs : undefined;
 
     if (!method && !path && !statusCode && durationMs === undefined) {
       return undefined;
     }
 
     return [
-      method ? this.color(method.padEnd(6), ANSI.cyan) : undefined,
-      path ? this.color(path, ANSI.bold) : undefined,
-      statusCode ? this.formatStatusCode(statusCode) : undefined,
-      durationMs !== undefined ? this.formatDuration(durationMs) : undefined,
+      method ? colors.cyan(method.padEnd(6)) : undefined,
+      path ? colors.bold(path) : undefined,
+      statusCode ? this.formatPrettyStatusCode(statusCode, colors) : undefined,
+      durationMs !== undefined
+        ? this.formatPrettyDuration(durationMs, colors)
+        : undefined,
     ]
       .filter(Boolean)
       .join(' ');
   }
 
-  private formatStatusCode(statusCode: number): string {
+  private formatPrettyStatusCode(
+    statusCode: number,
+    colors: PrettyColors,
+  ): string {
     const text = String(statusCode);
 
     if (statusCode >= 500) {
-      return this.color(text, ANSI.red);
+      return colors.red(text);
     }
 
     if (statusCode >= 400) {
-      return this.color(text, ANSI.yellow);
+      return colors.yellow(text);
     }
 
     if (statusCode >= 300) {
-      return this.color(text, ANSI.cyan);
+      return colors.cyan(text);
     }
 
-    return this.color(text, ANSI.green);
+    return colors.green(text);
   }
 
-  private formatDuration(durationMs: number): string {
+  private formatPrettyDuration(
+    durationMs: number,
+    colors: PrettyColors,
+  ): string {
     const text = `${durationMs.toFixed(durationMs >= 100 ? 0 : 2)}ms`;
 
     if (durationMs >= 1000) {
-      return this.color(text, ANSI.yellow);
+      return colors.yellow(text);
     }
 
-    return this.color(text, ANSI.gray);
+    return colors.gray(text);
   }
 
-  private formatExceptionLines(exception: unknown): string[] {
-    if (!this.isRecord(exception)) {
-      return [];
+  private formatPrettyException(value: unknown, colors: PrettyColors): string {
+    if (!this.isRecord(value)) {
+      return String(value);
     }
 
-    const name = this.toText(exception.name);
-    const code = this.toText(exception.code);
-    const message = this.toText(exception.message);
-    const stack = this.toText(exception.stack);
-    const metadata = exception.metadata;
-    const header = [name, code ? this.color(code, ANSI.yellow) : undefined]
+    const name = this.toText(value.name);
+    const code = this.toText(value.code);
+    const message = this.toText(value.message);
+    const stack = this.toText(value.stack);
+    const details = value.metadata;
+    const header = [name, code ? colors.yellow(code) : undefined]
       .filter(Boolean)
       .join(' ');
     const lines: string[] = [];
 
     if (header) {
-      lines.push(`  ${this.color('error', ANSI.dim)}     ${header}`);
+      lines.push(header);
     }
 
     if (message) {
-      lines.push(`  ${this.color('message', ANSI.dim)}   ${message}`);
+      lines.push(`${colors.gray('message')}   ${message}`);
     }
 
-    if (metadata !== undefined) {
-      lines.push(...this.formatMetadataField('details', metadata));
+    if (details !== undefined) {
+      lines.push(
+        `${colors.gray('details')}   ${this.indentMultiline(this.safeStringify(details, 2), 14)}`,
+      );
     }
 
     if (stack) {
-      const [firstLine, ...remainingLines] = stack.split('\n');
-      lines.push(`  ${this.color('stack', ANSI.dim)}     ${firstLine}`);
-      lines.push(...remainingLines.map((line) => `            ${line}`));
+      lines.push(
+        `${colors.gray('stack')}     ${this.indentMultiline(stack, 12)}`,
+      );
     }
 
-    return lines;
+    return lines.join('\n    ');
   }
 
-  private formatMetadataLines(metadata: LogMetadata): string[] {
-    return Object.entries(metadata).flatMap(([key, value]) =>
-      this.formatMetadataField(key, value),
-    );
-  }
+  private indentMultiline(value: string, spaces: number): string {
+    const indent = ' '.repeat(spaces);
 
-  private formatMetadataField(key: string, value: unknown): string[] {
-    const label = this.color(key.padEnd(9), ANSI.dim);
-
-    if (this.isPrimitive(value)) {
-      return [`  ${label} ${String(value)}`];
-    }
-
-    const formatted = this.safeStringify(value, 2);
-    const indented = formatted
+    return value
       .split('\n')
-      .map((line, index) => (index === 0 ? line : `            ${line}`))
+      .map((line, index) => (index === 0 ? line : `${indent}${line}`))
       .join('\n');
-
-    return [`  ${label} ${indented}`];
-  }
-
-  private omitMetadata(metadata: LogMetadata, keys: string[]): LogMetadata {
-    const ignoredKeys = new Set(keys);
-
-    return Object.fromEntries(
-      Object.entries(metadata).filter(([key]) => !ignoredKeys.has(key)),
-    );
-  }
-
-  private resolveEntryRequestId(
-    entry: LogEntry,
-    metadata: LogMetadata,
-  ): string | undefined {
-    return (
-      entry.requestId ??
-      (typeof metadata.requestId === 'string' ? metadata.requestId : undefined)
-    );
   }
 
   private toText(value: unknown): string | undefined {
@@ -364,33 +378,8 @@ export class LoggerService implements NestLoggerService {
     return undefined;
   }
 
-  private isPrimitive(value: unknown): boolean {
-    return (
-      value === null ||
-      ['bigint', 'boolean', 'number', 'string', 'undefined'].includes(
-        typeof value,
-      )
-    );
-  }
-
   private isRecord(value: unknown): value is Record<string, unknown> {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
-  }
-
-  private color(value: string, color: string): string {
-    if (process.env.NO_COLOR !== undefined) {
-      return value;
-    }
-
-    return `${color}${value}${ANSI.reset}`;
-  }
-
-  private highlight(value: string): string {
-    if (process.env.NO_COLOR !== undefined) {
-      return value;
-    }
-
-    return `${ANSI.bold}${ANSI.cyan}${value}${ANSI.reset}`;
   }
 
   private safeStringify(value: unknown, space?: number): string {
