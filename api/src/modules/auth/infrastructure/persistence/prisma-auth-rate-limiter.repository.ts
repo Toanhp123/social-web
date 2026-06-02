@@ -12,6 +12,10 @@ import {
   type AuthRateLimitPolicy,
 } from '@/modules/auth/application/policies/auth-rate-limit.policy.js';
 
+type RateLimitViolation = {
+  retryAt: Date;
+};
+
 @Injectable()
 export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {
   constructor(private readonly prisma: PrismaService) {}
@@ -49,46 +53,65 @@ export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {
     const now = new Date();
 
     try {
-      await this.prisma.$transaction(async (tx) => {
-        const key = {
-          identifier_action: {
-            identifier,
-            action,
-          },
-        };
-        const current = await tx.rateLimit.findUnique({ where: key });
-
-        if (!current || current.expiresAt.getTime() <= now.getTime()) {
-          await tx.rateLimit.upsert({
-            where: key,
-            create: {
+      const violation: RateLimitViolation | null =
+        await this.prisma.$transaction(async (tx) => {
+          const key = {
+            identifier_action: {
               identifier,
               action,
-              count: 1,
-              window: policy.windowSeconds,
-              lastRequestAt: now,
-              expiresAt: this.addSeconds(now, policy.windowSeconds),
             },
-            update: {
-              count: 1,
-              window: policy.windowSeconds,
-              lastRequestAt: now,
-              expiresAt: this.addSeconds(now, policy.windowSeconds),
-              blockedUntil: null,
-            },
-          });
-          return;
-        }
+          };
+          const current = await tx.rateLimit.findUnique({ where: key });
 
-        if (
-          current.blockedUntil &&
-          current.blockedUntil.getTime() > now.getTime()
-        ) {
-          throw this.createRateLimitError(action, current.blockedUntil, now);
-        }
+          if (!current || current.expiresAt.getTime() <= now.getTime()) {
+            await tx.rateLimit.upsert({
+              where: key,
+              create: {
+                identifier,
+                action,
+                count: 1,
+                window: policy.windowSeconds,
+                lastRequestAt: now,
+                expiresAt: this.addSeconds(now, policy.windowSeconds),
+              },
+              update: {
+                count: 1,
+                window: policy.windowSeconds,
+                lastRequestAt: now,
+                expiresAt: this.addSeconds(now, policy.windowSeconds),
+                blockedUntil: null,
+              },
+            });
+            return null;
+          }
 
-        if (current.count >= policy.limit) {
-          const blockedUntil = this.addSeconds(now, policy.blockSeconds);
+          if (
+            current.blockedUntil &&
+            current.blockedUntil.getTime() > now.getTime()
+          ) {
+            return { retryAt: current.blockedUntil };
+          }
+
+          if (current.count >= policy.limit) {
+            const blockedUntil = this.addSeconds(now, policy.blockSeconds);
+
+            await tx.rateLimit.update({
+              where: key,
+              data: {
+                count: {
+                  increment: 1,
+                },
+                lastRequestAt: now,
+                expiresAt:
+                  current.expiresAt.getTime() > blockedUntil.getTime()
+                    ? current.expiresAt
+                    : blockedUntil,
+                blockedUntil,
+              },
+            });
+
+            return { retryAt: blockedUntil };
+          }
 
           await tx.rateLimit.update({
             where: key,
@@ -97,26 +120,15 @@ export class PrismaAuthRateLimiterRepository implements AuthRateLimiter {
                 increment: 1,
               },
               lastRequestAt: now,
-              expiresAt:
-                current.expiresAt.getTime() > blockedUntil.getTime()
-                  ? current.expiresAt
-                  : blockedUntil,
-              blockedUntil,
             },
           });
-          throw this.createRateLimitError(action, blockedUntil, now);
-        }
 
-        await tx.rateLimit.update({
-          where: key,
-          data: {
-            count: {
-              increment: 1,
-            },
-            lastRequestAt: now,
-          },
+          return null;
         });
-      });
+
+      if (violation) {
+        throw this.createRateLimitError(action, violation.retryAt, now);
+      }
     } catch (error) {
       if (error instanceof DomainError) {
         throw error;
