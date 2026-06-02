@@ -23,7 +23,7 @@ describe('RequestContextMiddleware', () => {
     );
   });
 
-  it('logs completed client-error requests at info level', () => {
+  it('logs completed client-error requests at warn level', () => {
     let finishHandler: (() => void) | undefined;
     const request = {
       headers: {},
@@ -45,7 +45,7 @@ describe('RequestContextMiddleware', () => {
     middleware.use(request, response, next);
     finishHandler?.();
 
-    expect(logger.log).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledWith(
       'HTTP request completed',
       expect.objectContaining({
         method: 'POST',
@@ -53,7 +53,7 @@ describe('RequestContextMiddleware', () => {
         statusCode: 401,
       }),
     );
-    expect(logger.warn).not.toHaveBeenCalled();
+    expect(logger.log).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
   });
 });
