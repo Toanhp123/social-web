@@ -61,7 +61,7 @@ Production behavior:
 ```txt
 web:      exposed through WEB_PORT, default 3000
 api:      internal only, exposed to web as http://api:3001
-postgres: internal only
+database: external PostgreSQL through DATABASE_URL
 redis:    internal only, protected by REDIS_PASSWORD
 migrate:  runs npx prisma migrate deploy before api starts
 ```
@@ -69,8 +69,11 @@ migrate:  runs npx prisma migrate deploy before api starts
 The production API receives:
 
 ```txt
+DATABASE_URL=<external PostgreSQL connection string>
 REDIS_URL=redis://:<REDIS_PASSWORD>@redis:6379
 ```
+
+For Neon, paste the provided pooled PostgreSQL URL into `DATABASE_URL`.
 
 The production API image runs:
 
@@ -129,4 +132,4 @@ docker compose down -v
 docker compose --env-file .env.production -f docker-compose.prod.yml down -v
 ```
 
-`down -v` deletes Docker database and Redis data.
+`down -v` deletes local Docker volumes. In production, the external database is not deleted; only the Redis Docker volume is removed.

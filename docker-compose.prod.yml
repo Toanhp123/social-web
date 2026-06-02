@@ -1,26 +1,6 @@
 name: social-web-prod
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: social-web-postgres-prod
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-social_web}
-      POSTGRES_USER: ${POSTGRES_USER:-social_web}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
-    volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}',
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   redis:
     image: redis:7-alpine
     container_name: social-web-redis-prod
@@ -53,10 +33,7 @@ services:
     restart: 'no'
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-social_web}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-social_web}?schema=public
-    depends_on:
-      postgres:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
 
   api:
     container_name: social-web-api-prod
@@ -68,7 +45,7 @@ services:
       NODE_ENV: production
       PORT: 3001
       CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-social_web}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-social_web}?schema=public
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD}@redis:6379
       JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:?Set JWT_ACCESS_TOKEN_SECRET}
       JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
@@ -106,5 +83,4 @@ services:
         condition: service_started
 
 volumes:
-  postgres_prod_data:
   redis_prod_data:
