@@ -30,6 +30,7 @@ jobs:
       PORT: 3001
       CORS_ORIGIN: http://localhost:3000
       DATABASE_URL: postgresql://social_web:social_web@localhost:5432/social_web?schema=public
+      REDIS_URL: redis://localhost:6379
       JWT_ACCESS_TOKEN_SECRET: ci-access-token-secret
       JWT_ACCESS_EXPIRES_IN: 15m
       JWT_REFRESH_TOKEN_SECRET: ci-refresh-token-secret

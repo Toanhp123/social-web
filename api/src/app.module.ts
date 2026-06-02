@@ -7,6 +7,7 @@ import {
   appConfig,
   databaseConfig,
   jwtConfig,
+  redisConfig,
   validationSchema,
 } from '@/infrastructure/config/index.js';
 import { GlobalExceptionFilter } from '@/core/filters/global-exception.filter.js';
@@ -17,7 +18,7 @@ import { RequestContextMiddleware } from '@/core/middleware/request-context.midd
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig],
+      load: [appConfig, databaseConfig, jwtConfig, redisConfig],
       validationSchema,
     }),
 

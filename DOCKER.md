@@ -4,18 +4,24 @@ This repository has separate Docker flows for local development and production-l
 
 ## Development
 
-Development uses `docker-compose.yml`.
+Development uses `docker-compose.yml` for local infrastructure.
 
 ```sh
-docker compose up --build
+docker compose up -d
+```
+
+Create local env files for the apps:
+
+```sh
+cp api/.env.example api/.env
+cp web/.env.example web/.env.local
 ```
 
 Services:
 
 ```txt
-web:      http://localhost:3000
-api:      http://localhost:3001
 postgres: localhost:5432
+redis:    localhost:6379
 ```
 
 PostgreSQL:
@@ -26,25 +32,13 @@ user:     social_web
 password: social_web
 ```
 
-The API container runs:
-
-```sh
-npm run generate
-npx prisma migrate deploy
-npm run dev
-```
-
-The web container runs:
-
-```sh
-npm run dev -- --hostname 0.0.0.0
-```
-
-Inside Docker, the web app calls the API through:
+Redis:
 
 ```txt
-API_URL=http://api:3001
+url: redis://localhost:6379
 ```
+
+Run the API and web app from their project folders during development.
 
 ## Production
 
@@ -68,7 +62,14 @@ Production behavior:
 web:      exposed through WEB_PORT, default 3000
 api:      internal only, exposed to web as http://api:3001
 postgres: internal only
+redis:    internal only, protected by REDIS_PASSWORD
 migrate:  runs npx prisma migrate deploy before api starts
+```
+
+The production API receives:
+
+```txt
+REDIS_URL=redis://:<REDIS_PASSWORD>@redis:6379
 ```
 
 The production API image runs:
@@ -88,7 +89,8 @@ node server.js
 Development:
 
 ```sh
-docker compose exec api npm run seed
+cd api
+npm run seed
 ```
 
 Production:
@@ -120,11 +122,11 @@ Production:
 docker compose --env-file .env.production -f docker-compose.prod.yml down
 ```
 
-To remove local database volumes:
+To remove local database and cache volumes:
 
 ```sh
 docker compose down -v
 docker compose --env-file .env.production -f docker-compose.prod.yml down -v
 ```
 
-`down -v` deletes Docker database data.
+`down -v` deletes Docker database and Redis data.
