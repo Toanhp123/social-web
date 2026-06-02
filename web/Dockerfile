@@ -26,22 +26,16 @@ ENV API_URL=${API_URL}
 COPY . .
 RUN npm run build
 
-FROM base AS production-deps
-ENV NODE_ENV=production
-
-COPY package*.json ./
-RUN npm ci --omit=dev \
-  && npm cache clean --force
-
 FROM base AS production
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 ARG API_URL=http://api:3001
 ENV API_URL=${API_URL}
 
-COPY --from=production-deps /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/next.config.ts ./next.config.ts
-COPY --from=build /app/package*.json ./
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
 
+USER node
 EXPOSE 3000
-CMD ["npm", "run", "start", "--", "--hostname", "0.0.0.0"]
+CMD ["node", "server.js"]
