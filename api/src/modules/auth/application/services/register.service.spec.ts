@@ -130,13 +130,13 @@ describe('RegisterService', () => {
       refreshToken: 'refresh-token',
       refreshTokenExpiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
-    expect(executeTransaction).toHaveBeenCalledTimes(2);
+    expect(executeTransaction).toHaveBeenCalledTimes(1);
     expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
       registerContext.rateLimit,
     );
     expect(passwordHasher.hash).toHaveBeenCalledWith('secret123');
     expect(passwordHasher.hash.mock.invocationCallOrder[0]).toBeLessThan(
-      executeTransaction.mock.invocationCallOrder[1],
+      executeTransaction.mock.invocationCallOrder[0],
     );
     expect(authAccountRepository.register).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -212,7 +212,7 @@ describe('RegisterService', () => {
       statusCode: 409,
     });
 
-    expect(executeTransaction).toHaveBeenCalledTimes(1);
+    expect(executeTransaction).not.toHaveBeenCalled();
     expect(authAccountRepository.register).not.toHaveBeenCalled();
     expect(userRepository.create).not.toHaveBeenCalled();
     expect(sessionRepository.create).not.toHaveBeenCalled();
@@ -294,6 +294,6 @@ describe('RegisterService', () => {
     });
 
     expect(passwordHasher.hash).not.toHaveBeenCalled();
-    expect(executeTransaction).toHaveBeenCalledTimes(1);
+    expect(executeTransaction).not.toHaveBeenCalled();
   });
 });

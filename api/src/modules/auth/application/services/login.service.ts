@@ -67,12 +67,10 @@ export class LoginService {
     refreshTokenExpiresAt: Date;
   }> {
     const normalizedEmail = EmailAddress.normalizeAndValidate(email);
-    await this.uow.execute(() =>
-      this.authRateLimiter.assertAllowed({
-        ...context.rateLimit,
-        subject: normalizedEmail,
-      }),
-    );
+    await this.authRateLimiter.assertAllowed({
+      ...context.rateLimit,
+      subject: normalizedEmail,
+    });
 
     const sessionMetadata = context.sessionMetadata ?? {};
     const account =

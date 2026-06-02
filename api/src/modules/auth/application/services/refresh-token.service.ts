@@ -55,7 +55,7 @@ export class RefreshTokenService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    await this.uow.execute(() => this.authRateLimiter.assertAllowed(rateLimit));
+    await this.authRateLimiter.assertAllowed(rateLimit);
 
     if (!refreshToken) {
       throw new DomainError(
