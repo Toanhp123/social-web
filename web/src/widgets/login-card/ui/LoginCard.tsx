@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "@/features/login";
 
 export function LoginCard() {
@@ -9,7 +10,9 @@ export function LoginCard() {
       </p>
 
       <div className="mt-8">
-        <LoginForm />
+        <Suspense fallback={<div className="h-72" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { RegisterForm } from "@/features/register";
 
 export function RegisterCard() {
@@ -9,7 +10,9 @@ export function RegisterCard() {
       </p>
 
       <div className="mt-8">
-        <RegisterForm />
+        <Suspense fallback={<div className="h-96" />}>
+          <RegisterForm />
+        </Suspense>
       </div>
     </section>
   );
