@@ -26,7 +26,7 @@ export function hasRefreshToken(request: NextRequest) {
   return Boolean(request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value);
 }
 
-export function getMiddlewareDeviceId(request: NextRequest) {
+export function getProxyDeviceId(request: NextRequest) {
   return request.cookies.get(DEVICE_ID_COOKIE_NAME)?.value ?? crypto.randomUUID();
 }
 
@@ -48,7 +48,7 @@ export function persistDeviceIdIfMissing(
   });
 }
 
-export async function refreshAuthSessionInMiddleware(
+export async function refreshAuthSessionInProxy(
   request: NextRequest,
   response: NextResponse,
   deviceId: string,
