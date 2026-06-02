@@ -123,7 +123,7 @@ describe('LoginService', () => {
     expect(authRateLimiter.assertAllowed).toHaveBeenCalledWith(
       loginContext.rateLimit,
     );
-    expect(executeTransaction).toHaveBeenCalledTimes(2);
+    expect(executeTransaction).toHaveBeenCalledTimes(1);
     expect(passwordHasher.compare).toHaveBeenCalledWith(
       'plain-password',
       'hashed-password',
