@@ -20,6 +20,7 @@ describe('App (e2e)', () => {
   let loginService: { execute: jest.Mock };
   let refreshTokenService: { execute: jest.Mock };
   let logoutService: { execute: jest.Mock };
+  let rateLimiter: { consume: jest.Mock };
   const refreshTokenExpiresAt = new Date('2030-01-01T00:00:00.000Z');
 
   beforeAll(async () => {
@@ -31,7 +32,11 @@ describe('App (e2e)', () => {
     const { AppModule } = await import('@/app.module.js');
     const { PrismaService } =
       await import('@/infrastructure/database/prisma.service.js');
+    const { RedisService } =
+      await import('@/infrastructure/redis/redis.service.js');
     const { LoggerService } = await import('@/core/logger/logger.service.js');
+    const { RATE_LIMITER } =
+      await import('@/common/constants/provider-token.constant.js');
     const { RegisterService } =
       await import('@/modules/auth/application/services/register.service.js');
     const { LoginService } =
@@ -65,6 +70,9 @@ describe('App (e2e)', () => {
     logoutService = {
       execute: jest.fn().mockResolvedValue(undefined),
     };
+    rateLimiter = {
+      consume: jest.fn().mockResolvedValue({ allowed: true }),
+    };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -76,6 +84,14 @@ describe('App (e2e)', () => {
         onModuleInit: jest.fn(),
         onModuleDestroy: jest.fn(),
       })
+      .overrideProvider(RedisService)
+      .useValue({
+        getClient: jest.fn(),
+        onModuleInit: jest.fn(),
+        onModuleDestroy: jest.fn(),
+      })
+      .overrideProvider(RATE_LIMITER)
+      .useValue(rateLimiter)
       .overrideProvider(LoggerService)
       .useValue({
         log: jest.fn(),
@@ -109,6 +125,7 @@ describe('App (e2e)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    rateLimiter.consume.mockResolvedValue({ allowed: true });
   });
 
   afterAll(async () => {
@@ -142,6 +159,13 @@ describe('App (e2e)', () => {
     const registerCookie = getRefreshTokenCookie(registerResponse);
 
     expect(registerCookie).toBe('refreshToken=register-refresh-token');
+    const endpointRateLimitInput = rateLimiter.consume.mock.calls[0]?.[0] as
+      | { scope: string; identifier: string }
+      | undefined;
+    expect(endpointRateLimitInput).toMatchObject({
+      scope: 'endpoint:auth.register',
+    });
+    expect(endpointRateLimitInput?.identifier).toMatch(/^ip:/);
     expect(registerService.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'USER@example.com',

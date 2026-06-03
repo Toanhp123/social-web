@@ -9,9 +9,10 @@ import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refr
 import { UserModule } from '@/modules/users/user.module.js';
 import { AuthInfrastructureModule } from '@/modules/auth/infrastructure/auth-infrastructure.module.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
+import { CoreHttpModule } from '@/core/http/core-http.module.js';
 
 @Module({
-  imports: [AuthInfrastructureModule, UserModule],
+  imports: [AuthInfrastructureModule, UserModule, CoreHttpModule],
   controllers: [AuthController],
   providers: [
     LoginService,

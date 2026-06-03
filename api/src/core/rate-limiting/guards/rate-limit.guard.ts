@@ -18,6 +18,7 @@ import {
   getEndpointRateLimitPolicy,
 } from '@/core/rate-limiting/policies/rate-limit.policies.js';
 import type { RateLimiter } from '@/core/rate-limiting/ports/rate-limiter.port.js';
+import { ClientIpResolver } from '@/core/http/client-ip.resolver.js';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
@@ -26,6 +27,8 @@ export class RateLimitGuard implements CanActivate {
 
     @Inject(RATE_LIMITER)
     private readonly rateLimiter: RateLimiter,
+
+    private readonly clientIpResolver: ClientIpResolver,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -50,7 +53,7 @@ export class RateLimitGuard implements CanActivate {
 
     const result = await this.rateLimiter.consume({
       scope,
-      identifier: `ip:${this.getClientIp(request)}`,
+      identifier: `ip:${this.clientIpResolver.resolve(request)}`,
       ...policy,
     });
 
@@ -78,20 +81,5 @@ export class RateLimitGuard implements CanActivate {
     }
 
     return `endpoint:${context.getClass().name}.${context.getHandler().name}`;
-  }
-
-  private getClientIp(request: Request): string {
-    const cloudflareIp = request.header('cf-connecting-ip')?.trim();
-    if (cloudflareIp) {
-      return cloudflareIp;
-    }
-
-    const forwardedFor = request.header('x-forwarded-for');
-    const forwardedIp = forwardedFor?.split(',')[0]?.trim();
-    if (forwardedIp) {
-      return forwardedIp;
-    }
-
-    return request.ip || request.socket.remoteAddress || 'unknown';
   }
 }

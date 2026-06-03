@@ -44,6 +44,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      TRUST_PROXY: ${TRUST_PROXY:-false}
       CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN}
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD}@redis:6379

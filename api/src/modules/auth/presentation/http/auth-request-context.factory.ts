@@ -5,9 +5,12 @@ import type {
   AuthRateLimitInput,
 } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 import type { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import { ClientIpResolver } from '@/core/http/client-ip.resolver.js';
 
 @Injectable()
 export class AuthRequestContextFactory {
+  constructor(private readonly clientIpResolver: ClientIpResolver) {}
+
   createSessionMetadata(req: Request): AuthSessionMetadata {
     const deviceId = this.getDeviceId(req);
     const device = req.header('x-device-name')?.trim();
@@ -34,7 +37,7 @@ export class AuthRequestContextFactory {
   }
 
   private getClientIp(req: Request): string | undefined {
-    return req.ip ?? req.socket.remoteAddress;
+    return this.clientIpResolver.resolve(req);
   }
 
   private getDeviceId(req: Request): string | undefined {

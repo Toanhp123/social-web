@@ -58,6 +58,9 @@ jobs:
       - name: Test
         run: npm test -- --runInBand
 
+      - name: Test e2e
+        run: npm run test:e2e -- --runInBand
+
       - name: Build
         run: npm run build
 
