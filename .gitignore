@@ -3,3 +3,5 @@
 !.env*.example
 
 ARCHITECTURE.md
+README.md
+docs/
