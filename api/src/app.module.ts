@@ -15,6 +15,7 @@ import { LoggerService } from '@/core/logger/logger.service.js';
 import { RequestContextMiddleware } from '@/core/middleware/request-context.middleware.js';
 import { RateLimitGuard } from '@/core/rate-limiting/guards/rate-limit.guard.js';
 import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting.module.js';
+import { CoreHttpModule } from '@/core/http/core-http.module.js';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting
 
     UserModule,
     AuthModule,
+    CoreHttpModule,
     RateLimitingModule,
   ],
   controllers: [],

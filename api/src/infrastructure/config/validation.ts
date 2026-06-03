@@ -6,6 +6,9 @@ export const validationSchema = Joi.object({
     .valid('development', 'production', 'test')
     .default('development'),
   PORT: Joi.number().default(3001),
+  TRUST_PROXY: Joi.alternatives()
+    .try(Joi.boolean(), Joi.number(), Joi.string().allow(''))
+    .default(false),
   CORS_ORIGIN: Joi.string().allow('').optional(),
   LOG_FORMAT: Joi.string().valid('json', 'pretty').optional(),
   LOG_LEVEL: Joi.string()

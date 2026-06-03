@@ -4,6 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { RateLimiter } from '@/core/rate-limiting/ports/rate-limiter.port.js';
 import { RateLimitGuard } from '@/core/rate-limiting/guards/rate-limit.guard.js';
+import { ClientIpResolver } from '@/core/http/client-ip.resolver.js';
 
 describe('RateLimitGuard', () => {
   it('uses the default endpoint policy when no metadata is present', async () => {
@@ -15,7 +16,8 @@ describe('RateLimitGuard', () => {
     const reflector = {
       getAllAndOverride: jest.fn().mockReturnValue(undefined),
     } as unknown as Reflector;
-    const guard = new RateLimitGuard(reflector, rateLimiter);
+    const clientIpResolver = createClientIpResolver();
+    const guard = new RateLimitGuard(reflector, rateLimiter, clientIpResolver);
 
     await expect(
       guard.canActivate(
@@ -54,7 +56,8 @@ describe('RateLimitGuard', () => {
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce('auth.login'),
     } as unknown as Reflector;
-    const guard = new RateLimitGuard(reflector, rateLimiter);
+    const clientIpResolver = createClientIpResolver();
+    const guard = new RateLimitGuard(reflector, rateLimiter, clientIpResolver);
 
     await expect(
       guard.canActivate(
@@ -91,4 +94,10 @@ function createHttpContext(input: {
       }),
     }),
   } as unknown as ExecutionContext;
+}
+
+function createClientIpResolver(): ClientIpResolver {
+  return {
+    resolve: jest.fn((request: { ip?: string }) => request.ip ?? 'unknown'),
+  } as unknown as ClientIpResolver;
 }
