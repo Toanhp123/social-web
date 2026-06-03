@@ -5,7 +5,8 @@ import type { SessionRepository } from '@/modules/auth/domain/repositories/sessi
 
 export type ReplaceDeviceSessionReason =
   | 'REPLACED_BY_LOGIN'
-  | 'REPLACED_BY_REGISTER';
+  | 'REPLACED_BY_REGISTER'
+  | 'REPLACED_BY_OAUTH';
 
 @Injectable()
 export class DeviceSessionService {

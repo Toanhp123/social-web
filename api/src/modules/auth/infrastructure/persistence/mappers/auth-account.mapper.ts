@@ -26,6 +26,7 @@ export class AuthAccountMapper {
       email: input.email,
       passwordHash: input.passwordHash,
       role: input.role as PrismaUserRole,
+      emailVerifiedAt: input.emailVerifiedAt,
     };
   }
 

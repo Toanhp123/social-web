@@ -118,6 +118,10 @@ enum Permission {
   MANAGE_STORIES
 }
 
+enum OAuthProvider {
+  GOOGLE
+}
+
 // =====================================================
 // AUTH ACCOUNT
 // =====================================================
@@ -135,13 +139,34 @@ model AuthAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user     User?
-  sessions Session[]
+  user          User?
+  sessions      Session[]
+  oauthAccounts OAuthAccount[]
 
   @@index([role])
   @@index([createdAt])
   @@index([emailVerifiedAt])
   @@index([disabledAt])
+}
+
+model OAuthAccount {
+  id String @id @default(uuid())
+
+  authAccountId String
+  provider      OAuthProvider
+  providerId    String
+
+  email     String?
+  name      String?
+  avatarUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authAccount AuthAccount @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([authAccountId])
 }
 
 // =====================================================
@@ -421,6 +446,7 @@ model Friendship {
 
   user1 User @relation("FriendshipUser1", fields: [user1Id], references: [id], onDelete: Cascade)
   user2 User @relation("FriendshipUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 
   @@id([user1Id, user2Id])
   @@index([user1Id])
@@ -428,7 +454,6 @@ model Friendship {
   @@index([user1Id, createdAt])
   @@index([user2Id, createdAt])
   @@index([user1Id, user2Id])
-  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 }
 
 model FriendRequest {
@@ -444,13 +469,13 @@ model FriendRequest {
 
   requester User @relation("SentRequests", fields: [requesterId], references: [id], onDelete: Cascade)
   receiver  User @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 
   @@unique([requesterId, receiverId]) // Ngăn A gửi B nhiều lần
   @@unique([receiverId, requesterId]) // ← QUAN TRỌNG: Ngăn B gửi A khi A đã gửi B
   @@index([receiverId, status])
   @@index([requesterId, status])
   @@index([createdAt])
-  // Symmetric uniqueness and no-self checks are enforced by raw SQL migration.
 }
 
 // =====================================================

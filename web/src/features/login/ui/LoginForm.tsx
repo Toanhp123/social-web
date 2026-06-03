@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button, Input } from "@/shared/ui";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { getAuthRouteHref } from "@/shared/lib/auth-redirect";
+import { GoogleLoginLink } from "@/features/oauth/ui/GoogleLoginLink";
 import { useLoginMutation } from "../model/use-login-mutation";
 
 export function LoginForm() {
@@ -22,6 +23,16 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <GoogleLoginLink
+        callbackUrl={searchParams?.get(CALLBACK_URL_SEARCH_PARAM)}
+      />
+
+      <div className="flex items-center gap-3 text-xs uppercase text-zinc-500">
+        <span className="h-px flex-1 bg-zinc-800" />
+        <span>Email</span>
+        <span className="h-px flex-1 bg-zinc-800" />
+      </div>
+
       <div>
         <label className="text-sm text-zinc-300">Email</label>
         <Input name="email" type="email" required />

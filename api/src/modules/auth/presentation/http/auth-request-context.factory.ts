@@ -11,8 +11,11 @@ import { ClientIpResolver } from '@/core/http/client-ip.resolver.js';
 export class AuthRequestContextFactory {
   constructor(private readonly clientIpResolver: ClientIpResolver) {}
 
-  createSessionMetadata(req: Request): AuthSessionMetadata {
-    const deviceId = this.getDeviceId(req);
+  createSessionMetadata(
+    req: Request,
+    options: { deviceId?: string } = {},
+  ): AuthSessionMetadata {
+    const deviceId = options.deviceId ?? this.getDeviceId(req);
     const device = req.header('x-device-name')?.trim();
 
     return {
