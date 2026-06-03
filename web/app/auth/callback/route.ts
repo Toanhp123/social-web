@@ -5,10 +5,7 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
 } from "@/entities/session";
 import { authOAuthSessionApi } from "@/features/oauth";
-import {
-  CALLBACK_URL_SEARCH_PARAM,
-  ROUTES,
-} from "@/shared/config/routes";
+import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { env } from "@/shared/config/env.server";
 import { getPostAuthRedirectPath } from "@/shared/lib/auth-redirect";
 
@@ -31,7 +28,7 @@ export async function GET(request: NextRequest) {
   try {
     const result = await authOAuthSessionApi(code, deviceId);
     const response = NextResponse.redirect(
-      new URL(getPostAuthRedirectPath(callbackUrl), request.url),
+      createBrowserRedirectUrl(getPostAuthRedirectPath(callbackUrl), request),
     );
 
     persistDeviceIdIfMissing(request, response, deviceId);
@@ -53,7 +50,7 @@ function redirectToLogin(
   callbackUrl: string | null,
   deviceId: string,
 ): NextResponse {
-  const loginUrl = new URL(ROUTES.login, request.url);
+  const loginUrl = createBrowserRedirectUrl(ROUTES.login, request);
 
   loginUrl.searchParams.set("error", "oauth_failed");
 
@@ -68,6 +65,16 @@ function redirectToLogin(
   persistDeviceIdIfMissing(request, response, deviceId);
 
   return response;
+}
+
+function createBrowserRedirectUrl(path: string, request: NextRequest): URL {
+  const url = new URL(path, request.url);
+
+  if (url.hostname === "0.0.0.0") {
+    url.hostname = "localhost";
+  }
+
+  return url;
 }
 
 function persistDeviceIdIfMissing(

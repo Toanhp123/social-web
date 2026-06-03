@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AUTH_ROUTES, CALLBACK_URL_SEARCH_PARAM } from "@/shared/config/routes";
 import { getSafeRedirectPath } from "@/shared/lib/redirect-path";
 
@@ -21,7 +20,7 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
   }`;
 
   return (
-    <Link
+    <a
       href={href}
       className={[
         "flex w-full items-center justify-center gap-3 rounded-xl",
@@ -33,6 +32,6 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
         G
       </span>
       Continue with Google
-    </Link>
+    </a>
   );
 }
