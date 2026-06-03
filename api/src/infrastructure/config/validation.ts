@@ -19,6 +19,11 @@ export const validationSchema = Joi.object({
   DATABASE_URL: Joi.string().required(),
   PRISMA_QUERY_LOG: Joi.boolean().default(false),
   REDIS_URL: Joi.string().uri().default('redis://localhost:6379'),
+  CLOUDINARY_CLOUD_NAME: Joi.string().allow('').optional(),
+  CLOUDINARY_API_KEY: Joi.string().allow('').optional(),
+  CLOUDINARY_API_SECRET: Joi.string().allow('').optional(),
+  CLOUDINARY_UPLOAD_FOLDER: Joi.string().default('social-web'),
+  CLOUDINARY_SECURE: Joi.boolean().default(true),
 
   // JWT Validate
   JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
