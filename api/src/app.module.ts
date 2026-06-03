@@ -5,6 +5,7 @@ import { UserModule } from '@/modules/users/user.module.js';
 import { AuthModule } from '@/modules/auth/auth.module.js';
 import {
   appConfig,
+  cloudinaryConfig,
   databaseConfig,
   jwtConfig,
   redisConfig,
@@ -16,18 +17,26 @@ import { RequestContextMiddleware } from '@/core/middleware/request-context.midd
 import { RateLimitGuard } from '@/core/rate-limiting/guards/rate-limit.guard.js';
 import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting.module.js';
 import { CoreHttpModule } from '@/core/http/core-http.module.js';
+import { CloudinaryModule } from '@/infrastructure/storage/cloudinary/cloudinary.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, redisConfig],
+      load: [
+        appConfig,
+        cloudinaryConfig,
+        databaseConfig,
+        jwtConfig,
+        redisConfig,
+      ],
       validationSchema,
     }),
 
     UserModule,
     AuthModule,
     CoreHttpModule,
+    CloudinaryModule,
     RateLimitingModule,
   ],
   controllers: [],
