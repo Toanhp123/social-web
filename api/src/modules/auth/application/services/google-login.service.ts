@@ -11,6 +11,7 @@ import {
   USER_REPOSITORY,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
+import { DatabaseError } from '@/core/exceptions/database.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { UserRole } from '@/core/security/enums/user-role.enum.js';
@@ -89,9 +90,92 @@ export class GoogleLoginService {
     });
 
     const sessionMetadata = context.sessionMetadata ?? {};
+    try {
+      const accountByOAuth =
+        await this.authAccountRepository.findByOAuthAccount({
+          provider: 'GOOGLE',
+          providerId: normalizedProfile.providerId,
+        });
+
+      if (accountByOAuth) {
+        this.assertAccountCanLogin(accountByOAuth);
+
+        return await this.uow.execute(async () =>
+          this.issueSession(accountByOAuth, sessionMetadata),
+        );
+      }
+
+      const accountByEmail = await this.authAccountRepository.findByEmail(
+        normalizedProfile.email,
+      );
+
+      if (accountByEmail) {
+        this.assertAccountCanLogin(accountByEmail);
+
+        return await this.uow.execute(async () => {
+          await this.authAccountRepository.linkOAuthAccount({
+            authAccountId: accountByEmail.id,
+            provider: 'GOOGLE',
+            providerId: normalizedProfile.providerId,
+            email: normalizedProfile.email,
+            name: normalizedProfile.name,
+            avatarUrl: normalizedProfile.avatarUrl,
+          });
+
+          return await this.issueSession(accountByEmail, sessionMetadata);
+        });
+      }
+
+      const passwordHash = await this.passwordHasher.hash(
+        randomBytes(32).toString('base64url'),
+      );
+
+      return await this.uow.execute(async () => {
+        const account = await this.authAccountRepository.register({
+          email: normalizedProfile.email,
+          passwordHash,
+          role: UserRole.USER,
+          emailVerifiedAt: new Date(),
+        });
+
+        await this.userRepository.create({
+          id: account.id,
+          fullName: normalizedProfile.fullName,
+          username: null,
+        });
+
+        await this.authAccountRepository.linkOAuthAccount({
+          authAccountId: account.id,
+          provider: 'GOOGLE',
+          providerId: normalizedProfile.providerId,
+          email: normalizedProfile.email,
+          name: normalizedProfile.name,
+          avatarUrl: normalizedProfile.avatarUrl,
+        });
+
+        return await this.issueSession(account, sessionMetadata);
+      });
+    } catch (error) {
+      if (!this.isDuplicateField(error)) {
+        throw error;
+      }
+
+      return await this.recoverDuplicateOAuthLogin(
+        normalizedProfile,
+        sessionMetadata,
+        error,
+      );
+    }
+  }
+
+  private async recoverDuplicateOAuthLogin(
+    profile: NormalizedGoogleProfile,
+    sessionMetadata: AuthSessionMetadata,
+    originalError: unknown,
+  ): Promise<AuthTokens> {
     const accountByOAuth = await this.authAccountRepository.findByOAuthAccount({
       provider: 'GOOGLE',
-      providerId: normalizedProfile.providerId,
+      providerId: profile.providerId,
     });
 
     if (accountByOAuth) {
@@ -103,55 +187,50 @@ export class GoogleLoginService {
     }
 
     const accountByEmail = await this.authAccountRepository.findByEmail(
-      normalizedProfile.email,
+      profile.email,
     );
 
-    if (accountByEmail) {
-      this.assertAccountCanLogin(accountByEmail);
+    if (!accountByEmail) {
+      throw originalError;
+    }
 
+    this.assertAccountCanLogin(accountByEmail);
+
+    try {
       return await this.uow.execute(async () => {
         await this.authAccountRepository.linkOAuthAccount({
           authAccountId: accountByEmail.id,
           provider: 'GOOGLE',
-          providerId: normalizedProfile.providerId,
-          email: normalizedProfile.email,
-          name: normalizedProfile.name,
-          avatarUrl: normalizedProfile.avatarUrl,
+          providerId: profile.providerId,
+          email: profile.email,
+          name: profile.name,
+          avatarUrl: profile.avatarUrl,
         });
 
         return await this.issueSession(accountByEmail, sessionMetadata);
       });
+    } catch (error) {
+      if (!this.isDuplicateField(error)) {
+        throw error;
+      }
+
+      const linkedAccount = await this.authAccountRepository.findByOAuthAccount(
+        {
+          provider: 'GOOGLE',
+          providerId: profile.providerId,
+        },
+      );
+
+      if (!linkedAccount) {
+        throw error;
+      }
+
+      this.assertAccountCanLogin(linkedAccount);
+
+      return await this.uow.execute(async () =>
+        this.issueSession(linkedAccount, sessionMetadata),
+      );
     }
-
-    const passwordHash = await this.passwordHasher.hash(
-      randomBytes(32).toString('base64url'),
-    );
-
-    return await this.uow.execute(async () => {
-      const account = await this.authAccountRepository.register({
-        email: normalizedProfile.email,
-        passwordHash,
-        role: UserRole.USER,
-        emailVerifiedAt: new Date(),
-      });
-
-      await this.userRepository.create({
-        id: account.id,
-        fullName: normalizedProfile.fullName,
-        username: null,
-      });
-
-      await this.authAccountRepository.linkOAuthAccount({
-        authAccountId: account.id,
-        provider: 'GOOGLE',
-        providerId: normalizedProfile.providerId,
-        email: normalizedProfile.email,
-        name: normalizedProfile.name,
-        avatarUrl: normalizedProfile.avatarUrl,
-      });
-
-      return await this.issueSession(account, sessionMetadata);
-    });
   }
 
   private normalizeProfile(profile: OAuthProfile): NormalizedGoogleProfile {
@@ -200,6 +279,12 @@ export class GoogleLoginService {
         { email: account.email },
       );
     }
+  }
+
+  private isDuplicateField(error: unknown): boolean {
+    return (
+      error instanceof DatabaseError && error.code === ErrorCode.DUPLICATE_FIELD
+    );
   }
 
   private async issueSession(
