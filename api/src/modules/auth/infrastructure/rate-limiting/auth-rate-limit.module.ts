@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AUTH_RATE_LIMITER } from '@/common/constants/provider-token.constant.js';
-import { RedisModule } from '@/infrastructure/redis/redis.module.js';
+import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting.module.js';
 import { RedisAuthRateLimiter } from '@/modules/auth/infrastructure/rate-limiting/redis-auth-rate-limiter.js';
 
 @Module({
-  imports: [RedisModule],
+  imports: [RateLimitingModule],
   providers: [
     {
       provide: AUTH_RATE_LIMITER,

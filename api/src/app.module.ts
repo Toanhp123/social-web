@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { UserModule } from '@/modules/users/user.module.js';
 import { AuthModule } from '@/modules/auth/auth.module.js';
 import {
@@ -13,6 +13,8 @@ import {
 import { GlobalExceptionFilter } from '@/core/filters/global-exception.filter.js';
 import { LoggerService } from '@/core/logger/logger.service.js';
 import { RequestContextMiddleware } from '@/core/middleware/request-context.middleware.js';
+import { RateLimitGuard } from '@/core/rate-limiting/guards/rate-limit.guard.js';
+import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting.module.js';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { RequestContextMiddleware } from '@/core/middleware/request-context.midd
 
     UserModule,
     AuthModule,
+    RateLimitingModule,
   ],
   controllers: [],
   providers: [
@@ -31,6 +34,10 @@ import { RequestContextMiddleware } from '@/core/middleware/request-context.midd
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
     },
   ],
 })
