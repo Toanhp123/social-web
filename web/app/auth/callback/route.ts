@@ -55,6 +55,8 @@ function redirectToLogin(
 ): NextResponse {
   const loginUrl = new URL(ROUTES.login, request.url);
 
+  loginUrl.searchParams.set("error", "oauth_failed");
+
   if (callbackUrl) {
     loginUrl.searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
   }
