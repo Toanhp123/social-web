@@ -14,6 +14,7 @@ export const validationSchema = Joi.object({
   LOG_LEVEL: Joi.string()
     .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
     .optional(),
+  WEB_APP_URL: Joi.string().uri().default('http://localhost:3000'),
 
   // Database Validate
   DATABASE_URL: Joi.string().required(),
@@ -35,4 +36,12 @@ export const validationSchema = Joi.object({
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
   JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
+
+  // OAuth Validate
+  OAUTH_STATE_SECRET: Joi.string().allow('').optional(),
+  GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
+  GOOGLE_CLIENT_SECRET: Joi.string().allow('').optional(),
+  GOOGLE_CALLBACK_URL: Joi.string()
+    .uri()
+    .default('http://localhost:3001/auth/google/callback'),
 });

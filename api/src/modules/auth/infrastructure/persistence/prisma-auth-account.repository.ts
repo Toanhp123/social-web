@@ -6,6 +6,8 @@ import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import {
   AuthAccountRepository,
+  LinkOAuthAccountInput,
+  OAuthAccountLookupInput,
   RegisterAuthAccountInput,
 } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
@@ -54,6 +56,34 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     }
   }
 
+  async findByOAuthAccount(
+    input: OAuthAccountLookupInput,
+  ): Promise<AuthAccount | null> {
+    const client = this.getClient();
+
+    try {
+      const oauthAccount = await client.oAuthAccount.findUnique({
+        where: {
+          provider_providerId: {
+            provider: input.provider,
+            providerId: input.providerId,
+          },
+        },
+        select: {
+          authAccount: {
+            select: this.selectAuthAccount(),
+          },
+        },
+      });
+
+      return oauthAccount
+        ? AuthAccountMapper.toDomain(oauthAccount.authAccount)
+        : null;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   async register(input: RegisterAuthAccountInput): Promise<AuthAccount> {
     const client = this.getClient();
     const accountId = randomUUID();
@@ -65,6 +95,25 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
       });
 
       return AuthAccountMapper.toDomain(createdAccount);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async linkOAuthAccount(input: LinkOAuthAccountInput): Promise<void> {
+    const client = this.getClient();
+
+    try {
+      await client.oAuthAccount.create({
+        data: {
+          authAccountId: input.authAccountId,
+          provider: input.provider,
+          providerId: input.providerId,
+          email: input.email,
+          name: input.name,
+          avatarUrl: input.avatarUrl,
+        },
+      });
     } catch (error) {
       throw mapPrismaError(error);
     }

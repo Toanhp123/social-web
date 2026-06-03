@@ -21,7 +21,9 @@ CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
 FROM deps AS build
 ENV NODE_ENV=production
 ARG API_URL=http://api:3001
+ARG API_PUBLIC_URL=http://localhost:3001
 ENV API_URL=${API_URL}
+ENV API_PUBLIC_URL=${API_PUBLIC_URL}
 
 COPY . .
 RUN npm run build
@@ -31,7 +33,9 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ARG API_URL=http://api:3001
+ARG API_PUBLIC_URL=http://localhost:3001
 ENV API_URL=${API_URL}
+ENV API_PUBLIC_URL=${API_PUBLIC_URL}
 
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static

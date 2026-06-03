@@ -25,6 +25,11 @@ const AUTH_RATE_LIMIT_POLICIES: Record<
     windowSeconds: 60,
     blockSeconds: 60,
   },
+  oauth: {
+    limit: 20,
+    windowSeconds: 15 * 60,
+    blockSeconds: 5 * 60,
+  },
 };
 
 export function getAuthRateLimitPolicy(

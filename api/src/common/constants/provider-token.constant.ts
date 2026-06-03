@@ -8,3 +8,6 @@ export const TOKEN_SERVICE = Symbol('TOKEN_SERVICE');
 export const UNIT_OF_WORK = Symbol('UNIT_OF_WORK');
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 export const FILE_STORAGE = Symbol('FILE_STORAGE');
+export const OAUTH_SESSION_HANDOFF_STORE = Symbol(
+  'OAUTH_SESSION_HANDOFF_STORE',
+);

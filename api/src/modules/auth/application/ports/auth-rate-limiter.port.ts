@@ -1,4 +1,4 @@
-export type AuthRateLimitAction = 'login' | 'register' | 'refresh';
+export type AuthRateLimitAction = 'login' | 'register' | 'refresh' | 'oauth';
 
 export type AuthRateLimitInput = {
   action: AuthRateLimitAction;
