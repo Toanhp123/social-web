@@ -35,6 +35,25 @@ services:
             NODE_ENV: production
             DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
 
+    seed-users:
+        container_name: social-web-seed-users-prod
+        build:
+            context: ./api
+            target: migration
+        profiles:
+            - seed
+        restart: "no"
+        command: ["npm", "run", "seed:users"]
+        environment:
+            NODE_ENV: production
+            DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+            SEED_USERS: ${SEED_USERS:-100000}
+            SEED_BATCH_SIZE: ${SEED_BATCH_SIZE:-1000}
+            SEED_PASSWORD: ${SEED_PASSWORD:?Set SEED_PASSWORD}
+        depends_on:
+            migrate:
+                condition: service_completed_successfully
+
     api:
         container_name: social-web-api-prod
         build:
