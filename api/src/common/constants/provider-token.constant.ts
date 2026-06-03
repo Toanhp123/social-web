@@ -1,6 +1,7 @@
 export const AUTH_ACCOUNT_REPOSITORY = Symbol('AUTH_ACCOUNT_REPOSITORY');
 export const AUTH_RATE_LIMITER = Symbol('AUTH_RATE_LIMITER');
 export const PASSWORD_HASHER = Symbol('PASSWORD_HASHER');
+export const RATE_LIMITER = Symbol('RATE_LIMITER');
 export const SESSION_REPOSITORY = Symbol('SESSION_REPOSITORY');
 export const TOKEN_HASHER = Symbol('TOKEN_HASHER');
 export const TOKEN_SERVICE = Symbol('TOKEN_SERVICE');

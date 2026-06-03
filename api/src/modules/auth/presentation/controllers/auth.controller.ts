@@ -10,6 +10,7 @@ import { AuthResponseDto } from '@/modules/auth/presentation/dto/auth-response.d
 import { LogoutService } from '@/modules/auth/application/services/logout.service.js';
 import { AuthRequestContextFactory } from '@/modules/auth/presentation/http/auth-request-context.factory.js';
 import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refresh-token-cookie.service.js';
+import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +24,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @RateLimit('auth.login')
   @HttpCode(200)
   async login(
     @Body() loginDto: LoginDto,
@@ -45,6 +47,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @RateLimit('auth.register')
   @HttpCode(201)
   async register(
     @Body() registerDto: RegisterDto,
@@ -67,6 +70,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @RateLimit('auth.refresh')
   @HttpCode(200)
   async refresh(
     @RefreshToken() refreshToken: string | undefined,
@@ -96,6 +100,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @RateLimit('auth.logout')
   @HttpCode(204)
   async logout(
     @RefreshToken() refreshToken: string | undefined,
