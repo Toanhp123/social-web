@@ -25,11 +25,11 @@ export type CloudinaryUploadResult = {
   publicId: string;
   secureUrl: string;
   resourceType: CloudinaryUploadResourceType;
-  format: string;
+  format?: string;
   bytes: number;
-  width: number;
-  height: number;
-  originalFilename: string;
+  width?: number;
+  height?: number;
+  originalFilename?: string;
   createdAt: Date;
 };
 

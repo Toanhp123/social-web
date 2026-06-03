@@ -8,6 +8,7 @@ import {
   cloudinaryConfig,
   databaseConfig,
   jwtConfig,
+  queueConfig,
   redisConfig,
   validationSchema,
 } from '@/infrastructure/config/index.js';
@@ -17,7 +18,8 @@ import { RequestContextMiddleware } from '@/core/middleware/request-context.midd
 import { RateLimitGuard } from '@/core/rate-limiting/guards/rate-limit.guard.js';
 import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting.module.js';
 import { CoreHttpModule } from '@/core/http/core-http.module.js';
-import { CloudinaryModule } from '@/infrastructure/storage/cloudinary/cloudinary.module.js';
+import { QueueModule } from '@/infrastructure/queue/queue.module.js';
+import { MediaModule } from '@/modules/media/media.module.js';
 
 @Module({
   imports: [
@@ -28,15 +30,16 @@ import { CloudinaryModule } from '@/infrastructure/storage/cloudinary/cloudinary
         cloudinaryConfig,
         databaseConfig,
         jwtConfig,
+        queueConfig,
         redisConfig,
       ],
       validationSchema,
     }),
-
+    MediaModule,
     UserModule,
     AuthModule,
     CoreHttpModule,
-    CloudinaryModule,
+    QueueModule,
     RateLimitingModule,
   ],
   controllers: [],
