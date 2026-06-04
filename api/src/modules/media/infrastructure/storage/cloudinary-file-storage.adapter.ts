@@ -13,7 +13,10 @@ export class CloudinaryFileStorageAdapter implements FileStoragePort {
   constructor(private readonly cloudinary: CloudinaryService) {}
 
   async upload(input: UploadFileInput): Promise<UploadFileResult> {
-    const result = await this.cloudinary.uploadBuffer(input);
+    const result = await this.cloudinary.uploadBuffer({
+      ...input,
+      overwrite: input.overwrite,
+    });
 
     return {
       publicId: result.publicId,

@@ -6,6 +6,7 @@ export type UploadFileInput = {
   folder?: string;
   publicId?: string;
   resourceType?: UploadFileResourceType;
+  overwrite?: boolean;
 };
 
 export type UploadFileResult = {
