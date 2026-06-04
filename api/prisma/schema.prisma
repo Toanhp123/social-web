@@ -139,14 +139,30 @@ model AuthAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user          User?
-  sessions      Session[]
-  oauthAccounts OAuthAccount[]
+  user                    User?
+  sessions                Session[]
+  oauthAccounts           OAuthAccount[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([role])
   @@index([createdAt])
   @@index([emailVerifiedAt])
   @@index([disabledAt])
+}
+
+model EmailVerificationToken {
+  id            String    @id @default(uuid())
+  authAccountId String
+  tokenHash     String    @unique
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  authAccount AuthAccount @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
+
+  @@index([authAccountId])
+  @@index([expiresAt])
+  @@index([usedAt])
 }
 
 model OAuthAccount {

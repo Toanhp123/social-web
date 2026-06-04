@@ -25,6 +25,7 @@ import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-a
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
+import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
@@ -63,6 +64,7 @@ export class RegisterService {
     private readonly authRateLimiter: AuthRateLimiter,
 
     private readonly deviceSessionService: DeviceSessionService,
+    private readonly sendEmailVerificationService: SendEmailVerificationService,
   ) {}
 
   async execute(
@@ -100,7 +102,7 @@ export class RegisterService {
     const passwordHash = await this.passwordHasher.hash(input.password);
 
     try {
-      return await this.uow.execute(async () => {
+      const result = await this.uow.execute(async () => {
         const newAccount = await this.authAccountRepository.register({
           email: profile.email,
           passwordHash,
@@ -132,8 +134,23 @@ export class RegisterService {
           ...sessionMetadata,
         });
 
-        return { accessToken, refreshToken, refreshTokenExpiresAt };
+        return {
+          authAccountId: newAccount.id,
+          accessToken,
+          refreshToken,
+          refreshTokenExpiresAt,
+        };
       });
+
+      await this.sendEmailVerificationService.executeSilently(
+        result.authAccountId,
+      );
+
+      return {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        refreshTokenExpiresAt: result.refreshTokenExpiresAt,
+      };
     } catch (error) {
       if (this.isDuplicateField(error, 'email')) {
         throw new DomainError(

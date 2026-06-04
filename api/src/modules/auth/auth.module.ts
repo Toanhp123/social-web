@@ -12,7 +12,10 @@ import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refr
 import { UserModule } from '@/modules/users/user.module.js';
 import { AuthInfrastructureModule } from '@/modules/auth/infrastructure/auth-infrastructure.module.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
+import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
+import { VerifyEmailService } from '@/modules/auth/application/services/verify-email.service.js';
 import { CoreHttpModule } from '@/core/http/core-http.module.js';
+import { LoggerService } from '@/core/logger/logger.service.js';
 import {
   GoogleOAuthCallbackGuard,
   GoogleOAuthGuard,
@@ -26,12 +29,15 @@ import {
     RegisterService,
     GoogleLoginService,
     DeviceSessionService,
+    SendEmailVerificationService,
+    VerifyEmailService,
     RefreshTokenService,
     LogoutService,
     AuthRequestContextFactory,
     GoogleOAuthCallbackGuard,
     GoogleOAuthGuard,
     GoogleOAuthStateService,
+    LoggerService,
     RefreshTokenCookieService,
   ],
 })

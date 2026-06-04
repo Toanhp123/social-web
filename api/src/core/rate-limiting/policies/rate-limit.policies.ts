@@ -35,6 +35,16 @@ const ENDPOINT_RATE_LIMIT_POLICIES = {
     windowSeconds: 60,
     blockSeconds: 60,
   },
+  'auth.emailVerification.send': {
+    limit: 5,
+    windowSeconds: 60,
+    blockSeconds: 5 * 60,
+  },
+  'auth.emailVerification.verify': {
+    limit: 30,
+    windowSeconds: 60,
+    blockSeconds: 60,
+  },
 } satisfies Record<string, EndpointRateLimitPolicy>;
 
 export type EndpointRateLimitPolicyName =

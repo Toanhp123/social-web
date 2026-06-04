@@ -31,6 +31,18 @@ export const validationSchema = Joi.object({
   CLOUDINARY_UPLOAD_FOLDER: Joi.string().default('social-web'),
   CLOUDINARY_SECURE: Joi.boolean().default(true),
 
+  // Email Validate
+  SMTP_HOST: Joi.string().allow('').optional(),
+  SMTP_PORT: Joi.number().integer().min(1).max(65535).default(587),
+  SMTP_SECURE: Joi.boolean().default(false),
+  SMTP_USER: Joi.string().allow('').optional(),
+  SMTP_PASS: Joi.string().allow('').optional(),
+  EMAIL_FROM: Joi.string().allow('').default('Social Web <no-reply@localhost>'),
+  EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: Joi.number()
+    .integer()
+    .min(1)
+    .default(30),
+
   // JWT Validate
   JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),

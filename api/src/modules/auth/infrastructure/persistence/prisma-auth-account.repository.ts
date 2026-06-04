@@ -119,6 +119,25 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     }
   }
 
+  async markEmailVerified(input: {
+    authAccountId: string;
+    verifiedAt: Date;
+  }): Promise<AuthAccount> {
+    const client = this.getClient();
+
+    try {
+      const account = await client.authAccount.update({
+        where: { id: input.authAccountId },
+        data: { emailVerifiedAt: input.verifiedAt },
+        select: this.selectAuthAccount(),
+      });
+
+      return AuthAccountMapper.toDomain(account);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   private selectAuthAccount() {
     return {
       id: true,

@@ -5,12 +5,14 @@ import { default as oauthConfig } from '@/infrastructure/config/oauth.config.js'
 import { default as queueConfig } from '@/infrastructure/config/queue.config.js';
 import { default as redisConfig } from '@/infrastructure/config/redis.config.js';
 import { default as cloudinaryConfig } from '@/infrastructure/config/cloudinary.config.js';
+import { default as emailConfig } from '@/infrastructure/config/email.config.js';
 import { validationSchema } from '@/infrastructure/config/validation.js';
 
 export {
   appConfig,
   cloudinaryConfig,
   databaseConfig,
+  emailConfig,
   jwtConfig,
   oauthConfig,
   queueConfig,
