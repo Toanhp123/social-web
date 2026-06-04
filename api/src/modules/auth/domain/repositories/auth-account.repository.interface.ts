@@ -29,4 +29,8 @@ export abstract class AuthAccountRepository {
   ): Promise<AuthAccount | null>;
   abstract register(input: RegisterAuthAccountInput): Promise<AuthAccount>;
   abstract linkOAuthAccount(input: LinkOAuthAccountInput): Promise<void>;
+  abstract markEmailVerified(input: {
+    authAccountId: string;
+    verifiedAt: Date;
+  }): Promise<AuthAccount>;
 }

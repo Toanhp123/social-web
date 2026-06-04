@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginService } from '@/modules/auth/application/services/login.service.js';
 import { LoginDto } from '@/modules/auth/presentation/dto/login.dto.js';
 import type { Request, Response } from 'express';
@@ -11,6 +19,13 @@ import { LogoutService } from '@/modules/auth/application/services/logout.servic
 import { AuthRequestContextFactory } from '@/modules/auth/presentation/http/auth-request-context.factory.js';
 import { RefreshTokenCookieService } from '@/modules/auth/presentation/http/refresh-token-cookie.service.js';
 import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.js';
+import { CurrentUser } from '@/core/security/decorators/current-user.decorator.js';
+import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
+import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
+import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
+import { VerifyEmailService } from '@/modules/auth/application/services/verify-email.service.js';
+import { SendEmailVerificationResponseDto } from '@/modules/auth/presentation/dto/send-email-verification-response.dto.js';
+import { VerifyEmailDto } from '@/modules/auth/presentation/dto/verify-email.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +34,8 @@ export class AuthController {
     private registerService: RegisterService,
     private refreshTokenService: RefreshTokenService,
     private logoutService: LogoutService,
+    private sendEmailVerificationService: SendEmailVerificationService,
+    private verifyEmailService: VerifyEmailService,
     private requestContextFactory: AuthRequestContextFactory,
     private refreshTokenCookie: RefreshTokenCookieService,
   ) {}
@@ -108,5 +125,24 @@ export class AuthController {
   ): Promise<void> {
     await this.logoutService.execute(refreshToken);
     this.refreshTokenCookie.clear(res);
+  }
+
+  @Post('email-verification/send')
+  @UseGuards(JwtAuthGuard)
+  @RateLimit('auth.emailVerification.send')
+  @HttpCode(200)
+  async sendEmailVerification(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<SendEmailVerificationResponseDto> {
+    const result = await this.sendEmailVerificationService.execute(user.userId);
+
+    return SendEmailVerificationResponseDto.fromResult(result);
+  }
+
+  @Post('email-verification/verify')
+  @RateLimit('auth.emailVerification.verify')
+  @HttpCode(204)
+  async verifyEmail(@Body() dto: VerifyEmailDto): Promise<void> {
+    await this.verifyEmailService.execute(dto.token);
   }
 }

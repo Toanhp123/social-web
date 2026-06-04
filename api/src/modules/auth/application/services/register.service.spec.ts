@@ -14,6 +14,7 @@ import { RegisterService } from '@/modules/auth/application/services/register.se
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
 import { AuthRateLimiter } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
+import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
 
 describe('RegisterService', () => {
   const createdAuthAccount = new AuthAccount(
@@ -31,6 +32,7 @@ describe('RegisterService', () => {
   let tokenHasher: jest.Mocked<TokenHasher>;
   let authRateLimiter: jest.Mocked<AuthRateLimiter>;
   let deviceSessionService: jest.Mocked<DeviceSessionService>;
+  let sendEmailVerificationService: jest.Mocked<SendEmailVerificationService>;
   let uow: UnitOfWork;
   let executeTransaction: jest.Mock;
   let service: RegisterService;
@@ -49,7 +51,10 @@ describe('RegisterService', () => {
     authAccountRepository = {
       findById: jest.fn(),
       findByEmail: jest.fn(),
+      findByOAuthAccount: jest.fn(),
       register: jest.fn(),
+      linkOAuthAccount: jest.fn(),
+      markEmailVerified: jest.fn(),
     };
 
     userRepository = {
@@ -98,6 +103,11 @@ describe('RegisterService', () => {
       replaceActiveSessionForDevice: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<DeviceSessionService>;
 
+    sendEmailVerificationService = {
+      execute: jest.fn(),
+      executeSilently: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<SendEmailVerificationService>;
+
     service = new RegisterService(
       authAccountRepository,
       userRepository,
@@ -108,6 +118,7 @@ describe('RegisterService', () => {
       uow,
       authRateLimiter,
       deviceSessionService,
+      sendEmailVerificationService,
     );
   });
 
@@ -155,6 +166,9 @@ describe('RegisterService', () => {
       refreshTokenHash: 'refresh-token-hash',
       expiresAt: new Date('2030-01-01T00:00:00.000Z'),
     });
+    expect(sendEmailVerificationService.executeSilently).toHaveBeenCalledWith(
+      'user-1',
+    );
   });
 
   it('revokes an active session for the same device before creating a registration session', async () => {
