@@ -41,6 +41,12 @@ export function LoginForm() {
       <div>
         <label className="text-sm text-zinc-300">Mật khẩu</label>
         <Input name="password" type="password" required />
+        <Link
+          href={ROUTES.forgotPassword}
+          className="mt-2 block text-right text-sm text-blue-400 hover:text-blue-300"
+        >
+          Quên mật khẩu?
+        </Link>
       </div>
 
       {errorMessage && (
