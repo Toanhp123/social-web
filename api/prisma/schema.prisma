@@ -143,6 +143,7 @@ model AuthAccount {
   sessions                Session[]
   oauthAccounts           OAuthAccount[]
   emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
 
   @@index([role])
   @@index([createdAt])
@@ -151,6 +152,21 @@ model AuthAccount {
 }
 
 model EmailVerificationToken {
+  id            String    @id @default(uuid())
+  authAccountId String
+  tokenHash     String    @unique
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  authAccount AuthAccount @relation(fields: [authAccountId], references: [id], onDelete: Cascade)
+
+  @@index([authAccountId])
+  @@index([expiresAt])
+  @@index([usedAt])
+}
+
+model PasswordResetToken {
   id            String    @id @default(uuid())
   authAccountId String
   tokenHash     String    @unique

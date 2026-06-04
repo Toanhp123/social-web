@@ -138,6 +138,29 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     }
   }
 
+  async updatePassword(input: {
+    authAccountId: string;
+    passwordHash: string;
+    passwordChangedAt: Date;
+  }): Promise<AuthAccount> {
+    const client = this.getClient();
+
+    try {
+      const account = await client.authAccount.update({
+        where: { id: input.authAccountId },
+        data: {
+          passwordHash: input.passwordHash,
+          passwordChangedAt: input.passwordChangedAt,
+        },
+        select: this.selectAuthAccount(),
+      });
+
+      return AuthAccountMapper.toDomain(account);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   private selectAuthAccount() {
     return {
       id: true,

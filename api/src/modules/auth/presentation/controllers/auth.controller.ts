@@ -24,8 +24,13 @@ import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
 import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
 import { VerifyEmailService } from '@/modules/auth/application/services/verify-email.service.js';
+import { RequestPasswordResetService } from '@/modules/auth/application/services/request-password-reset.service.js';
+import { ResetPasswordService } from '@/modules/auth/application/services/reset-password.service.js';
 import { SendEmailVerificationResponseDto } from '@/modules/auth/presentation/dto/send-email-verification-response.dto.js';
 import { VerifyEmailDto } from '@/modules/auth/presentation/dto/verify-email.dto.js';
+import { RequestPasswordResetDto } from '@/modules/auth/presentation/dto/request-password-reset.dto.js';
+import { ResetPasswordDto } from '@/modules/auth/presentation/dto/reset-password.dto.js';
+import { RequestPasswordResetResponseDto } from '@/modules/auth/presentation/dto/request-password-reset-response.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +41,8 @@ export class AuthController {
     private logoutService: LogoutService,
     private sendEmailVerificationService: SendEmailVerificationService,
     private verifyEmailService: VerifyEmailService,
+    private requestPasswordResetService: RequestPasswordResetService,
+    private resetPasswordService: ResetPasswordService,
     private requestContextFactory: AuthRequestContextFactory,
     private refreshTokenCookie: RefreshTokenCookieService,
   ) {}
@@ -144,5 +151,30 @@ export class AuthController {
   @HttpCode(204)
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<void> {
     await this.verifyEmailService.execute(dto.token);
+  }
+
+  @Post('password-reset/request')
+  @RateLimit('auth.passwordReset.request')
+  @HttpCode(200)
+  async requestPasswordReset(
+    @Body() dto: RequestPasswordResetDto,
+    @Req() req: Request,
+  ): Promise<RequestPasswordResetResponseDto> {
+    await this.requestPasswordResetService.execute(dto.email, {
+      rateLimit: this.requestContextFactory.createRateLimitInput(
+        req,
+        'resetPassword',
+        dto.email,
+      ),
+    });
+
+    return RequestPasswordResetResponseDto.create();
+  }
+
+  @Post('password-reset/confirm')
+  @RateLimit('auth.passwordReset.confirm')
+  @HttpCode(204)
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.resetPasswordService.execute(dto);
   }
 }

@@ -42,6 +42,7 @@ export const validationSchema = Joi.object({
     .integer()
     .min(1)
     .default(30),
+  PASSWORD_RESET_TOKEN_TTL_MINUTES: Joi.number().integer().min(1).default(30),
 
   // JWT Validate
   JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),

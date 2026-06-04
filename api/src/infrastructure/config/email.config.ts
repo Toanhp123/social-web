@@ -8,5 +8,7 @@ export default () => ({
     from: process.env.EMAIL_FROM?.trim() || 'Social Web <no-reply@localhost>',
     verificationTokenTtlMinutes:
       Number(process.env.EMAIL_VERIFICATION_TOKEN_TTL_MINUTES) || 30,
+    passwordResetTokenTtlMinutes:
+      Number(process.env.PASSWORD_RESET_TOKEN_TTL_MINUTES) || 30,
   },
 });

@@ -14,6 +14,8 @@ import { AuthInfrastructureModule } from '@/modules/auth/infrastructure/auth-inf
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
 import { SendEmailVerificationService } from '@/modules/auth/application/services/send-email-verification.service.js';
 import { VerifyEmailService } from '@/modules/auth/application/services/verify-email.service.js';
+import { RequestPasswordResetService } from '@/modules/auth/application/services/request-password-reset.service.js';
+import { ResetPasswordService } from '@/modules/auth/application/services/reset-password.service.js';
 import { CoreHttpModule } from '@/core/http/core-http.module.js';
 import { LoggerService } from '@/core/logger/logger.service.js';
 import {
@@ -31,6 +33,8 @@ import {
     DeviceSessionService,
     SendEmailVerificationService,
     VerifyEmailService,
+    RequestPasswordResetService,
+    ResetPasswordService,
     RefreshTokenService,
     LogoutService,
     AuthRequestContextFactory,

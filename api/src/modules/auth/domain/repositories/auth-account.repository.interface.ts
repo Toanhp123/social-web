@@ -33,4 +33,9 @@ export abstract class AuthAccountRepository {
     authAccountId: string;
     verifiedAt: Date;
   }): Promise<AuthAccount>;
+  abstract updatePassword(input: {
+    authAccountId: string;
+    passwordHash: string;
+    passwordChangedAt: Date;
+  }): Promise<AuthAccount>;
 }
