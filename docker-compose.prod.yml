@@ -95,6 +95,7 @@ services:
             SMTP_PASS: ${SMTP_PASS:-}
             EMAIL_FROM: ${EMAIL_FROM:-Social Web <no-reply@localhost>}
             EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: ${EMAIL_VERIFICATION_TOKEN_TTL_MINUTES:-30}
+            PASSWORD_RESET_TOKEN_TTL_MINUTES: ${PASSWORD_RESET_TOKEN_TTL_MINUTES:-30}
             LOG_FORMAT: ${LOG_FORMAT:-json}
             LOG_LEVEL: ${LOG_LEVEL:-info}
             PRISMA_QUERY_LOG: ${PRISMA_QUERY_LOG:-false}

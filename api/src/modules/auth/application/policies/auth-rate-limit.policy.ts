@@ -30,6 +30,11 @@ const AUTH_RATE_LIMIT_POLICIES: Record<
     windowSeconds: 15 * 60,
     blockSeconds: 5 * 60,
   },
+  resetPassword: {
+    limit: 5,
+    windowSeconds: 60 * 60,
+    blockSeconds: 60 * 60,
+  },
 };
 
 export function getAuthRateLimitPolicy(

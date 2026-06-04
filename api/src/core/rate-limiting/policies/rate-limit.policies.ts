@@ -45,6 +45,16 @@ const ENDPOINT_RATE_LIMIT_POLICIES = {
     windowSeconds: 60,
     blockSeconds: 60,
   },
+  'auth.passwordReset.request': {
+    limit: 10,
+    windowSeconds: 60,
+    blockSeconds: 5 * 60,
+  },
+  'auth.passwordReset.confirm': {
+    limit: 30,
+    windowSeconds: 60,
+    blockSeconds: 60,
+  },
 } satisfies Record<string, EndpointRateLimitPolicy>;
 
 export type EndpointRateLimitPolicyName =
