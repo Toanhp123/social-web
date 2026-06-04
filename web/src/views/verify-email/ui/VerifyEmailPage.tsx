@@ -1,5 +1,5 @@
 import { verifyEmailApi } from "@/features/email-verification";
-import { VerifyEmailCard } from "@/widgets/verify-email-card";
+import { VerifyEmailCard } from "@/widgets/auth-card";
 
 type VerifyEmailPageProps = {
   searchParams: Promise<{

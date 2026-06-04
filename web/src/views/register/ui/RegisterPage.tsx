@@ -1,4 +1,4 @@
-import { RegisterCard } from "@/widgets/register-card";
+import { RegisterCard } from "@/widgets/auth-card";
 
 export function RegisterPage() {
   return (

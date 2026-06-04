@@ -1,4 +1,4 @@
-import { ResetPasswordCard } from "@/widgets/reset-password-card";
+import { ResetPasswordCard } from "@/widgets/auth-card";
 
 type ResetPasswordPageProps = {
   searchParams: Promise<{
