@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import {
   DEVICE_ID_COOKIE_NAME,
   persistDeviceIdIfMissing,
-} from "@/entities/session";
+} from "@/entities/session/server";
 import { AUTH_ROUTES, CALLBACK_URL_SEARCH_PARAM } from "@/shared/config/routes";
 import { env } from "@/shared/config/env.server";
 import { getSafeRedirectPath } from "@/shared/lib/redirect-path";

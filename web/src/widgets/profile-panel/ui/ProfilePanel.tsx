@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
-import { ProfileEditor, uploadMyProfileImageAction } from "@/features/profile";
+import { ProfileEditor } from "@/features/profile";
+import { uploadMyProfileImageAction } from "@/features/profile/actions";
 import { ImageUploader } from "@/shared/ui";
 
 type ProfilePanelProps = {

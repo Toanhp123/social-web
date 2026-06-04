@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button, Input } from "@/shared/ui";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { getAuthRouteHref } from "@/shared/lib/auth-redirect";
-import { GoogleLoginLink } from "@/features/oauth/ui/GoogleLoginLink";
+import { GoogleLoginLink } from "@/features/oauth";
 import { useLoginMutation } from "../model/use-login-mutation";
 
 export function LoginForm() {

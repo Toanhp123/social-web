@@ -1,4 +1,4 @@
-import { verifyEmailApi } from "@/features/email-verification";
+import { verifyEmailApi } from "@/features/email-verification/server";
 import { VerifyEmailCard } from "@/widgets/auth-card";
 
 type VerifyEmailPageProps = {
