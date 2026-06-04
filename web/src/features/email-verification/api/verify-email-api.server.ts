@@ -1,10 +1,6 @@
 import { ApiError } from "@/shared/api/api-error";
 import { apiFetch } from "@/shared/api/api-fetch.server";
-
-export type VerifyEmailResult = {
-  ok: boolean;
-  message: string;
-};
+import type { VerifyEmailResult } from "../model/verify-email-result";
 
 export async function verifyEmailApi(
   token: string | undefined,

@@ -5,7 +5,7 @@ import {
   persistDeviceIdIfMissing,
   setAccessTokenCookie,
   setRefreshTokenCookie,
-} from "@/entities/session";
+} from "@/entities/session/server";
 import { authOAuthSessionApi } from "../api/oauth-session-api.server";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { getPostAuthRedirectPath } from "@/shared/lib/auth-redirect";
