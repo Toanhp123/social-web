@@ -9,13 +9,19 @@ export type ViewPrivateProfileAccessInput = {
 };
 
 export class UserProfileAccessPolicy {
+  static canViewPrivateProfileFields(
+    input: ViewPrivateProfileAccessInput,
+  ): boolean {
+    return (
+      input.requesterId === input.targetUserId ||
+      input.requesterRole === UserRole.ADMIN
+    );
+  }
+
   static assertCanViewPrivateProfile(
     input: ViewPrivateProfileAccessInput,
   ): void {
-    if (
-      input.requesterId === input.targetUserId ||
-      input.requesterRole === UserRole.ADMIN
-    ) {
+    if (this.canViewPrivateProfileFields(input)) {
       return;
     }
 

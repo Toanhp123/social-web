@@ -6,9 +6,14 @@ import {
   UserRepository,
 } from '@/modules/users/domain/repositories/user.repository.interface.js';
 import { UserMapper } from '@/modules/users/infrastructure/persistence/mappers/user.mapper.js';
+import { UserProfileMapper } from '@/modules/users/infrastructure/persistence/mappers/user-profile.mapper.js';
 import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
 import type { Prisma } from '@/generated/prisma/client.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
+import { UserProfile } from '@/modules/users/domain/entities/user-profile.entity.js';
+import { UserProfileInput } from '@/modules/users/domain/types/user-profile-input.type.js';
+import { DatabaseError } from '@/core/exceptions/database.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 
@@ -58,5 +63,177 @@ export class PrismaUserRepository implements UserRepository {
     } catch (error) {
       throw mapPrismaError(error);
     }
+  }
+
+  async findProfileByUserId(userId: string): Promise<UserProfile | null> {
+    const client = this.getClient();
+
+    try {
+      const user = await client.user.findUnique({
+        where: { id: userId },
+        select: UserProfileMapper.select,
+      });
+
+      return user ? UserProfileMapper.toDomain(user) : null;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async createProfile(
+    userId: string,
+    input: UserProfileInput,
+  ): Promise<UserProfile> {
+    const client = this.getClient();
+
+    try {
+      const existingProfile = await client.userProfile.findUnique({
+        where: { userId },
+        select: { deletedAt: true },
+      });
+
+      if (existingProfile && !existingProfile.deletedAt) {
+        throw new DatabaseError(
+          'Record already exists',
+          { userId },
+          ErrorCode.DUPLICATE_FIELD,
+          409,
+        );
+      }
+
+      if (existingProfile) {
+        await client.userProfile.update({
+          where: { userId },
+          data: {
+            ...UserProfileMapper.toPersistence(input),
+            deletedAt: null,
+          },
+        });
+      } else {
+        await client.userProfile.create({
+          data: {
+            userId,
+            ...UserProfileMapper.toPersistence(input),
+          },
+        });
+      }
+
+      return await this.getRequiredProfile(client, userId);
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+
+      throw mapPrismaError(error);
+    }
+  }
+
+  async updateProfile(
+    userId: string,
+    input: UserProfileInput,
+  ): Promise<UserProfile> {
+    const client = this.getClient();
+
+    try {
+      const result = await client.userProfile.updateMany({
+        where: { userId, deletedAt: null },
+        data: UserProfileMapper.toPersistence(input),
+      });
+
+      if (result.count === 0) {
+        throw new DatabaseError(
+          'Record not found',
+          { userId },
+          ErrorCode.RECORD_NOT_FOUND,
+          404,
+        );
+      }
+
+      return await this.getRequiredProfile(client, userId);
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+
+      throw mapPrismaError(error);
+    }
+  }
+
+  async deleteProfile(userId: string): Promise<void> {
+    const client = this.getClient();
+
+    try {
+      const result = await client.userProfile.updateMany({
+        where: { userId, deletedAt: null },
+        data: { deletedAt: new Date() },
+      });
+
+      if (result.count === 0) {
+        throw new DatabaseError(
+          'Record not found',
+          { userId },
+          ErrorCode.RECORD_NOT_FOUND,
+          404,
+        );
+      }
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+
+      throw mapPrismaError(error);
+    }
+  }
+
+  async updateAvatarUrl(
+    userId: string,
+    avatarUrl: string | null,
+  ): Promise<UserProfile> {
+    const client = this.getClient();
+
+    try {
+      await client.user.update({
+        where: { id: userId },
+        data: { avatarUrl },
+      });
+
+      return await this.getRequiredProfile(client, userId);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async updateCoverUrl(
+    userId: string,
+    coverUrl: string | null,
+  ): Promise<UserProfile> {
+    const client = this.getClient();
+
+    try {
+      await client.userProfile.upsert({
+        where: { userId },
+        create: {
+          userId,
+          coverUrl,
+        },
+        update: { coverUrl, deletedAt: null },
+      });
+
+      return await this.getRequiredProfile(client, userId);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  private async getRequiredProfile(
+    client: PrismaClientLike,
+    userId: string,
+  ): Promise<UserProfile> {
+    const user = await client.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: UserProfileMapper.select,
+    });
+
+    return UserProfileMapper.toDomain(user);
   }
 }

@@ -1,13 +1,53 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUserService } from '@/modules/users/application/services/get-user.service.js';
 import { UserResponseDto } from '@/modules/users/presentation/dto/user-response.dto.js';
 import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
 import { CurrentUser } from '@/core/security/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
+import { GetUserProfileService } from '@/modules/users/application/services/get-user-profile.service.js';
+import { CreateUserProfileService } from '@/modules/users/application/services/create-user-profile.service.js';
+import { UpdateUserProfileService } from '@/modules/users/application/services/update-user-profile.service.js';
+import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
+import {
+  ProfileImageFile,
+  UploadUserProfileImageService,
+} from '@/modules/users/application/services/upload-user-profile-image.service.js';
+import { UserProfileInputDto } from '@/modules/users/presentation/dto/user-profile-input.dto.js';
+import { UserProfileResponseDto } from '@/modules/users/presentation/dto/user-profile-response.dto.js';
+import { UserProfileInputMapper } from '@/modules/users/presentation/mappers/user-profile-input.mapper.js';
+
+type UploadedProfileImageFile = {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+};
+
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+const COVER_MAX_BYTES = 10 * 1024 * 1024;
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly getUserService: GetUserService) {}
+  constructor(
+    private readonly getUserService: GetUserService,
+    private readonly getUserProfileService: GetUserProfileService,
+    private readonly createUserProfileService: CreateUserProfileService,
+    private readonly updateUserProfileService: UpdateUserProfileService,
+    private readonly deleteUserProfileService: DeleteUserProfileService,
+    private readonly uploadUserProfileImageService: UploadUserProfileImageService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
@@ -17,5 +57,103 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const user = await this.getUserService.execute(id, currentUser);
     return UserResponseDto.fromDomain(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/profile')
+  async getProfile(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserProfileResponseDto> {
+    const profile = await this.getUserProfileService.execute(id, currentUser);
+
+    return UserProfileResponseDto.fromDomain(profile);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/profile')
+  async createMyProfile(
+    @Body() dto: UserProfileInputDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserProfileResponseDto> {
+    const profile = await this.createUserProfileService.execute(
+      currentUser.userId,
+      UserProfileInputMapper.toApplication(dto),
+    );
+
+    return UserProfileResponseDto.fromDomain(profile);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/profile')
+  async updateMyProfile(
+    @Body() dto: UserProfileInputDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserProfileResponseDto> {
+    const profile = await this.updateUserProfileService.execute(
+      currentUser.userId,
+      UserProfileInputMapper.toApplication(dto),
+    );
+
+    return UserProfileResponseDto.fromDomain(profile);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/profile')
+  @HttpCode(204)
+  async deleteMyProfile(
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<void> {
+    await this.deleteUserProfileService.execute(currentUser.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/avatar')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: AVATAR_MAX_BYTES } }),
+  )
+  async uploadMyAvatar(
+    @UploadedFile() file: UploadedProfileImageFile | undefined,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserProfileResponseDto> {
+    const profile = await this.uploadUserProfileImageService.execute({
+      userId: currentUser.userId,
+      kind: 'avatar',
+      file: this.toProfileImageFile(file),
+    });
+
+    return UserProfileResponseDto.fromDomain(profile);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/cover')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: COVER_MAX_BYTES } }),
+  )
+  async uploadMyCover(
+    @UploadedFile() file: UploadedProfileImageFile | undefined,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserProfileResponseDto> {
+    const profile = await this.uploadUserProfileImageService.execute({
+      userId: currentUser.userId,
+      kind: 'cover',
+      file: this.toProfileImageFile(file),
+    });
+
+    return UserProfileResponseDto.fromDomain(profile);
+  }
+
+  private toProfileImageFile(
+    file: UploadedProfileImageFile | undefined,
+  ): ProfileImageFile | undefined {
+    if (!file) {
+      return undefined;
+    }
+
+    return {
+      buffer: file.buffer,
+      mimetype: file.mimetype,
+      size: file.size,
+    };
   }
 }
