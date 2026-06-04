@@ -55,6 +55,11 @@ const ENDPOINT_RATE_LIMIT_POLICIES = {
     windowSeconds: 60,
     blockSeconds: 60,
   },
+  'post.create': {
+    limit: 20,
+    windowSeconds: 60,
+    blockSeconds: 60,
+  },
 } satisfies Record<string, EndpointRateLimitPolicy>;
 
 export type EndpointRateLimitPolicyName =

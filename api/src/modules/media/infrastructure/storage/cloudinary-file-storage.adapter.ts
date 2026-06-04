@@ -26,6 +26,7 @@ export class CloudinaryFileStorageAdapter implements FileStoragePort {
       bytes: result.bytes,
       width: result.width,
       height: result.height,
+      duration: result.duration,
     };
   }
 

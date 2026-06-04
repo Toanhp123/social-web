@@ -17,6 +17,7 @@ export type UploadFileResult = {
   bytes: number;
   width?: number;
   height?: number;
+  duration?: number;
 };
 
 export type DeleteFileInput = {

@@ -29,6 +29,7 @@ export type CloudinaryUploadResult = {
   bytes: number;
   width?: number;
   height?: number;
+  duration?: number;
   originalFilename?: string;
   createdAt: Date;
 };
@@ -181,6 +182,10 @@ export class CloudinaryService {
   }
 
   private mapUploadResult(result: UploadApiResponse): CloudinaryUploadResult {
+    const resultWithDuration = result as UploadApiResponse & {
+      duration?: number;
+    };
+
     return {
       publicId: result.public_id,
       secureUrl: result.secure_url,
@@ -189,6 +194,7 @@ export class CloudinaryService {
       bytes: result.bytes,
       width: result.width,
       height: result.height,
+      duration: resultWithDuration.duration,
       originalFilename: result.original_filename,
       createdAt: new Date(result.created_at),
     };

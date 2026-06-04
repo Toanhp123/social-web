@@ -21,19 +21,14 @@ import { GetUserProfileService } from '@/modules/users/application/services/get-
 import { CreateUserProfileService } from '@/modules/users/application/services/create-user-profile.service.js';
 import { UpdateUserProfileService } from '@/modules/users/application/services/update-user-profile.service.js';
 import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
-import {
-  ProfileImageFile,
-  UploadUserProfileImageService,
-} from '@/modules/users/application/services/upload-user-profile-image.service.js';
+import { UploadUserProfileImageService } from '@/modules/users/application/services/upload-user-profile-image.service.js';
 import { UserProfileInputDto } from '@/modules/users/presentation/dto/user-profile-input.dto.js';
 import { UserProfileResponseDto } from '@/modules/users/presentation/dto/user-profile-response.dto.js';
 import { UserProfileInputMapper } from '@/modules/users/presentation/mappers/user-profile-input.mapper.js';
-
-type UploadedProfileImageFile = {
-  buffer: Buffer;
-  mimetype: string;
-  size: number;
-};
+import {
+  type UploadedProfileImageFile,
+  UserProfileImageFileMapper,
+} from '@/modules/users/presentation/mappers/user-profile-image-file.mapper.js';
 
 const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
 const COVER_MAX_BYTES = 10 * 1024 * 1024;
@@ -119,7 +114,7 @@ export class UserController {
     const profile = await this.uploadUserProfileImageService.execute({
       userId: currentUser.userId,
       kind: 'avatar',
-      file: this.toProfileImageFile(file),
+      file: UserProfileImageFileMapper.toApplicationFile(file),
     });
 
     return UserProfileResponseDto.fromDomain(profile);
@@ -137,23 +132,9 @@ export class UserController {
     const profile = await this.uploadUserProfileImageService.execute({
       userId: currentUser.userId,
       kind: 'cover',
-      file: this.toProfileImageFile(file),
+      file: UserProfileImageFileMapper.toApplicationFile(file),
     });
 
     return UserProfileResponseDto.fromDomain(profile);
-  }
-
-  private toProfileImageFile(
-    file: UploadedProfileImageFile | undefined,
-  ): ProfileImageFile | undefined {
-    if (!file) {
-      return undefined;
-    }
-
-    return {
-      buffer: file.buffer,
-      mimetype: file.mimetype,
-      size: file.size,
-    };
   }
 }

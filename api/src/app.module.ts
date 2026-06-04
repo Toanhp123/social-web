@@ -22,6 +22,7 @@ import { RateLimitingModule } from '@/infrastructure/rate-limiting/rate-limiting
 import { CoreHttpModule } from '@/core/http/core-http.module.js';
 import { QueueModule } from '@/infrastructure/queue/queue.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
+import { PostsModule } from '@/modules/posts/posts.module.js';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { MediaModule } from '@/modules/media/media.module.js';
       validationSchema,
     }),
     MediaModule,
+    PostsModule,
     UserModule,
     AuthModule,
     CoreHttpModule,
