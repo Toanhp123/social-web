@@ -2,10 +2,31 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { SendHorizonal } from "lucide-react";
+import { Globe2, Lock, SendHorizonal, Users } from "lucide-react";
 import { PostCard, type Post } from "@/entities/post";
-import { Button, MediaPicker } from "@/shared/ui";
+import { Button, Combobox, MediaPicker, type ComboboxOption } from "@/shared/ui";
 import { useCreatePostMutation } from "../model/use-create-post-mutation";
+
+const VISIBILITY_OPTIONS: ComboboxOption[] = [
+  {
+    value: "PUBLIC",
+    label: "Cong khai",
+    description: "Moi nguoi co the xem bai viet.",
+    icon: <Globe2 className="size-4" />,
+  },
+  {
+    value: "FRIENDS_ONLY",
+    label: "Ban be",
+    description: "Chi ban be cua ban co the xem.",
+    icon: <Users className="size-4" />,
+  },
+  {
+    value: "PRIVATE",
+    label: "Rieng tu",
+    description: "Chi minh ban co the xem.",
+    icon: <Lock className="size-4" />,
+  },
+];
 
 export function CreatePostComposer() {
   const [createdPost, setCreatedPost] = useState<Post | null>(null);
@@ -44,19 +65,15 @@ export function CreatePostComposer() {
           className="min-h-28 w-full resize-y rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
         />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <label className="text-sm text-zinc-300">
-            Hien thi
-            <select
-              name="visibility"
-              defaultValue="PUBLIC"
-              className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500 sm:w-52"
-            >
-              <option value="PUBLIC">Cong khai</option>
-              <option value="FRIENDS_ONLY">Ban be</option>
-              <option value="PRIVATE">Rieng tu</option>
-            </select>
-          </label>
+        <div className="max-w-sm">
+          <Combobox
+            name="visibility"
+            label="Hien thi"
+            defaultValue="PUBLIC"
+            size="md"
+            variant="detailed"
+            options={VISIBILITY_OPTIONS}
+          />
         </div>
 
         <MediaPicker name="media" label="Them anh/video" maxFiles={10} />
