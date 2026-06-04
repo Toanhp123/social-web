@@ -102,7 +102,10 @@ const eslintConfig = defineConfig([
               group: [
                 "@/views/*/*",
                 "@/widgets/*/*",
-                "@/features/*/*",
+                "@/features/*/api/*",
+                "@/features/*/model/*",
+                "@/features/*/server/*",
+                "@/features/*/ui/*",
                 "@/entities/*/*",
               ],
               message: "routes should import slices through public APIs.",
