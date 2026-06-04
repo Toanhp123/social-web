@@ -1,4 +1,4 @@
-import { ForgotPasswordCard } from "@/widgets/forgot-password-card";
+import { ForgotPasswordCard } from "@/widgets/auth-card";
 
 export function ForgotPasswordPage() {
   return (
