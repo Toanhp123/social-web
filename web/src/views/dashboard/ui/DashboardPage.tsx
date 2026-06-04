@@ -1,6 +1,7 @@
 import { LogoutButton } from "@/features/logout";
+import { CreatePostComposer } from "@/features/create-post";
 import { getCurrentSessionUser } from "@/entities/session/server";
-import { getUserProfileApi } from "@/features/profile/api/profile-api.server";
+import { getUserProfileApi } from "@/features/profile/server";
 import { AppLayout } from "@/widgets/app-layout";
 import { ProfilePanel } from "@/widgets/profile-panel";
 import { ApiError } from "@/shared/api/api-error";
@@ -18,7 +19,10 @@ export async function DashboardPage() {
       actions={<LogoutButton />}
     >
       {currentUser ? (
-        <ProfilePanel currentUser={currentUser} initialProfile={profile} />
+        <div className="space-y-6">
+          <CreatePostComposer />
+          <ProfilePanel currentUser={currentUser} initialProfile={profile} />
+        </div>
       ) : (
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-300">
           Khong doc duoc phien dang nhap hien tai.
