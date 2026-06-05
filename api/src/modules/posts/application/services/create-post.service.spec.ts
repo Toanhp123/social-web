@@ -46,6 +46,7 @@ describe('CreatePostService', () => {
   beforeEach(() => {
     postRepository = {
       create: jest.fn().mockResolvedValue(post),
+      findPage: jest.fn(),
     };
     fileStorage = {
       upload: jest.fn().mockResolvedValue({
