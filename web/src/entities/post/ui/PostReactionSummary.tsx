@@ -1,0 +1,64 @@
+import type { Post } from "../model/types";
+import {
+  REACTION_OPTIONS,
+  type PostReactionOption,
+} from "./post-reaction-options";
+
+type PostReactionSummaryProps = {
+  post: Post;
+  currentReaction: PostReactionOption | null;
+};
+
+export function PostReactionSummary({
+  post,
+  currentReaction,
+}: PostReactionSummaryProps) {
+  const totalReactionCount = post.reactionStats.totalReactionCount;
+  const visibleReactions = REACTION_OPTIONS.map((reaction) => ({
+    ...reaction,
+    count: post.reactionStats[reaction.countKey],
+  }))
+    .filter((reaction) => reaction.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+
+  return (
+    <div className="border-t border-zinc-100 px-4 py-3">
+      <div className="flex min-h-5 items-center justify-between gap-3 text-xs text-zinc-500">
+        <div className="flex min-w-0 items-center gap-1.5">
+          {totalReactionCount > 0 ? (
+            <>
+              <div
+                className="flex -space-x-1"
+                aria-label={`${totalReactionCount} cảm xúc`}
+              >
+                {visibleReactions.map((reaction) => (
+                  <span
+                    key={reaction.type}
+                    title={reaction.label}
+                    className={[
+                      "grid size-5 place-items-center rounded-full border border-white text-[11px] shadow-sm",
+                      reaction.className,
+                    ].join(" ")}
+                  >
+                    <span aria-hidden>{reaction.emoji}</span>
+                  </span>
+                ))}
+              </div>
+
+              <span className="truncate font-medium text-zinc-600">
+                {totalReactionCount}
+              </span>
+            </>
+          ) : (
+            <span>Chưa có cảm xúc</span>
+          )}
+        </div>
+
+        {currentReaction && (
+          <span className="shrink-0">{currentReaction.emoji} Bạn</span>
+        )}
+      </div>
+    </div>
+  );
+}
