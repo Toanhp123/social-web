@@ -6,6 +6,10 @@ import type { Prisma } from '@/generated/prisma/client.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { CreatePostInput } from '@/modules/posts/domain/types/create-post-input.type.js';
+import {
+  ListPostsPage,
+  ListPostsQuery,
+} from '@/modules/posts/domain/types/list-posts-query.type.js';
 import { PostMapper } from '@/modules/posts/infrastructure/persistence/mappers/post.mapper.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
@@ -31,6 +35,51 @@ export class PrismaPostRepository implements PostRepository {
       });
 
       return PostMapper.toDomain(post);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findPage(query: ListPostsQuery): Promise<ListPostsPage> {
+    const client = this.getClient();
+
+    try {
+      const posts = await client.post.findMany({
+        where: {
+          deletedAt: null,
+          isHidden: false,
+          AND: [
+            { OR: [{ visibility: 'PUBLIC' }, { authorId: query.viewerId }] },
+            ...(query.cursor
+              ? [
+                  {
+                    OR: [
+                      { createdAt: { lt: query.cursor.createdAt } },
+                      {
+                        createdAt: query.cursor.createdAt,
+                        id: { lt: query.cursor.id },
+                      },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: query.limit + 1,
+        include: PostMapper.include,
+      });
+      const hasNextPage = posts.length > query.limit;
+      const pageItems = hasNextPage ? posts.slice(0, query.limit) : posts;
+      const lastItem = pageItems.at(-1);
+
+      return {
+        items: pageItems.map((post) => PostMapper.toDomain(post)),
+        nextCursor:
+          hasNextPage && lastItem
+            ? { createdAt: lastItem.createdAt, id: lastItem.id }
+            : null,
+      };
     } catch (error) {
       throw mapPrismaError(error);
     }

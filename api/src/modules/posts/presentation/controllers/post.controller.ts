@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -12,7 +14,10 @@ import { CurrentUser } from '@/core/security/decorators/current-user.decorator.j
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
 import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
+import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { CreatePostInputDto } from '@/modules/posts/presentation/dto/create-post-input.dto.js';
+import { ListPostsQueryDto } from '@/modules/posts/presentation/dto/list-posts-query.dto.js';
+import { PostPageResponseDto } from '@/modules/posts/presentation/dto/post-page-response.dto.js';
 import { PostResponseDto } from '@/modules/posts/presentation/dto/post-response.dto.js';
 import {
   PostUploadedFileMapper,
@@ -24,7 +29,25 @@ const MAX_MEDIA_FILE_BYTES = 100 * 1024 * 1024;
 
 @Controller('posts')
 export class PostController {
-  constructor(private readonly createPostService: CreatePostService) {}
+  constructor(
+    private readonly createPostService: CreatePostService,
+    private readonly listPostsService: ListPostsService,
+  ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async listPosts(
+    @Query() query: ListPostsQueryDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<PostPageResponseDto> {
+    const page = await this.listPostsService.execute({
+      viewerId: currentUser.userId,
+      limit: query.limit,
+      cursor: query.cursor,
+    });
+
+    return PostPageResponseDto.fromDomain(page);
+  }
 
   @UseGuards(JwtAuthGuard)
   @RateLimit('post.create')
