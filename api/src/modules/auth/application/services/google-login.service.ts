@@ -15,7 +15,6 @@ import { DatabaseError } from '@/core/exceptions/database.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { UserRole } from '@/core/security/enums/user-role.enum.js';
-import { EmailAddress } from '@/core/value-objects/email-address.js';
 import type {
   AuthRateLimitInput,
   AuthRateLimiter,
@@ -23,10 +22,11 @@ import type {
 import type { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
 import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
 import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
-import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
-import type { OAuthProfile } from '@/modules/auth/application/types/oauth-profile.type.js';
+import { AuthSessionMetadata } from '@/modules/auth/domain/types/auth-session-metadata.type.js';
+import type { OAuthProfile } from '@/modules/auth/domain/types/oauth-profile.type.js';
 import { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
 import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
+import { GoogleOAuthProfile } from '@/modules/auth/domain/entities/google-oauth-profile.entity.js';
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
@@ -41,11 +41,6 @@ type AuthTokens = {
   accessToken: string;
   refreshToken: string;
   refreshTokenExpiresAt: Date;
-};
-
-type NormalizedGoogleProfile = OAuthProfile & {
-  email: string;
-  fullName: string;
 };
 
 @Injectable()
@@ -82,7 +77,7 @@ export class GoogleLoginService {
     profile: OAuthProfile,
     context: GoogleLoginContext,
   ): Promise<AuthTokens> {
-    const normalizedProfile = this.normalizeProfile(profile);
+    const normalizedProfile = GoogleOAuthProfile.create(profile);
 
     await this.authRateLimiter.assertAllowed({
       ...context.rateLimit,
@@ -169,7 +164,7 @@ export class GoogleLoginService {
   }
 
   private async recoverDuplicateOAuthLogin(
-    profile: NormalizedGoogleProfile,
+    profile: GoogleOAuthProfile,
     sessionMetadata: AuthSessionMetadata,
     originalError: unknown,
   ): Promise<AuthTokens> {
@@ -231,43 +226,6 @@ export class GoogleLoginService {
         this.issueSession(linkedAccount, sessionMetadata),
       );
     }
-  }
-
-  private normalizeProfile(profile: OAuthProfile): NormalizedGoogleProfile {
-    if (profile.provider !== 'GOOGLE' || !profile.providerId.trim()) {
-      throw new DomainError(
-        ErrorCode.INVALID_OAUTH_PROFILE,
-        'Invalid Google profile',
-        401,
-      );
-    }
-
-    const email = EmailAddress.normalizeAndValidate(profile.email);
-
-    if (!profile.emailVerified) {
-      throw new DomainError(
-        ErrorCode.USER_EMAIL_NOT_VERIFIED,
-        'Google email is not verified',
-        403,
-        { email },
-      );
-    }
-
-    return {
-      ...profile,
-      email,
-      fullName: this.normalizeFullName(profile.name, email),
-    };
-  }
-
-  private normalizeFullName(name: string | undefined, email: string): string {
-    const fullName = name?.trim();
-
-    if (fullName) {
-      return fullName;
-    }
-
-    return email.split('@')[0] || email;
   }
 
   private assertAccountCanLogin(account: AuthAccount): void {

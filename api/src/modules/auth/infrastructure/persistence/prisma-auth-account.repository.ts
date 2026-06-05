@@ -4,12 +4,12 @@ import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js
 import type { Prisma } from '@/generated/prisma/client.js';
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
+import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import {
-  AuthAccountRepository,
   LinkOAuthAccountInput,
   OAuthAccountLookupInput,
   RegisterAuthAccountInput,
-} from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+} from '@/modules/auth/domain/types/auth-account-input.type.js';
 import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
 import { AuthAccountMapper } from '@/modules/auth/infrastructure/persistence/mappers/auth-account.mapper.js';
 

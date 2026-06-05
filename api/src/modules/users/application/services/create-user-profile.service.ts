@@ -15,8 +15,10 @@ export class CreateUserProfileService {
   ) {}
 
   async execute(userId: string, input: UserProfileInput): Promise<UserProfile> {
+    const profile = UserProfile.normalizeInput(input);
+
     try {
-      return await this.userRepository.createProfile(userId, input);
+      return await this.userRepository.createProfile(userId, profile);
     } catch (error) {
       if (
         error instanceof DatabaseError &&

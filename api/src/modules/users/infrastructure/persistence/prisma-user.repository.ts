@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/modules/users/domain/entities/user.entity.js';
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
-import {
-  CreateUserInput,
-  UserRepository,
-} from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { CreateUserInput } from '@/modules/users/domain/types/create-user-input.type.js';
 import { UserMapper } from '@/modules/users/infrastructure/persistence/mappers/user.mapper.js';
 import { UserProfileMapper } from '@/modules/users/infrastructure/persistence/mappers/user-profile.mapper.js';
 import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';

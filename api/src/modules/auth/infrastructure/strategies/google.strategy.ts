@@ -6,7 +6,7 @@ import {
   type Profile,
   type StrategyOptions,
 } from 'passport-google-oauth20';
-import type { OAuthProfile } from '@/modules/auth/application/types/oauth-profile.type.js';
+import type { OAuthProfile } from '@/modules/auth/domain/types/oauth-profile.type.js';
 
 type GoogleJsonProfile = {
   email_verified?: boolean;

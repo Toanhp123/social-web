@@ -7,6 +7,7 @@ import {
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
+import { PostDraft } from '@/modules/posts/domain/entities/post-draft.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { CreatePostMediaInput } from '@/modules/posts/domain/types/create-post-input.type.js';
@@ -26,7 +27,6 @@ export type CreatePostInput = {
   files?: CreatePostMediaFile[];
 };
 
-const MAX_POST_CONTENT_LENGTH = 5000;
 const MAX_MEDIA_FILES = 10;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
@@ -48,41 +48,22 @@ export class CreatePostService {
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
-    const content = input.content?.trim() ?? '';
     const files = input.files ?? [];
 
-    this.assertValidInput(content, files);
+    this.assertValidUploadFiles(files);
 
     const media = await this.uploadMedia(input.authorId, files);
-
-    return await this.postRepository.create({
+    const draft = PostDraft.create({
       authorId: input.authorId,
-      content,
-      visibility: input.visibility ?? PostVisibility.PUBLIC,
+      content: input.content,
+      visibility: input.visibility,
       media,
     });
+
+    return await this.postRepository.create(draft.toCreateInput());
   }
 
-  private assertValidInput(
-    content: string,
-    files: CreatePostMediaFile[],
-  ): void {
-    if (!content && files.length === 0) {
-      throw new DomainError(
-        ErrorCode.VALIDATION_ERROR,
-        'Post content or media is required',
-      );
-    }
-
-    if (content.length > MAX_POST_CONTENT_LENGTH) {
-      throw new DomainError(
-        ErrorCode.VALIDATION_ERROR,
-        'Post content is too long',
-        400,
-        { maxLength: MAX_POST_CONTENT_LENGTH },
-      );
-    }
-
+  private assertValidUploadFiles(files: CreatePostMediaFile[]): void {
     if (files.length > MAX_MEDIA_FILES) {
       throw new DomainError(
         ErrorCode.VALIDATION_ERROR,

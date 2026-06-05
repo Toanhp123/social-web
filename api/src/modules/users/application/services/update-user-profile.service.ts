@@ -15,8 +15,10 @@ export class UpdateUserProfileService {
   ) {}
 
   async execute(userId: string, input: UserProfileInput): Promise<UserProfile> {
+    const profile = UserProfile.normalizeInput(input);
+
     try {
-      return await this.userRepository.updateProfile(userId, input);
+      return await this.userRepository.updateProfile(userId, profile);
     } catch (error) {
       if (
         error instanceof DatabaseError &&

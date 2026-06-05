@@ -1,14 +1,5 @@
 import { Session } from '@/modules/auth/domain/entities/session.entity.js';
-
-export type CreateSessionInput = {
-  authAccountId: string;
-  refreshTokenHash: string;
-  expiresAt: Date;
-  device?: string;
-  deviceId?: string;
-  ip?: string;
-  userAgent?: string;
-};
+import type { CreateSessionInput } from '@/modules/auth/domain/types/session-input.type.js';
 
 export abstract class SessionRepository {
   abstract create(input: CreateSessionInput): Promise<Session>;

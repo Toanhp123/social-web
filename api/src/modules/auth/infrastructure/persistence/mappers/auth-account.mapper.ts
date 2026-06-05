@@ -2,7 +2,7 @@ import { Prisma } from '@/generated/prisma/client.js';
 import type { UserRole as PrismaUserRole } from '@/generated/prisma/enums.js';
 import { UserRole } from '@/core/security/enums/user-role.enum.js';
 import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
-import { RegisterAuthAccountInput } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
+import { RegisterAuthAccountInput } from '@/modules/auth/domain/types/auth-account-input.type.js';
 
 export const AUTH_ACCOUNT_SELECT = {
   id: true,

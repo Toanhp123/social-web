@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SESSION_REPOSITORY } from '@/common/constants/provider-token.constant.js';
-import type { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import type { AuthSessionMetadata } from '@/modules/auth/domain/types/auth-session-metadata.type.js';
 import type { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 
 export type ReplaceDeviceSessionReason =

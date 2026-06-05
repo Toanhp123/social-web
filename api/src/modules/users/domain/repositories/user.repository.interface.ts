@@ -1,12 +1,7 @@
 import { User } from '@/modules/users/domain/entities/user.entity.js';
 import { UserProfile } from '@/modules/users/domain/entities/user-profile.entity.js';
+import { CreateUserInput } from '@/modules/users/domain/types/create-user-input.type.js';
 import { UserProfileInput } from '@/modules/users/domain/types/user-profile-input.type.js';
-
-export type CreateUserInput = {
-  id: string;
-  fullName: string;
-  username: string | null;
-};
 
 export abstract class UserRepository {
   abstract create(input: CreateUserInput): Promise<void>;

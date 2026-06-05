@@ -14,7 +14,7 @@ import { DomainError } from '@/core/exceptions/domain.exception.js';
 import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
 import type { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
 import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
-import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import { AuthSessionMetadata } from '@/modules/auth/domain/types/auth-session-metadata.type.js';
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { DeviceSessionService } from '@/modules/auth/application/services/device-session.service.js';
