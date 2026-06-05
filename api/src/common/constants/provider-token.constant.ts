@@ -15,6 +15,8 @@ export const TOKEN_SERVICE = Symbol('TOKEN_SERVICE');
 export const UNIT_OF_WORK = Symbol('UNIT_OF_WORK');
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 export const POST_REPOSITORY = Symbol('POST_REPOSITORY');
+export const POST_FEED_CACHE = Symbol('POST_FEED_CACHE');
+export const POST_FEED_JOB_QUEUE = Symbol('POST_FEED_JOB_QUEUE');
 export const FILE_STORAGE = Symbol('FILE_STORAGE');
 export const OAUTH_SESSION_HANDOFF_STORE = Symbol(
   'OAUTH_SESSION_HANDOFF_STORE',

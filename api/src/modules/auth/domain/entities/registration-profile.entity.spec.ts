@@ -30,7 +30,10 @@ describe('RegistrationProfile', () => {
 
   it('rejects invalid full names', () => {
     expect(() =>
-      RegistrationProfile.create({ fullName: 'abc', email: 'user@example.com' }),
+      RegistrationProfile.create({
+        fullName: 'abc',
+        email: 'user@example.com',
+      }),
     ).toThrow(
       expect.objectContaining<Partial<DomainError>>({
         code: ErrorCode.INVALID_FULLNAME,

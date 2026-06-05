@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
+import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
@@ -41,6 +42,7 @@ describe('CreatePostService', () => {
 
   let postRepository: jest.Mocked<PostRepository>;
   let fileStorage: jest.Mocked<FileStoragePort>;
+  let postFeedJobQueue: jest.Mocked<PostFeedJobQueue>;
   let service: CreatePostService;
 
   beforeEach(() => {
@@ -59,7 +61,14 @@ describe('CreatePostService', () => {
       }),
       delete: jest.fn(),
     };
-    service = new CreatePostService(postRepository, fileStorage);
+    postFeedJobQueue = {
+      enqueuePostCreated: jest.fn().mockResolvedValue(undefined),
+    };
+    service = new CreatePostService(
+      postRepository,
+      fileStorage,
+      postFeedJobQueue,
+    );
   });
 
   it('requires text or media', async () => {
@@ -106,5 +115,9 @@ describe('CreatePostService', () => {
         ],
       }),
     );
+    expect(postFeedJobQueue.enqueuePostCreated).toHaveBeenCalledWith({
+      postId: 'post-1',
+      authorId: 'user-1',
+    });
   });
 });
