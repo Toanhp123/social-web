@@ -6,10 +6,12 @@ import {
   POST_FEED_JOB_QUEUE,
 } from '@/common/constants/provider-token.constant.js';
 import { QueueModule } from '@/infrastructure/queue/queue.module.js';
+import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { RedisModule } from '@/infrastructure/redis/redis.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
+import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
 import { RedisPostFeedCache } from '@/modules/posts/infrastructure/cache/redis-post-feed-cache.js';
 import { PostPersistenceModule } from '@/modules/posts/infrastructure/persistence/post-persistence.module.js';
 import { BullMqPostFeedJobQueue } from '@/modules/posts/infrastructure/queue/bullmq-post-feed-job-queue.js';
@@ -22,6 +24,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     PostPersistenceModule,
     SecurityModule,
     MediaModule,
+    DatabaseModule,
     RedisModule,
     QueueModule,
     BullModule.registerQueue({ name: POST_FEED_QUEUE_NAME }),
@@ -30,6 +33,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
   providers: [
     CreatePostService,
     ListPostsService,
+    ReactToPostService,
     PostFeedProcessor,
     {
       provide: POST_FEED_CACHE,

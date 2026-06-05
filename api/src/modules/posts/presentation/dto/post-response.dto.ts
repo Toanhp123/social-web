@@ -3,6 +3,7 @@ import {
   MediaType,
   PostType,
   PostVisibility,
+  ReactionType,
 } from '@/generated/prisma/client.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 
@@ -27,6 +28,16 @@ export class PostMediaResponseDto {
   @Expose() alt!: string | null;
 }
 
+export class PostReactionStatsResponseDto {
+  @Expose() likeCount!: number;
+  @Expose() loveCount!: number;
+  @Expose() hahaCount!: number;
+  @Expose() wowCount!: number;
+  @Expose() sadCount!: number;
+  @Expose() angryCount!: number;
+  @Expose() totalReactionCount!: number;
+}
+
 export class PostResponseDto {
   @Expose() id!: string;
   @Expose() content!: string;
@@ -34,6 +45,7 @@ export class PostResponseDto {
   @Expose() visibility!: PostVisibility;
   @Expose() createdAt!: string;
   @Expose() updatedAt!: string;
+  @Expose() currentReaction!: ReactionType | null;
 
   @Expose()
   @Type(() => PostAuthorResponseDto)
@@ -42,6 +54,10 @@ export class PostResponseDto {
   @Expose()
   @Type(() => PostMediaResponseDto)
   media!: PostMediaResponseDto[];
+
+  @Expose()
+  @Type(() => PostReactionStatsResponseDto)
+  reactionStats!: PostReactionStatsResponseDto;
 
   static fromDomain(post: Post): PostResponseDto {
     const dto = new PostResponseDto();
@@ -52,6 +68,7 @@ export class PostResponseDto {
     dto.visibility = post.visibility;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
+    dto.currentReaction = post.currentReaction;
     dto.author = {
       id: post.author.id,
       fullName: post.author.fullName,
@@ -71,6 +88,15 @@ export class PostResponseDto {
       order: media.order,
       alt: media.alt,
     }));
+    dto.reactionStats = {
+      likeCount: post.reactionStats.likeCount,
+      loveCount: post.reactionStats.loveCount,
+      hahaCount: post.reactionStats.hahaCount,
+      wowCount: post.reactionStats.wowCount,
+      sadCount: post.reactionStats.sadCount,
+      angryCount: post.reactionStats.angryCount,
+      totalReactionCount: post.reactionStats.totalReactionCount,
+    };
 
     return dto;
   }
