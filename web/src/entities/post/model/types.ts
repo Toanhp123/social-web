@@ -33,3 +33,8 @@ export type Post = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type PostPage = {
+  items: Post[];
+  nextCursor: string | null;
+};

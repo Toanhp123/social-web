@@ -19,13 +19,16 @@ import { ImageUploader } from "@/shared/ui";
 type ProfilePanelProps = {
   currentUser: CurrentSessionUser;
   initialProfile: UserProfile | null;
+  variant?: "default" | "sidebar";
 };
 
 export function ProfilePanel({
   currentUser,
   initialProfile,
+  variant = "default",
 }: ProfilePanelProps) {
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
+  const isSidebar = variant === "sidebar";
   const displayName = profile?.fullName ?? currentUser.email;
   const metaItems = useMemo(
     () =>
@@ -42,15 +45,21 @@ export function ProfilePanel({
   );
 
   return (
-    <section className="space-y-6">
+    <section className={isSidebar ? "space-y-4" : "space-y-6"}>
       <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-        <div className="relative h-56 bg-zinc-800">
+        <div
+          className={
+            isSidebar
+              ? "relative h-32 bg-zinc-800"
+              : "relative h-56 bg-zinc-800"
+          }
+        >
           {profile?.coverUrl ? (
             <Image
               src={profile.coverUrl}
               alt=""
               fill
-              sizes="(min-width: 1024px) 1152px, 100vw"
+              sizes={isSidebar ? "360px" : "(min-width: 1024px) 1152px, 100vw"}
               className="object-cover"
               priority
             />
@@ -60,7 +69,13 @@ export function ProfilePanel({
             </div>
           )}
 
-          <div className="absolute right-4 bottom-4">
+          <div
+            className={
+              isSidebar
+                ? "absolute right-3 bottom-3"
+                : "absolute right-4 bottom-4"
+            }
+          >
             <ImageUploader
               label="Doi anh bia"
               icon={<ImageUp className="size-4" />}
@@ -71,26 +86,47 @@ export function ProfilePanel({
           </div>
         </div>
 
-        <div className="px-6 pb-6">
-          <div className="-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className={isSidebar ? "px-4 pb-4" : "px-6 pb-6"}>
+          <div
+            className={[
+              isSidebar
+                ? "-mt-9 flex flex-col gap-4"
+                : "-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between",
+            ].join(" ")}
+          >
             <div className="flex items-end gap-4">
-              <div className="grid size-28 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-zinc-900 bg-zinc-800">
+              <div
+                className={[
+                  "grid shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-zinc-900 bg-zinc-800",
+                  isSidebar ? "size-20" : "size-28",
+                ].join(" ")}
+              >
                 {profile?.avatarUrl ? (
                   <Image
                     src={profile.avatarUrl}
                     alt=""
-                    width={112}
-                    height={112}
-                    sizes="112px"
+                    width={isSidebar ? 80 : 112}
+                    height={isSidebar ? 80 : 112}
+                    sizes={isSidebar ? "80px" : "112px"}
                     className="size-full object-cover"
                   />
                 ) : (
-                  <UserRound className="size-12 text-zinc-500" />
+                  <UserRound
+                    className={[
+                      "text-zinc-500",
+                      isSidebar ? "size-9" : "size-12",
+                    ].join(" ")}
+                  />
                 )}
               </div>
 
               <div className="pb-1">
-                <h2 className="text-2xl font-semibold text-white">
+                <h2
+                  className={[
+                    "font-semibold text-white",
+                    isSidebar ? "text-lg" : "text-2xl",
+                  ].join(" ")}
+                >
                   {displayName}
                 </h2>
                 <p className="text-sm text-zinc-400">
@@ -111,13 +147,23 @@ export function ProfilePanel({
           </div>
 
           {profile?.bio && (
-            <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-300">
+            <p
+              className={[
+                "text-sm leading-6 text-zinc-300",
+                isSidebar ? "mt-4" : "mt-5 max-w-3xl",
+              ].join(" ")}
+            >
               {profile.bio}
             </p>
           )}
 
           {metaItems.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-3 text-sm text-zinc-400">
+            <div
+              className={[
+                "flex flex-wrap gap-3 text-sm text-zinc-400",
+                isSidebar ? "mt-4" : "mt-5",
+              ].join(" ")}
+            >
               {metaItems.map((item) => {
                 if (!item) {
                   return null;
@@ -140,9 +186,21 @@ export function ProfilePanel({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+      <div
+        className={
+          isSidebar
+            ? "rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
+            : "rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
+        }
+      >
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white">
+          <h3
+            className={
+              isSidebar
+                ? "font-semibold text-white"
+                : "text-lg font-semibold text-white"
+            }
+          >
             Thong tin profile
           </h3>
           <p className="mt-1 text-sm text-zinc-400">

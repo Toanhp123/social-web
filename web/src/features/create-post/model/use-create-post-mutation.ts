@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import type { Post } from "@/entities/post";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postQueryKeys, type Post } from "@/entities/post";
 import { createPostAction } from "./create-post.action";
 
 type UseCreatePostMutationOptions = {
@@ -9,6 +9,8 @@ type UseCreatePostMutationOptions = {
 };
 
 export function useCreatePostMutation(options?: UseCreatePostMutationOptions) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (formData: FormData) => {
       const result = await createPostAction(formData);
@@ -19,6 +21,9 @@ export function useCreatePostMutation(options?: UseCreatePostMutationOptions) {
 
       return result.post;
     },
-    onSuccess: (post) => options?.onCreated?.(post),
+    onSuccess: (post) => {
+      options?.onCreated?.(post);
+      void queryClient.invalidateQueries({ queryKey: postQueryKeys.feed() });
+    },
   });
 }

@@ -21,7 +21,7 @@ export function AppLayout({
       <AppHeader actions={actions} />
 
       <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6">
           <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-semibold">{title}</h1>
@@ -42,8 +42,8 @@ export function AppLayout({
 
 function AppHeader({ actions }: { actions?: ReactNode }) {
   return (
-    <header className="border-b border-zinc-800 bg-zinc-950/95 px-4 py-3 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 border-b border-zinc-800 bg-zinc-950/90 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         <Link href={ROUTES.dashboard} className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-xl bg-blue-600">
             <UserRound className="size-5" />
@@ -74,7 +74,7 @@ function AppHeader({ actions }: { actions?: ReactNode }) {
 function AppFooter() {
   return (
     <footer className="border-t border-zinc-800 px-4 py-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex max-w-7xl flex-col gap-2 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
         <span>Social Web</span>
         <span>Profile, feed, and community tools.</span>
       </div>
