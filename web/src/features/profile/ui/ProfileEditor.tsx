@@ -40,19 +40,19 @@ export function ProfileEditor({
       />
 
       <div className="grid gap-5 md:grid-cols-2">
-        <label className="block text-sm text-zinc-300">
+        <label className="block text-sm font-medium text-zinc-700">
           Bio
           <textarea
             name="bio"
             defaultValue={profile?.bio ?? ""}
             maxLength={500}
             rows={5}
-            className="mt-2 min-h-32 w-full resize-y rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+            className="mt-2 min-h-32 w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-6 text-zinc-950 outline-none focus:border-blue-500 focus:bg-white"
           />
         </label>
 
         <div className="space-y-5">
-          <label className="block text-sm text-zinc-300">
+          <label className="block text-sm font-medium text-zinc-700">
             Website
             <Input
               name="website"
@@ -63,7 +63,7 @@ export function ProfileEditor({
             />
           </label>
 
-          <label className="block text-sm text-zinc-300">
+          <label className="block text-sm font-medium text-zinc-700">
             Dia diem
             <Input
               name="locationName"
@@ -75,7 +75,7 @@ export function ProfileEditor({
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
-        <label className="block text-sm text-zinc-300">
+        <label className="block text-sm font-medium text-zinc-700">
           Gioi tinh
           <Input
             name="gender"
@@ -84,7 +84,7 @@ export function ProfileEditor({
           />
         </label>
 
-        <label className="block text-sm text-zinc-300">
+        <label className="block text-sm font-medium text-zinc-700">
           Tinh trang
           <Input
             name="relationshipStatus"
@@ -93,7 +93,7 @@ export function ProfileEditor({
           />
         </label>
 
-        <label className="block text-sm text-zinc-300">
+        <label className="block text-sm font-medium text-zinc-700">
           Sinh nhat
           <Input
             name="birthday"
@@ -103,8 +103,8 @@ export function ProfileEditor({
         </label>
       </div>
 
-      <div className="grid gap-3 text-sm text-zinc-300 sm:grid-cols-2">
-        <label className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3">
+      <div className="grid gap-3 text-sm text-zinc-700 sm:grid-cols-2">
+        <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
           <input
             name="isBirthdayPublic"
             type="checkbox"
@@ -114,7 +114,7 @@ export function ProfileEditor({
           Cong khai sinh nhat
         </label>
 
-        <label className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3">
+        <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
           <input
             name="isFriendListPublic"
             type="checkbox"
@@ -126,7 +126,7 @@ export function ProfileEditor({
       </div>
 
       {(saveError || deleteError) && (
-        <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
           {saveError || deleteError}
         </p>
       )}
@@ -150,7 +150,7 @@ export function ProfileEditor({
             type="button"
             onClick={() => deleteMutation.mutate()}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/40 px-4 py-3 font-medium text-red-300 hover:bg-red-500/10 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-3 font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
           >
             <Trash2 className="size-4" />
             {deleteMutation.isPending ? "Dang xoa..." : "Xoa profile"}

@@ -46,12 +46,12 @@ export function ProfilePanel({
 
   return (
     <section className={isSidebar ? "space-y-4" : "space-y-6"}>
-      <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+      <div className="overflow-hidden rounded-2xl border border-white bg-white shadow-sm shadow-zinc-200/70">
         <div
           className={
             isSidebar
-              ? "relative h-32 bg-zinc-800"
-              : "relative h-56 bg-zinc-800"
+              ? "relative h-32 bg-zinc-100"
+              : "relative h-56 bg-zinc-100"
           }
         >
           {profile?.coverUrl ? (
@@ -64,7 +64,7 @@ export function ProfilePanel({
               priority
             />
           ) : (
-            <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#0f172a,#27272a_45%,#1e3a8a)] text-sm text-zinc-400">
+            <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#2563eb,#14b8a6_55%,#f59e0b)] text-sm font-medium text-white">
               Chua co anh bia
             </div>
           )}
@@ -97,7 +97,7 @@ export function ProfilePanel({
             <div className="flex items-end gap-4">
               <div
                 className={[
-                  "grid shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-zinc-900 bg-zinc-800",
+                  "grid shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-white bg-zinc-100 shadow-sm",
                   isSidebar ? "size-20" : "size-28",
                 ].join(" ")}
               >
@@ -113,7 +113,7 @@ export function ProfilePanel({
                 ) : (
                   <UserRound
                     className={[
-                      "text-zinc-500",
+                      "text-zinc-400",
                       isSidebar ? "size-9" : "size-12",
                     ].join(" ")}
                   />
@@ -123,13 +123,13 @@ export function ProfilePanel({
               <div className="pb-1">
                 <h2
                   className={[
-                    "font-semibold text-white",
+                    "font-semibold text-zinc-950",
                     isSidebar ? "text-lg" : "text-2xl",
                   ].join(" ")}
                 >
                   {displayName}
                 </h2>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-zinc-500">
                   {profile?.username
                     ? `@${profile.username}`
                     : currentUser.email}
@@ -149,7 +149,7 @@ export function ProfilePanel({
           {profile?.bio && (
             <p
               className={[
-                "text-sm leading-6 text-zinc-300",
+                "text-sm leading-6 text-zinc-600",
                 isSidebar ? "mt-4" : "mt-5 max-w-3xl",
               ].join(" ")}
             >
@@ -160,7 +160,7 @@ export function ProfilePanel({
           {metaItems.length > 0 && (
             <div
               className={[
-                "flex flex-wrap gap-3 text-sm text-zinc-400",
+                "flex flex-wrap gap-3 text-sm text-zinc-600",
                 isSidebar ? "mt-4" : "mt-5",
               ].join(" ")}
             >
@@ -174,9 +174,9 @@ export function ProfilePanel({
                 return (
                   <span
                     key={item.label}
-                    className="inline-flex items-center gap-2 rounded-xl bg-zinc-950 px-3 py-2"
+                    className="inline-flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2"
                   >
-                    <Icon className="size-4 text-blue-300" />
+                    <Icon className="size-4 text-blue-600" />
                     {item.label}
                   </span>
                 );
@@ -189,21 +189,21 @@ export function ProfilePanel({
       <div
         className={
           isSidebar
-            ? "rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
-            : "rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
+            ? "rounded-2xl border border-white bg-white p-4 shadow-sm shadow-zinc-200/70"
+            : "rounded-2xl border border-white bg-white p-6 shadow-sm shadow-zinc-200/70"
         }
       >
         <div className="mb-6">
           <h3
             className={
               isSidebar
-                ? "font-semibold text-white"
-                : "text-lg font-semibold text-white"
+                ? "font-semibold text-zinc-950"
+                : "text-lg font-semibold text-zinc-950"
             }
           >
             Thong tin profile
           </h3>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-zinc-500">
             Cap nhat thong tin hien thi tren trang ca nhan cua ban.
           </p>
         </div>
