@@ -102,8 +102,8 @@ export function MediaPicker({
       <label
         className={[
           "inline-flex cursor-pointer items-center gap-2 rounded-xl",
-          "border border-zinc-700 bg-zinc-950 px-4 py-2",
-          "text-sm font-medium text-zinc-100 hover:border-blue-500",
+          "border border-zinc-200 bg-zinc-50 px-4 py-2",
+          "text-sm font-medium text-zinc-700 hover:border-blue-400 hover:bg-white",
           disabled || items.length >= maxFiles
             ? "pointer-events-none opacity-60"
             : "",
@@ -130,7 +130,7 @@ export function MediaPicker({
           {items.map((item) => (
             <div
               key={item.id}
-              className="group relative aspect-square overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950"
+              className="group relative aspect-square overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
             >
               {item.type === "video" ? (
                 <video

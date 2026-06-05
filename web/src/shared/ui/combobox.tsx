@@ -120,7 +120,9 @@ export function Combobox({
       ref={rootRef}
       className={["relative", className].filter(Boolean).join(" ")}
     >
-      {label && <p className="mb-2 text-sm text-zinc-300">{label}</p>}
+      {label && (
+        <p className="mb-2 text-sm font-medium text-zinc-700">{label}</p>
+      )}
       <input type="hidden" name={name} value={selectedValue} />
 
       <button
@@ -133,9 +135,9 @@ export function Combobox({
         onKeyDown={handleKeyDown}
         className={[
           "flex w-full items-center justify-between gap-3 rounded-xl",
-          "border border-zinc-800 bg-zinc-950 text-left",
-          "text-sm text-white shadow-sm transition outline-none",
-          "hover:border-zinc-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+          "border border-zinc-200 bg-zinc-50 text-left",
+          "text-sm text-zinc-950 shadow-sm transition outline-none",
+          "hover:border-blue-300 hover:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
           "disabled:pointer-events-none disabled:opacity-60",
           triggerSizeClass,
         ].join(" ")}
@@ -144,7 +146,7 @@ export function Combobox({
           {selectedOption?.icon && (
             <span
               className={[
-                "grid shrink-0 place-items-center rounded-lg bg-zinc-900 text-blue-300",
+                "grid shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600",
                 iconSizeClass,
               ].join(" ")}
             >
@@ -178,7 +180,7 @@ export function Combobox({
           role="listbox"
           className={[
             "absolute z-20 mt-2 w-full overflow-hidden rounded-xl",
-            "border border-zinc-800 bg-zinc-950 p-1 shadow-2xl shadow-black/40",
+            "border border-zinc-200 bg-white p-1 shadow-2xl shadow-zinc-200",
           ].join(" ")}
         >
           {options.map((option) => {
@@ -193,9 +195,9 @@ export function Combobox({
                 onClick={() => selectValue(option.value)}
                 className={[
                   "flex w-full items-center gap-3 rounded-lg text-left",
-                  "text-sm transition hover:bg-zinc-900",
+                  "text-sm transition hover:bg-zinc-50",
                   optionSizeClass,
-                  isSelected ? "bg-blue-500/10 text-white" : "text-zinc-300",
+                  isSelected ? "bg-blue-50 text-blue-700" : "text-zinc-700",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -203,7 +205,7 @@ export function Combobox({
                 {option.icon && (
                   <span
                     className={[
-                      "grid shrink-0 place-items-center rounded-lg bg-zinc-900 text-blue-300",
+                      "grid shrink-0 place-items-center rounded-lg bg-zinc-100 text-blue-600",
                       iconSizeClass,
                     ].join(" ")}
                   >
@@ -220,7 +222,7 @@ export function Combobox({
                     </span>
                   )}
                 </span>
-                {isSelected && <Check className="size-4 text-blue-300" />}
+                {isSelected && <Check className="size-4 text-blue-600" />}
               </button>
             );
           })}
