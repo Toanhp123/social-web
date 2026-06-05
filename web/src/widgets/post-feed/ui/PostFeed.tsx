@@ -3,18 +3,24 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef } from "react";
 import { Loader2, Newspaper, RefreshCw, WifiOff } from "lucide-react";
-import { PostCard } from "@/entities/post";
+import { PostCard, type ReactionType } from "@/entities/post";
 import { usePostFeedQuery } from "@/features/post-feed";
+import { useReactPostMutation } from "@/features/react-post";
 
 export function PostFeed() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const feedQuery = usePostFeedQuery();
+  const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
     () => feedQuery.data?.pages.flatMap((page) => page.items) ?? [],
     [feedQuery.data],
   );
   const errorMessage =
     feedQuery.error instanceof Error ? feedQuery.error.message : "";
+
+  function handleReactionChange(postId: string, type: ReactionType | null) {
+    reactPostMutation.mutate({ postId, type });
+  }
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -43,13 +49,13 @@ export function PostFeed() {
 
   return (
     <section className="space-y-4" aria-labelledby="feed-title">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white bg-white px-4 py-3 shadow-sm shadow-zinc-200/70">
         <div>
-          <h2 id="feed-title" className="text-lg font-semibold text-white">
-            Bang tin
+          <h2 id="feed-title" className="text-lg font-semibold text-zinc-950">
+            Moi nhat
           </h2>
           <p className="mt-1 text-sm text-zinc-500">
-            Bai viet moi se xuat hien tai day.
+            Bai viet moi tu cong dong se xuat hien tai day.
           </p>
         </div>
 
@@ -57,13 +63,10 @@ export function PostFeed() {
           type="button"
           onClick={() => void feedQuery.refetch()}
           disabled={feedQuery.isRefetching}
-          className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-700 hover:text-white disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-600 shadow-sm hover:border-blue-200 hover:text-blue-600 disabled:opacity-60"
         >
           <RefreshCw
-            className={[
-              "size-4",
-              feedQuery.isRefetching ? "animate-spin" : "",
-            ]
+            className={["size-4", feedQuery.isRefetching ? "animate-spin" : ""]
               .filter(Boolean)
               .join(" ")}
           />
@@ -94,7 +97,16 @@ export function PostFeed() {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} metaLabel={formatPostDate(post.createdAt)} />
+            <PostCard
+              key={post.id}
+              post={post}
+              metaLabel={formatPostDate(post.createdAt)}
+              isReacting={
+                reactPostMutation.isPending &&
+                reactPostMutation.variables?.postId === post.id
+              }
+              onReactionChange={(type) => handleReactionChange(post.id, type)}
+            />
           ))}
         </div>
       )}
@@ -102,7 +114,7 @@ export function PostFeed() {
       <div ref={loadMoreRef} className="h-1" />
 
       {feedQuery.isFetchingNextPage && (
-        <div className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 py-4 text-sm text-zinc-400">
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-white bg-white py-4 text-sm text-zinc-500 shadow-sm shadow-zinc-200/70">
           <Loader2 className="size-4 animate-spin" />
           Dang tai them
         </div>
@@ -133,22 +145,22 @@ function FeedNotice({
   onAction,
 }: FeedNoticeProps) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/70 p-6">
+    <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 shadow-sm shadow-zinc-200/70">
       <div className="flex items-start gap-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-blue-300">
+        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600">
           {icon}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-white">{title}</h3>
-          <p className="mt-1 max-w-xl text-sm leading-6 text-zinc-400">
+          <h3 className="font-medium text-zinc-950">{title}</h3>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-zinc-500">
             {description}
           </p>
           {actionLabel && onAction && (
             <button
               type="button"
               onClick={onAction}
-              className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              className="mt-4 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
             >
               {actionLabel}
             </button>
@@ -161,20 +173,20 @@ function FeedNotice({
 
 function PostSkeleton({ compact }: { compact?: boolean }) {
   return (
-    <div className="rounded-2xl border border-zinc-900 bg-zinc-950/40 p-4 opacity-70">
+    <div className="rounded-2xl border border-white bg-white p-4 opacity-80 shadow-sm shadow-zinc-200/70">
       <div className="flex items-center gap-3">
-        <div className="size-10 rounded-xl bg-zinc-900" />
+        <div className="size-10 rounded-full bg-zinc-100" />
         <div className="space-y-2">
-          <div className="h-3 w-32 rounded-full bg-zinc-900" />
-          <div className="h-2.5 w-20 rounded-full bg-zinc-900" />
+          <div className="h-3 w-32 rounded-full bg-zinc-100" />
+          <div className="h-2.5 w-20 rounded-full bg-zinc-100" />
         </div>
       </div>
       <div className="mt-5 space-y-2">
-        <div className="h-3 w-full rounded-full bg-zinc-900" />
-        <div className="h-3 w-10/12 rounded-full bg-zinc-900" />
-        {!compact && <div className="h-3 w-7/12 rounded-full bg-zinc-900" />}
+        <div className="h-3 w-full rounded-full bg-zinc-100" />
+        <div className="h-3 w-10/12 rounded-full bg-zinc-100" />
+        {!compact && <div className="h-3 w-7/12 rounded-full bg-zinc-100" />}
       </div>
-      {!compact && <div className="mt-4 aspect-video rounded-xl bg-zinc-900" />}
+      {!compact && <div className="mt-4 aspect-video rounded-xl bg-zinc-100" />}
     </div>
   );
 }
