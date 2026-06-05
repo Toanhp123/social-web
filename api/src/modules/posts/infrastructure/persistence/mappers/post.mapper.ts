@@ -1,6 +1,7 @@
 import { MediaType, PostType, Prisma } from '@/generated/prisma/client.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { CreatePostInput } from '@/modules/posts/domain/types/create-post-input.type.js';
 
@@ -18,18 +19,37 @@ export const POST_INCLUDE = {
       order: 'asc',
     },
   },
+  stats: true,
 } as const;
 
+export function getPostInclude(viewerId: string) {
+  return {
+    ...POST_INCLUDE,
+    reactions: {
+      where: {
+        userId: viewerId,
+        deletedAt: null,
+      },
+      select: {
+        type: true,
+      },
+      take: 1,
+    },
+  } as const;
+}
+
 type PostPayload = Prisma.PostGetPayload<{
-  include: typeof POST_INCLUDE;
+  include: ReturnType<typeof getPostInclude>;
 }>;
 
 type CreatePostData = Prisma.PostUncheckedCreateInput;
 
 export class PostMapper {
-  static include = POST_INCLUDE;
+  static includeForViewer = getPostInclude;
 
   static toDomain(prismaPost: PostPayload): Post {
+    const stats = prismaPost.stats;
+
     return new Post(
       prismaPost.id,
       new PostAuthor(
@@ -59,6 +79,18 @@ export class PostMapper {
       ),
       prismaPost.createdAt,
       prismaPost.updatedAt,
+      stats
+        ? new PostReactionStats(
+            stats.likeCount,
+            stats.loveCount,
+            stats.hahaCount,
+            stats.wowCount,
+            stats.sadCount,
+            stats.angryCount,
+            stats.totalReactionCount,
+          )
+        : PostReactionStats.empty(),
+      prismaPost.reactions.at(0)?.type ?? null,
     );
   }
 

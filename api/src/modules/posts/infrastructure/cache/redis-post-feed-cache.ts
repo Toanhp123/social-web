@@ -3,6 +3,7 @@ import {
   MediaType,
   PostType,
   PostVisibility,
+  ReactionType,
 } from '@/generated/prisma/client.js';
 import { RedisService } from '@/infrastructure/redis/redis.service.js';
 import type {
@@ -11,6 +12,7 @@ import type {
 } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 
@@ -43,6 +45,16 @@ type CachedPost = {
     order: number;
     alt: string | null;
   }>;
+  reactionStats?: {
+    likeCount: number;
+    loveCount: number;
+    hahaCount: number;
+    wowCount: number;
+    sadCount: number;
+    angryCount: number;
+    totalReactionCount: number;
+  };
+  currentReaction?: ReactionType | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -136,6 +148,16 @@ export class RedisPostFeedCache implements PostFeedCache {
           order: media.order,
           alt: media.alt,
         })),
+        reactionStats: {
+          likeCount: post.reactionStats.likeCount,
+          loveCount: post.reactionStats.loveCount,
+          hahaCount: post.reactionStats.hahaCount,
+          wowCount: post.reactionStats.wowCount,
+          sadCount: post.reactionStats.sadCount,
+          angryCount: post.reactionStats.angryCount,
+          totalReactionCount: post.reactionStats.totalReactionCount,
+        },
+        currentReaction: post.currentReaction,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
       })),
@@ -176,6 +198,18 @@ export class RedisPostFeedCache implements PostFeedCache {
             ),
             new Date(post.createdAt),
             new Date(post.updatedAt),
+            post.reactionStats
+              ? new PostReactionStats(
+                  post.reactionStats.likeCount,
+                  post.reactionStats.loveCount,
+                  post.reactionStats.hahaCount,
+                  post.reactionStats.wowCount,
+                  post.reactionStats.sadCount,
+                  post.reactionStats.angryCount,
+                  post.reactionStats.totalReactionCount,
+                )
+              : PostReactionStats.empty(),
+            post.currentReaction ?? null,
           ),
       ),
       nextCursor: result.nextCursor,

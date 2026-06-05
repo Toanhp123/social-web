@@ -1,6 +1,11 @@
-import { PostType, PostVisibility } from '@/generated/prisma/client.js';
+import {
+  PostType,
+  PostVisibility,
+  ReactionType,
+} from '@/generated/prisma/client.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 
 export class Post {
   constructor(
@@ -12,5 +17,7 @@ export class Post {
     public readonly media: PostMedia[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+    public readonly reactionStats: PostReactionStats = PostReactionStats.empty(),
+    public readonly currentReaction: ReactionType | null = null,
   ) {}
 }

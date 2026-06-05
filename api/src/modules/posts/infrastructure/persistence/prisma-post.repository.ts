@@ -31,7 +31,7 @@ export class PrismaPostRepository implements PostRepository {
     try {
       const post = await client.post.create({
         data: PostMapper.toPersistence(input),
-        include: PostMapper.include,
+        include: PostMapper.includeForViewer(input.authorId),
       });
 
       return PostMapper.toDomain(post);
@@ -67,7 +67,7 @@ export class PrismaPostRepository implements PostRepository {
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: query.limit + 1,
-        include: PostMapper.include,
+        include: PostMapper.includeForViewer(query.viewerId),
       });
       const hasNextPage = posts.length > query.limit;
       const pageItems = hasNextPage ? posts.slice(0, query.limit) : posts;
