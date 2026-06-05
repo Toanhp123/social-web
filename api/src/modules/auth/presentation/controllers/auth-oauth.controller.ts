@@ -17,7 +17,7 @@ import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.js';
 import type { OAuthSessionHandoffStore } from '@/modules/auth/application/ports/oauth-session-handoff-store.port.js';
 import { GoogleLoginService } from '@/modules/auth/application/services/google-login.service.js';
-import type { OAuthProfile } from '@/modules/auth/application/types/oauth-profile.type.js';
+import type { OAuthProfile } from '@/modules/auth/domain/types/oauth-profile.type.js';
 import { AuthResponseDto } from '@/modules/auth/presentation/dto/auth-response.dto.js';
 import { OAuthSessionDto } from '@/modules/auth/presentation/dto/oauth-session.dto.js';
 import {

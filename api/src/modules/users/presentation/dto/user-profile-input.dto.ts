@@ -5,26 +5,27 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { USER_PROFILE_FIELD_LIMITS } from '@/modules/users/domain/entities/user-profile.entity.js';
 
 export class UserProfileInputDto {
   @IsOptional()
   @IsString()
-  @MaxLength(500)
+  @MaxLength(USER_PROFILE_FIELD_LIMITS.bio)
   bio?: string | null;
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
+  @MaxLength(USER_PROFILE_FIELD_LIMITS.website)
   website?: string | null;
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(USER_PROFILE_FIELD_LIMITS.gender)
   gender?: string | null;
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(USER_PROFILE_FIELD_LIMITS.relationshipStatus)
   relationshipStatus?: string | null;
 
   @IsOptional()
@@ -41,6 +42,6 @@ export class UserProfileInputDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
+  @MaxLength(USER_PROFILE_FIELD_LIMITS.locationName)
   locationName?: string | null;
 }

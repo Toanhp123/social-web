@@ -4,7 +4,7 @@ import type {
   AuthRateLimitAction,
   AuthRateLimitInput,
 } from '@/modules/auth/application/ports/auth-rate-limiter.port.js';
-import type { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import type { AuthSessionMetadata } from '@/modules/auth/domain/types/auth-session-metadata.type.js';
 import { ClientIpResolver } from '@/core/http/client-ip.resolver.js';
 
 @Injectable()

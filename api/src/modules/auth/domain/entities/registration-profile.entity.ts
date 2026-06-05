@@ -8,16 +8,14 @@ export type RegistrationProfileInput = {
   username?: string;
 };
 
-export type NormalizedRegistrationProfile = {
-  fullName: string;
-  email: string;
-  username: string | null;
-};
+export class RegistrationProfile {
+  private constructor(
+    public readonly fullName: string,
+    public readonly email: string,
+    public readonly username: string | null,
+  ) {}
 
-export class RegistrationProfilePolicy {
-  static normalize(
-    input: RegistrationProfileInput,
-  ): NormalizedRegistrationProfile {
+  static create(input: RegistrationProfileInput): RegistrationProfile {
     const email = EmailAddress.normalizeAndValidate(input.email);
     const fullName = input.fullName.trim();
     const username = input.username?.trim() || null;
@@ -40,10 +38,6 @@ export class RegistrationProfilePolicy {
       );
     }
 
-    return {
-      fullName,
-      email,
-      username,
-    };
+    return new RegistrationProfile(fullName, email, username);
   }
 }

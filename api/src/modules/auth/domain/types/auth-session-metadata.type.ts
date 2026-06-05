@@ -1,6 +1,6 @@
 export type AuthSessionMetadata = {
-  device?: string;
-  deviceId?: string;
   ip?: string;
   userAgent?: string;
+  device?: string;
+  deviceId?: string;
 };

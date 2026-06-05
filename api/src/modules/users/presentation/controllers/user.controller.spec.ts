@@ -90,7 +90,7 @@ describe('UserController', () => {
     );
   });
 
-  it('maps profile input before creating the current user profile', async () => {
+  it('maps HTTP profile input before creating the current user profile', async () => {
     await controller.createMyProfile(
       {
         bio: '  Hello  ',
@@ -101,14 +101,14 @@ describe('UserController', () => {
     );
 
     expect(createUserProfileService.execute).toHaveBeenCalledWith('user-1', {
-      bio: 'Hello',
+      bio: '  Hello  ',
       website: undefined,
       gender: undefined,
       relationshipStatus: undefined,
       birthday: new Date('2003-10-12'),
       isBirthdayPublic: undefined,
       isFriendListPublic: undefined,
-      locationName: null,
+      locationName: '',
     });
   });
 

@@ -1,7 +1,7 @@
 import { Prisma } from '@/generated/prisma/client.js';
 import { UserRole } from '@/core/security/enums/user-role.enum.js';
 import { User } from '@/modules/users/domain/entities/user.entity.js';
-import { CreateUserInput } from '@/modules/users/domain/repositories/user.repository.interface.js';
+import { CreateUserInput } from '@/modules/users/domain/types/create-user-input.type.js';
 
 export const USER_SELECT = {
   id: true,

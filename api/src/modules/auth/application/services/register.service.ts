@@ -18,9 +18,9 @@ import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 import type { TokenService } from '@/modules/auth/application/ports/token-service.port.js';
 import type { PasswordHasher } from '@/modules/auth/application/ports/password-hasher.port.js';
 import type { TokenHasher } from '@/modules/auth/application/ports/token-hasher.port.js';
-import { AuthSessionMetadata } from '@/modules/auth/application/types/auth-session-metadata.type.js';
+import { AuthSessionMetadata } from '@/modules/auth/domain/types/auth-session-metadata.type.js';
 import { PasswordPolicy } from '@/modules/auth/domain/policies/password.policy.js';
-import { RegistrationProfilePolicy } from '@/modules/auth/domain/policies/registration-profile.policy.js';
+import { RegistrationProfile } from '@/modules/auth/domain/entities/registration-profile.entity.js';
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import { SessionRepository } from '@/modules/auth/domain/repositories/session.repository.interface.js';
 import { UserRepository } from '@/modules/users/domain/repositories/user.repository.interface.js';
@@ -80,7 +80,7 @@ export class RegisterService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    const profile = RegistrationProfilePolicy.normalize(input);
+    const profile = RegistrationProfile.create(input);
     await this.authRateLimiter.assertAllowed({
       ...context.rateLimit,
       subject: profile.email,

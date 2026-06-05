@@ -29,9 +29,7 @@ import {
   type UploadedProfileImageFile,
   UserProfileImageFileMapper,
 } from '@/modules/users/presentation/mappers/user-profile-image-file.mapper.js';
-
-const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
-const COVER_MAX_BYTES = 10 * 1024 * 1024;
+import { UserProfileImage } from '@/modules/users/domain/entities/user-profile-image.entity.js';
 
 @Controller('users')
 export class UserController {
@@ -105,7 +103,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('me/avatar')
   @UseInterceptors(
-    FileInterceptor('file', { limits: { fileSize: AVATAR_MAX_BYTES } }),
+    FileInterceptor('file', {
+      limits: { fileSize: UserProfileImage.getMaxBytes('avatar') },
+    }),
   )
   async uploadMyAvatar(
     @UploadedFile() file: UploadedProfileImageFile | undefined,
@@ -123,7 +123,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('me/cover')
   @UseInterceptors(
-    FileInterceptor('file', { limits: { fileSize: COVER_MAX_BYTES } }),
+    FileInterceptor('file', {
+      limits: { fileSize: UserProfileImage.getMaxBytes('cover') },
+    }),
   )
   async uploadMyCover(
     @UploadedFile() file: UploadedProfileImageFile | undefined,
