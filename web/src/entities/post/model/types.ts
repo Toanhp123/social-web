@@ -1,6 +1,7 @@
 export type PostVisibility = "PUBLIC" | "FRIENDS_ONLY" | "PRIVATE";
 export type PostType = "TEXT" | "MEDIA" | "SHARE" | "SYSTEM";
 export type MediaType = "IMAGE" | "VIDEO";
+export type ReactionType = "LIKE" | "LOVE" | "HAHA" | "WOW" | "SAD" | "ANGRY";
 
 export type PostAuthor = {
   id: string;
@@ -30,8 +31,20 @@ export type Post = {
   visibility: PostVisibility;
   author: PostAuthor;
   media: PostMedia[];
+  reactionStats: PostReactionStats;
+  currentReaction: ReactionType | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type PostReactionStats = {
+  likeCount: number;
+  loveCount: number;
+  hahaCount: number;
+  wowCount: number;
+  sadCount: number;
+  angryCount: number;
+  totalReactionCount: number;
 };
 
 export type PostPage = {
