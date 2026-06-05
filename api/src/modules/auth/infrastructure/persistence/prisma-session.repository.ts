@@ -29,7 +29,7 @@ export class PrismaSessionRepository implements SessionRepository {
     try {
       const session = await client.session.create({
         data: input,
-        select: this.selectSession(),
+        select: SessionMapper.select,
       });
 
       return SessionMapper.toDomain(session);
@@ -46,7 +46,7 @@ export class PrismaSessionRepository implements SessionRepository {
     try {
       const session = await client.session.findUnique({
         where: { refreshTokenHash },
-        select: this.selectSession(),
+        select: SessionMapper.select,
       });
 
       return session ? SessionMapper.toDomain(session) : null;
@@ -65,7 +65,7 @@ export class PrismaSessionRepository implements SessionRepository {
         where: { refreshTokenHash },
         select: {
           session: {
-            select: this.selectSession(),
+            select: SessionMapper.select,
           },
         },
       });
@@ -214,17 +214,5 @@ export class PrismaSessionRepository implements SessionRepository {
     } catch (error) {
       throw mapPrismaError(error);
     }
-  }
-
-  private selectSession() {
-    return {
-      id: true,
-      authAccountId: true,
-      refreshTokenHash: true,
-      isRevoked: true,
-      expiresAt: true,
-      createdAt: true,
-      lastUsedAt: true,
-    } as const;
   }
 }
