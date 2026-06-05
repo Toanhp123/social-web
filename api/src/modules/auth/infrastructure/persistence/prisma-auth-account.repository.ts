@@ -32,7 +32,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     try {
       const account = await client.authAccount.findUnique({
         where: { id },
-        select: this.selectAuthAccount(),
+        select: AuthAccountMapper.select,
       });
 
       return account ? AuthAccountMapper.toDomain(account) : null;
@@ -47,7 +47,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     try {
       const account = await client.authAccount.findUnique({
         where: { email },
-        select: this.selectAuthAccount(),
+        select: AuthAccountMapper.select,
       });
 
       return account ? AuthAccountMapper.toDomain(account) : null;
@@ -71,7 +71,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
         },
         select: {
           authAccount: {
-            select: this.selectAuthAccount(),
+            select: AuthAccountMapper.select,
           },
         },
       });
@@ -91,7 +91,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     try {
       const createdAccount = await client.authAccount.create({
         data: AuthAccountMapper.toPersistence(input, accountId),
-        select: this.selectAuthAccount(),
+        select: AuthAccountMapper.select,
       });
 
       return AuthAccountMapper.toDomain(createdAccount);
@@ -129,7 +129,7 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
       const account = await client.authAccount.update({
         where: { id: input.authAccountId },
         data: { emailVerifiedAt: input.verifiedAt },
-        select: this.selectAuthAccount(),
+        select: AuthAccountMapper.select,
       });
 
       return AuthAccountMapper.toDomain(account);
@@ -152,24 +152,12 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
           passwordHash: input.passwordHash,
           passwordChangedAt: input.passwordChangedAt,
         },
-        select: this.selectAuthAccount(),
+        select: AuthAccountMapper.select,
       });
 
       return AuthAccountMapper.toDomain(account);
     } catch (error) {
       throw mapPrismaError(error);
     }
-  }
-
-  private selectAuthAccount() {
-    return {
-      id: true,
-      email: true,
-      passwordHash: true,
-      role: true,
-      emailVerifiedAt: true,
-      passwordChangedAt: true,
-      disabledAt: true,
-    } as const;
   }
 }

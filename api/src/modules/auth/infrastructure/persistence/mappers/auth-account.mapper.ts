@@ -4,19 +4,23 @@ import { UserRole } from '@/core/security/enums/user-role.enum.js';
 import { AuthAccount } from '@/modules/auth/domain/entities/auth-account.entity.js';
 import { RegisterAuthAccountInput } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 
+export const AUTH_ACCOUNT_SELECT = {
+  id: true,
+  email: true,
+  passwordHash: true,
+  role: true,
+  emailVerifiedAt: true,
+  passwordChangedAt: true,
+  disabledAt: true,
+} as const;
+
 type AuthAccountPayload = Prisma.AuthAccountGetPayload<{
-  select: {
-    id: true;
-    email: true;
-    passwordHash: true;
-    role: true;
-    emailVerifiedAt: true;
-    passwordChangedAt: true;
-    disabledAt: true;
-  };
+  select: typeof AUTH_ACCOUNT_SELECT;
 }>;
 
 export class AuthAccountMapper {
+  static select = AUTH_ACCOUNT_SELECT;
+
   static toPersistence(
     input: RegisterAuthAccountInput,
     accountId: string,

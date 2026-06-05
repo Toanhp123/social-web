@@ -33,7 +33,7 @@ export class PrismaUserRepository implements UserRepository {
 
     try {
       await client.user.create({
-        data: input,
+        data: UserMapper.toPersistence(input),
       });
     } catch (error) {
       throw mapPrismaError(error);
@@ -46,17 +46,7 @@ export class PrismaUserRepository implements UserRepository {
     try {
       const user = await client.user.findUnique({
         where: { id },
-        select: {
-          id: true,
-          fullName: true,
-          username: true,
-          authAccount: {
-            select: {
-              email: true,
-              role: true,
-            },
-          },
-        },
+        select: UserMapper.select,
       });
 
       return user ? UserMapper.toDomain(user) : null;

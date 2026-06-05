@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { LoginService } from '@/modules/auth/application/services/login.service.js';
-import { AuthController } from '@/modules/auth/presentation/controllers/auth.controller.js';
 import { AuthOAuthController } from '@/modules/auth/presentation/controllers/auth-oauth.controller.js';
+import { AuthEmailVerificationController } from '@/modules/auth/presentation/controllers/auth-email-verification.controller.js';
+import { AuthPasswordResetController } from '@/modules/auth/presentation/controllers/auth-password-reset.controller.js';
+import { AuthSessionController } from '@/modules/auth/presentation/controllers/auth-session.controller.js';
 import { RegisterService } from '@/modules/auth/application/services/register.service.js';
 import { RefreshTokenService } from '@/modules/auth/application/services/refresh-token.service.js';
 import { LogoutService } from '@/modules/auth/application/services/logout.service.js';
@@ -25,7 +27,12 @@ import {
 
 @Module({
   imports: [AuthInfrastructureModule, UserModule, CoreHttpModule],
-  controllers: [AuthController, AuthOAuthController],
+  controllers: [
+    AuthSessionController,
+    AuthEmailVerificationController,
+    AuthPasswordResetController,
+    AuthOAuthController,
+  ],
   providers: [
     LoginService,
     RegisterService,
