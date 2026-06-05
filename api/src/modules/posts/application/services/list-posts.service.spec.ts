@@ -3,6 +3,7 @@ import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
+import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import type { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { PostType, PostVisibility } from '@/generated/prisma/client.js';
@@ -19,6 +20,7 @@ describe('ListPostsService', () => {
   );
 
   let postRepository: jest.Mocked<PostRepository>;
+  let postFeedCache: jest.Mocked<PostFeedCache>;
   let service: ListPostsService;
 
   beforeEach(() => {
@@ -32,7 +34,12 @@ describe('ListPostsService', () => {
         },
       }),
     };
-    service = new ListPostsService(postRepository);
+    postFeedCache = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue(undefined),
+      invalidateAll: jest.fn(),
+    };
+    service = new ListPostsService(postRepository, postFeedCache);
   });
 
   it('uses the default page size and returns an opaque next cursor', async () => {
@@ -45,6 +52,21 @@ describe('ListPostsService', () => {
     });
     expect(result.items).toEqual([post]);
     expect(result.nextCursor).toEqual(expect.any(String));
+    expect(postFeedCache.set).toHaveBeenCalledWith(
+      { viewerId: 'user-1', limit: 10, cursor: undefined },
+      result,
+    );
+  });
+
+  it('returns cached feed pages without querying the repository', async () => {
+    postFeedCache.get.mockResolvedValue({ items: [post], nextCursor: null });
+
+    await expect(service.execute({ viewerId: 'user-1' })).resolves.toEqual({
+      items: [post],
+      nextCursor: null,
+    });
+
+    expect(postRepository.findPage).not.toHaveBeenCalled();
   });
 
   it('decodes a returned cursor on the next request', async () => {

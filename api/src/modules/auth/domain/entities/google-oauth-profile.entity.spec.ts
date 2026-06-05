@@ -4,7 +4,9 @@ import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { GoogleOAuthProfile } from '@/modules/auth/domain/entities/google-oauth-profile.entity.js';
 import type { OAuthProfile } from '@/modules/auth/domain/types/oauth-profile.type.js';
 
-const googleProfile = (overrides: Partial<OAuthProfile> = {}): OAuthProfile => ({
+const googleProfile = (
+  overrides: Partial<OAuthProfile> = {},
+): OAuthProfile => ({
   provider: 'GOOGLE',
   providerId: 'google-user-1',
   email: ' User@Example.COM ',

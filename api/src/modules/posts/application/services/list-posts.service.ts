@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { POST_REPOSITORY } from '@/common/constants/provider-token.constant.js';
+import {
+  POST_FEED_CACHE,
+  POST_REPOSITORY,
+} from '@/common/constants/provider-token.constant.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { ListPostsCursor } from '@/modules/posts/domain/types/list-posts-query.type.js';
@@ -26,20 +30,65 @@ export class ListPostsService {
   constructor(
     @Inject(POST_REPOSITORY)
     private readonly postRepository: PostRepository,
+
+    @Inject(POST_FEED_CACHE)
+    private readonly postFeedCache: PostFeedCache,
   ) {}
 
   async execute(input: ListPostsInput): Promise<ListPostsResult> {
     const limit = this.normalizeLimit(input.limit);
+    const cacheKey = {
+      viewerId: input.viewerId,
+      limit,
+      cursor: input.cursor,
+    };
+    const cached = await this.getCachedResult(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
     const page = await this.postRepository.findPage({
       viewerId: input.viewerId,
       limit,
       cursor: input.cursor ? this.decodeCursor(input.cursor) : undefined,
     });
 
-    return {
+    const result = {
       items: page.items,
       nextCursor: page.nextCursor ? this.encodeCursor(page.nextCursor) : null,
     };
+
+    await this.cacheResult(cacheKey, result);
+
+    return result;
+  }
+
+  private async getCachedResult(input: {
+    viewerId: string;
+    limit: number;
+    cursor?: string;
+  }): Promise<ListPostsResult | null> {
+    try {
+      return await this.postFeedCache.get(input);
+    } catch {
+      return null;
+    }
+  }
+
+  private async cacheResult(
+    input: {
+      viewerId: string;
+      limit: number;
+      cursor?: string;
+    },
+    result: ListPostsResult,
+  ): Promise<void> {
+    try {
+      await this.postFeedCache.set(input, result);
+    } catch {
+      return;
+    }
   }
 
   private normalizeLimit(limit: number | undefined): number {

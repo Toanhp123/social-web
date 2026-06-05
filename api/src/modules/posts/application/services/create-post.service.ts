@@ -2,11 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import {
   FILE_STORAGE,
+  POST_FEED_JOB_QUEUE,
   POST_REPOSITORY,
 } from '@/common/constants/provider-token.constant.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
+import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import { PostDraft } from '@/modules/posts/domain/entities/post-draft.entity.js';
 import {
   PostMedia,
@@ -39,6 +41,9 @@ export class CreatePostService {
 
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStoragePort,
+
+    @Inject(POST_FEED_JOB_QUEUE)
+    private readonly postFeedJobQueue: PostFeedJobQueue,
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
@@ -54,7 +59,22 @@ export class CreatePostService {
       media,
     });
 
-    return await this.postRepository.create(draft.toCreateInput());
+    const post = await this.postRepository.create(draft.toCreateInput());
+
+    await this.enqueuePostCreatedFeedJob(post.id, input.authorId);
+
+    return post;
+  }
+
+  private async enqueuePostCreatedFeedJob(
+    postId: string,
+    authorId: string,
+  ): Promise<void> {
+    try {
+      await this.postFeedJobQueue.enqueuePostCreated({ postId, authorId });
+    } catch {
+      return;
+    }
   }
 
   private assertValidUploadFiles(files: CreatePostMediaFile[]): void {
