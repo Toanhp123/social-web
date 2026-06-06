@@ -28,10 +28,10 @@ export async function baseFetchWithResponse<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const response = await fetch(joinUrl(baseUrl, endpoint), {
     ...init,
     headers,
-    cache: "no-store",
+    cache: init?.cache ?? "no-store",
   });
 
   if (!response.ok) {
@@ -59,8 +59,24 @@ export async function baseFetchWithResponse<T>(
   };
 }
 
+function joinUrl(baseUrl: string, endpoint: string) {
+  return `${baseUrl.replace(/\/$/, "")}/${endpoint.replace(/^\//, "")}`;
+}
+
 async function parseErrorBody(
   response: Response,
 ): Promise<BackendErrorResponse | null> {
-  return response.json().catch(() => null);
+  const contentType = response.headers.get("content-type");
+
+  if (contentType?.includes("application/json")) {
+    return response.json().catch(() => null);
+  }
+
+  const text = await response.text().catch(() => "");
+
+  return text
+    ? {
+        message: text,
+      }
+    : null;
 }

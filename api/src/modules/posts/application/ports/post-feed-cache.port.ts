@@ -1,7 +1,7 @@
 import type { Post } from '@/modules/posts/domain/entities/post.entity.js';
 
 export type PostFeedCacheKey = {
-  viewerId: string;
+  viewerId: string | null;
   limit: number;
   cursor?: string;
 };

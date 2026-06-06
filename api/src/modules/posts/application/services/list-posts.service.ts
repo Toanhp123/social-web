@@ -11,7 +11,7 @@ import { PostRepository } from '@/modules/posts/domain/repositories/post.reposit
 import { ListPostsCursor } from '@/modules/posts/domain/types/list-posts-query.type.js';
 
 export type ListPostsInput = {
-  viewerId: string;
+  viewerId?: string;
   limit?: number;
   cursor?: string;
 };
@@ -38,7 +38,7 @@ export class ListPostsService {
   async execute(input: ListPostsInput): Promise<ListPostsResult> {
     const limit = this.normalizeLimit(input.limit);
     const cacheKey = {
-      viewerId: input.viewerId,
+      viewerId: input.viewerId ?? null,
       limit,
       cursor: input.cursor,
     };
@@ -65,7 +65,7 @@ export class ListPostsService {
   }
 
   private async getCachedResult(input: {
-    viewerId: string;
+    viewerId: string | null;
     limit: number;
     cursor?: string;
   }): Promise<ListPostsResult | null> {
@@ -78,7 +78,7 @@ export class ListPostsService {
 
   private async cacheResult(
     input: {
-      viewerId: string;
+      viewerId: string | null;
       limit: number;
       cursor?: string;
     },

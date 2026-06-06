@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
+import { OptionalJwtAuthGuard } from '@/core/security/guards/optional-jwt-auth.guard.js';
 import { CurrentUser } from '@/core/security/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
 import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.js';
@@ -40,14 +41,14 @@ export class PostController {
     private readonly reactToPostService: ReactToPostService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   async listPosts(
     @Query() query: ListPostsQueryDto,
-    @CurrentUser() currentUser: AuthenticatedUser,
+    @CurrentUser() currentUser: AuthenticatedUser | null,
   ): Promise<PostPageResponseDto> {
     const page = await this.listPostsService.execute({
-      viewerId: currentUser.userId,
+      viewerId: currentUser?.userId,
       limit: query.limit,
       cursor: query.cursor,
     });

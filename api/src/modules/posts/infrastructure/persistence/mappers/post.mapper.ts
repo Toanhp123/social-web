@@ -22,12 +22,14 @@ export const POST_INCLUDE = {
   stats: true,
 } as const;
 
-export function getPostInclude(viewerId: string) {
+const ANONYMOUS_VIEWER_ID = '__anonymous_viewer__';
+
+export function getPostInclude(viewerId?: string) {
   return {
     ...POST_INCLUDE,
     reactions: {
       where: {
-        userId: viewerId,
+        userId: viewerId ?? ANONYMOUS_VIEWER_ID,
         deletedAt: null,
       },
       select: {

@@ -31,6 +31,27 @@ export async function authApiFetch<T>(endpoint: string, init?: RequestInit) {
   }
 }
 
+export async function optionalAuthApiFetch<T>(
+  endpoint: string,
+  init?: RequestInit,
+) {
+  const accessToken = await getAccessToken();
+
+  if (!accessToken && !(await getRefreshToken())) {
+    return apiFetch<T>(endpoint, init);
+  }
+
+  try {
+    return await authApiFetch<T>(endpoint, init);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      return apiFetch<T>(endpoint, init);
+    }
+
+    throw error;
+  }
+}
+
 function withAuthorization(
   init?: RequestInit,
   accessToken?: string,

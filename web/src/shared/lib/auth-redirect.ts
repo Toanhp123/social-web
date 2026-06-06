@@ -6,7 +6,7 @@ import {
 import { getSafeRedirectPath } from "./redirect-path";
 
 export function getPostAuthRedirectPath(callbackUrl: string | null | undefined) {
-  return getSafeRedirectPath(callbackUrl, ROUTES.dashboard, AUTH_ROUTES);
+  return getSafeRedirectPath(callbackUrl, ROUTES.home, AUTH_ROUTES);
 }
 
 export function getAuthRouteHref(
