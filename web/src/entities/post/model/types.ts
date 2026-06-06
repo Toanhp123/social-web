@@ -29,6 +29,7 @@ export type Post = {
   content: string;
   type: PostType;
   visibility: PostVisibility;
+  originalPostId: string | null;
   author: PostAuthor;
   media: PostMedia[];
   reactionStats: PostReactionStats;
@@ -45,6 +46,8 @@ export type PostReactionStats = {
   sadCount: number;
   angryCount: number;
   totalReactionCount: number;
+  commentCount: number;
+  shareCount: number;
 };
 
 export type PostPage = {

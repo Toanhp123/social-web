@@ -7,9 +7,11 @@ export class PostReactionStats {
     public readonly sadCount: number,
     public readonly angryCount: number,
     public readonly totalReactionCount: number,
+    public readonly commentCount: number,
+    public readonly shareCount: number,
   ) {}
 
   static empty(): PostReactionStats {
-    return new PostReactionStats(0, 0, 0, 0, 0, 0, 0);
+    return new PostReactionStats(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 }

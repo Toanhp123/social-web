@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { Post, ReactionType } from "../model/types";
 import { PostHeader } from "./PostHeader";
 import { PostMediaGrid } from "./PostMediaGrid";
@@ -12,6 +13,9 @@ type PostCardProps = {
   metaLabel?: string;
   isReacting?: boolean;
   onReactionChange?: (type: ReactionType | null) => void;
+  onCommentClick?: () => void;
+  onShareClick?: () => void;
+  commentsSlot?: ReactNode;
 };
 
 export function PostCard({
@@ -20,6 +24,9 @@ export function PostCard({
   metaLabel,
   isReacting,
   onReactionChange,
+  onCommentClick,
+  onShareClick,
+  commentsSlot,
 }: PostCardProps) {
   const currentReaction = post.currentReaction
     ? getReactionOption(post.currentReaction)
@@ -57,7 +64,11 @@ export function PostCard({
         currentReaction={currentReaction}
         isReacting={isReacting}
         onReactionChange={onReactionChange}
+        onCommentClick={onCommentClick}
+        onShareClick={onShareClick}
       />
+
+      {commentsSlot}
     </article>
   );
 }

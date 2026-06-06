@@ -36,6 +36,8 @@ export class PostReactionStatsResponseDto {
   @Expose() sadCount!: number;
   @Expose() angryCount!: number;
   @Expose() totalReactionCount!: number;
+  @Expose() commentCount!: number;
+  @Expose() shareCount!: number;
 }
 
 export class PostResponseDto {
@@ -43,6 +45,7 @@ export class PostResponseDto {
   @Expose() content!: string;
   @Expose() type!: PostType;
   @Expose() visibility!: PostVisibility;
+  @Expose() originalPostId!: string | null;
   @Expose() createdAt!: string;
   @Expose() updatedAt!: string;
   @Expose() currentReaction!: ReactionType | null;
@@ -66,6 +69,7 @@ export class PostResponseDto {
     dto.content = post.content;
     dto.type = post.type;
     dto.visibility = post.visibility;
+    dto.originalPostId = post.originalPostId;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.currentReaction = post.currentReaction;
@@ -96,6 +100,8 @@ export class PostResponseDto {
       sadCount: post.reactionStats.sadCount,
       angryCount: post.reactionStats.angryCount,
       totalReactionCount: post.reactionStats.totalReactionCount,
+      commentCount: post.reactionStats.commentCount,
+      shareCount: post.reactionStats.shareCount,
     };
 
     return dto;

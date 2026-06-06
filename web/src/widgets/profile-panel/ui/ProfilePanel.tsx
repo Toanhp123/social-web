@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   CalendarDays,
@@ -9,6 +9,7 @@ import {
   ImageUp,
   MapPin,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
@@ -22,6 +23,11 @@ type ProfilePanelProps = {
   variant?: "default" | "sidebar";
 };
 
+type ProfileMetaItem = {
+  icon: LucideIcon;
+  label: string;
+};
+
 export function ProfilePanel({
   currentUser,
   initialProfile,
@@ -30,19 +36,15 @@ export function ProfilePanel({
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
   const isSidebar = variant === "sidebar";
   const displayName = profile?.fullName ?? currentUser.email;
-  const metaItems = useMemo(
-    () =>
-      [
-        profile?.locationName
-          ? { icon: MapPin, label: profile.locationName }
-          : null,
-        profile?.website ? { icon: Globe, label: profile.website } : null,
-        profile?.birthday
-          ? { icon: CalendarDays, label: formatDate(profile.birthday) }
-          : null,
-      ].filter(Boolean),
-    [profile],
-  );
+  const locationName = profile?.locationName;
+  const website = profile?.website;
+  const birthday = profile?.birthday;
+
+  const metaItems: ProfileMetaItem[] = [
+    locationName ? { icon: MapPin, label: locationName } : null,
+    website ? { icon: Globe, label: website } : null,
+    birthday ? { icon: CalendarDays, label: formatDate(birthday) } : null,
+  ].filter((item): item is ProfileMetaItem => item !== null);
 
   return (
     <section className={isSidebar ? "space-y-4" : "space-y-6"}>
@@ -50,8 +52,8 @@ export function ProfilePanel({
         <div
           className={
             isSidebar
-              ? "relative h-32 bg-zinc-100"
-              : "relative h-56 bg-zinc-100"
+              ? "relative z-0 h-32 bg-zinc-100"
+              : "relative z-0 h-56 bg-zinc-100"
           }
         >
           {profile?.coverUrl ? (
@@ -61,7 +63,7 @@ export function ProfilePanel({
               fill
               sizes={isSidebar ? "360px" : "(min-width: 1024px) 1152px, 100vw"}
               className="object-cover"
-              priority
+              priority={!isSidebar}
             />
           ) : (
             <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#2563eb,#14b8a6_55%,#f59e0b)] text-sm font-medium text-white">
@@ -86,7 +88,11 @@ export function ProfilePanel({
           </div>
         </div>
 
-        <div className={isSidebar ? "px-4 pb-4" : "px-6 pb-6"}>
+        <div
+          className={
+            isSidebar ? "relative z-10 px-4 pb-4" : "relative z-10 px-6 pb-6"
+          }
+        >
           <div
             className={[
               isSidebar
@@ -104,7 +110,7 @@ export function ProfilePanel({
                 {profile?.avatarUrl ? (
                   <Image
                     src={profile.avatarUrl}
-                    alt=""
+                    alt={`Ảnh đại diện của ${displayName}`}
                     width={isSidebar ? 80 : 112}
                     height={isSidebar ? 80 : 112}
                     sizes={isSidebar ? "80px" : "112px"}
@@ -165,10 +171,6 @@ export function ProfilePanel({
               ].join(" ")}
             >
               {metaItems.map((item) => {
-                if (!item) {
-                  return null;
-                }
-
                 const Icon = item.icon;
 
                 return (
@@ -229,5 +231,6 @@ function formatDate(value: string) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "UTC",
   }).format(new Date(value));
 }

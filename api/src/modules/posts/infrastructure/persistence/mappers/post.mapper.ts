@@ -63,6 +63,7 @@ export class PostMapper {
       prismaPost.content,
       prismaPost.type,
       prismaPost.visibility,
+      prismaPost.originalPostId,
       prismaPost.media.map(
         (media) =>
           new PostMedia(
@@ -90,6 +91,8 @@ export class PostMapper {
             stats.sadCount,
             stats.angryCount,
             stats.totalReactionCount,
+            stats.commentCount,
+            stats.shareCount,
           )
         : PostReactionStats.empty(),
       prismaPost.reactions.at(0)?.type ?? null,
@@ -119,6 +122,24 @@ export class PostMapper {
               })),
             }
           : undefined,
+      stats: {
+        create: {},
+      },
+    };
+  }
+
+  static toSharePersistence(input: {
+    authorId: string;
+    originalPostId: string;
+    content: string;
+    visibility?: Prisma.PostUncheckedCreateInput['visibility'];
+  }): CreatePostData {
+    return {
+      authorId: input.authorId,
+      originalPostId: input.originalPostId,
+      content: input.content,
+      visibility: input.visibility,
+      type: PostType.SHARE,
       stats: {
         create: {},
       },

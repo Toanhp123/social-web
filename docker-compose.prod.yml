@@ -54,6 +54,27 @@ services:
             migrate:
                 condition: service_completed_successfully
 
+    seed-posts:
+        container_name: social-web-seed-posts-prod
+        build:
+            context: ./api
+            target: migration
+        profiles:
+            - seed
+        restart: "no"
+        command: ["tsx", "prisma/seed-posts.ts"]
+        environment:
+            NODE_ENV: production
+            DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+            SEED_POSTS: ${SEED_POSTS:-1000000}
+            SEED_BATCH_SIZE: ${SEED_BATCH_SIZE:-5000}
+            SEED_POST_AUTHOR_LIMIT: ${SEED_POST_AUTHOR_LIMIT:-10000}
+        depends_on:
+            migrate:
+                condition: "service_completed_successfully"
+            seed-users:
+                condition: "service_completed_successfully"
+
     api:
         container_name: social-web-api-prod
         build:

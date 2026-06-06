@@ -15,6 +15,8 @@ type PostReactionControlsProps = {
   currentReaction: PostReactionOption | null;
   isReacting?: boolean;
   onReactionChange?: (type: ReactionType | null) => void;
+  onCommentClick?: () => void;
+  onShareClick?: () => void;
 };
 
 export function PostReactionControls({
@@ -22,6 +24,8 @@ export function PostReactionControls({
   currentReaction,
   isReacting,
   onReactionChange,
+  onCommentClick,
+  onShareClick,
 }: PostReactionControlsProps) {
   const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,7 +103,7 @@ export function PostReactionControls({
 
           <PostAction
             icon={<Heart className="size-4" />}
-            label={currentReaction ? currentReaction.label : "Thích"}
+            label={currentReaction ? currentReaction.label : "Like"}
             active={Boolean(currentReaction)}
             disabled={isReacting}
             onClick={handleLikeClick}
@@ -108,10 +112,23 @@ export function PostReactionControls({
 
         <PostAction
           icon={<MessageCircle className="size-4" />}
-          label="Bình luận"
+          label={
+            post.reactionStats.commentCount > 0
+              ? String(post.reactionStats.commentCount)
+              : "Comment"
+          }
+          onClick={onCommentClick}
         />
 
-        <PostAction icon={<Send className="size-4" />} label="Chia sẻ" />
+        <PostAction
+          icon={<Send className="size-4" />}
+          label={
+            post.reactionStats.shareCount > 0
+              ? String(post.reactionStats.shareCount)
+              : "Share"
+          }
+          onClick={onShareClick}
+        />
       </div>
     </>
   );

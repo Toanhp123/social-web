@@ -10,7 +10,10 @@ import {
   ListPostsPage,
   ListPostsQuery,
 } from '@/modules/posts/domain/types/list-posts-query.type.js';
+import { SharePostInput } from '@/modules/posts/domain/types/share-post-input.type.js';
 import { PostMapper } from '@/modules/posts/infrastructure/persistence/mappers/post.mapper.js';
+import { DomainError } from '@/core/exceptions/domain.exception.js';
+import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 
@@ -36,6 +39,45 @@ export class PrismaPostRepository implements PostRepository {
 
       return PostMapper.toDomain(post);
     } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async share(input: SharePostInput): Promise<Post> {
+    const client = this.getClient();
+
+    try {
+      await this.assertVisiblePost(
+        client,
+        input.originalPostId,
+        input.authorId,
+      );
+
+      const post = await client.post.create({
+        data: PostMapper.toSharePersistence({
+          authorId: input.authorId,
+          originalPostId: input.originalPostId,
+          content: input.content ?? '',
+          visibility: input.visibility,
+        }),
+        include: PostMapper.includeForViewer(input.authorId),
+      });
+
+      await client.postStats.update({
+        where: { postId: input.originalPostId },
+        data: {
+          shareCount: {
+            increment: 1,
+          },
+        },
+      });
+
+      return PostMapper.toDomain(post);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw error;
+      }
+
       throw mapPrismaError(error);
     }
   }
@@ -91,5 +133,29 @@ export class PrismaPostRepository implements PostRepository {
     }
 
     return { OR: [{ visibility: 'PUBLIC' }, { authorId: viewerId }] };
+  }
+
+  private async assertVisiblePost(
+    client: PrismaClientLike,
+    postId: string,
+    viewerId: string,
+  ): Promise<void> {
+    const post = await client.post.findFirst({
+      where: {
+        id: postId,
+        deletedAt: null,
+        isHidden: false,
+        ...this.getVisibilityWhere(viewerId),
+      },
+      select: { id: true },
+    });
+
+    if (!post) {
+      throw new DomainError(
+        ErrorCode.RESOURCE_NOT_FOUND,
+        'Post not found',
+        404,
+      );
+    }
   }
 }

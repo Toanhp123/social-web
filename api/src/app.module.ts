@@ -23,6 +23,7 @@ import { CoreHttpModule } from '@/core/http/core-http.module.js';
 import { QueueModule } from '@/infrastructure/queue/queue.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { PostsModule } from '@/modules/posts/posts.module.js';
+import { CommentsModule } from '@/modules/comments/comments.module.js';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PostsModule } from '@/modules/posts/posts.module.js';
     }),
     MediaModule,
     PostsModule,
+    CommentsModule,
     UserModule,
     AuthModule,
     CoreHttpModule,

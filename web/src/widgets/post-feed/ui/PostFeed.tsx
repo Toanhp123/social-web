@@ -1,12 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Newspaper, RefreshCw, WifiOff } from "lucide-react";
-import { PostCard, type ReactionType } from "@/entities/post";
+import { PostCard, type Post, type ReactionType } from "@/entities/post";
+import { PostComments } from "@/features/comment-post";
 import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
+import { SharePostDialog } from "@/features/share-post";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 
 type PostFeedProps = {
@@ -17,6 +19,10 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
   const router = useRouter();
   const pathname = usePathname();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [openCommentsPostIds, setOpenCommentsPostIds] = useState<
+    Record<string, boolean>
+  >({});
+  const [sharingPost, setSharingPost] = useState<Post | null>(null);
   const feedQuery = usePostFeedQuery();
   const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
@@ -26,18 +32,38 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
   const errorMessage =
     feedQuery.error instanceof Error ? feedQuery.error.message : "";
 
+  function requireAuth() {
+    const callbackUrl = pathname ?? ROUTES.home;
+    const searchParams = new URLSearchParams();
+
+    searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
+
+    router.push(`${ROUTES.login}?${searchParams.toString()}`);
+  }
+
   function handleReactionChange(postId: string, type: ReactionType | null) {
     if (!canInteract) {
-      const callbackUrl = pathname ?? ROUTES.home;
-      const searchParams = new URLSearchParams();
-
-      searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
-
-      router.push(`${ROUTES.login}?${searchParams.toString()}`);
+      requireAuth();
       return;
     }
 
     reactPostMutation.mutate({ postId, type });
+  }
+
+  function toggleComments(postId: string) {
+    setOpenCommentsPostIds((current) => ({
+      ...current,
+      [postId]: !current[postId],
+    }));
+  }
+
+  function handleShareClick(post: Post) {
+    if (!canInteract) {
+      requireAuth();
+      return;
+    }
+
+    setSharingPost(post);
   }
 
   useEffect(() => {
@@ -124,9 +150,28 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
                 reactPostMutation.variables?.postId === post.id
               }
               onReactionChange={(type) => handleReactionChange(post.id, type)}
+              onCommentClick={() => toggleComments(post.id)}
+              onShareClick={() => handleShareClick(post)}
+              commentsSlot={
+                openCommentsPostIds[post.id] ? (
+                  <PostComments
+                    postId={post.id}
+                    canInteract={canInteract}
+                    onRequireAuth={requireAuth}
+                  />
+                ) : null
+              }
             />
           ))}
         </div>
+      )}
+
+      {sharingPost && (
+        <SharePostDialog
+          post={sharingPost}
+          open={Boolean(sharingPost)}
+          onClose={() => setSharingPost(null)}
+        />
       )}
 
       <div ref={loadMoreRef} className="h-1" />
