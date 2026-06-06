@@ -3,12 +3,15 @@ import type { PostMedia } from "../model/types";
 
 type PostMediaGridProps = {
   media: PostMedia[];
+  onMediaClick?: () => void;
 };
 
-export function PostMediaGrid({ media }: PostMediaGridProps) {
+export function PostMediaGrid({ media, onMediaClick }: PostMediaGridProps) {
   if (media.length === 0) {
     return null;
   }
+
+  const isClickable = Boolean(onMediaClick);
 
   return (
     <div
@@ -18,16 +21,26 @@ export function PostMediaGrid({ media }: PostMediaGridProps) {
       ].join(" ")}
     >
       {media.map((item) => (
-        <div
+        <button
           key={item.id}
-          className="relative aspect-video overflow-hidden bg-zinc-200"
+          type="button"
+          onClick={onMediaClick}
+          disabled={!isClickable}
+          className={[
+            "relative aspect-video overflow-hidden bg-zinc-200 text-left",
+            isClickable ? "cursor-zoom-in" : "cursor-default",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {item.type === "VIDEO" ? (
             <video
               src={item.url}
               className="size-full object-cover"
-              controls
+              controls={!isClickable}
               preload="metadata"
+              muted={isClickable}
+              playsInline
             />
           ) : (
             <Image
@@ -38,7 +51,7 @@ export function PostMediaGrid({ media }: PostMediaGridProps) {
               className="object-cover"
             />
           )}
-        </div>
+        </button>
       ))}
     </div>
   );

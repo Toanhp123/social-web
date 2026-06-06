@@ -9,11 +9,14 @@ type PostReactionSummaryProps = {
   currentReaction: PostReactionOption | null;
 };
 
-export function PostReactionSummary({
+export function PostSummary({
   post,
   currentReaction,
 }: PostReactionSummaryProps) {
   const totalReactionCount = post.reactionStats.totalReactionCount;
+  const totalCommentCount = post.reactionStats.commentCount;
+  const totalShareCount = post.reactionStats.shareCount;
+
   const visibleReactions = REACTION_OPTIONS.map((reaction) => ({
     ...reaction,
     count: post.reactionStats[reaction.countKey],
@@ -55,9 +58,15 @@ export function PostReactionSummary({
           )}
         </div>
 
-        {currentReaction && (
-          <span className="shrink-0">{currentReaction.emoji} Bạn</span>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {currentReaction && <span>{currentReaction.emoji} Bạn</span>}
+
+          {totalCommentCount > 0 && <span>{totalCommentCount} bình luận</span>}
+
+          {totalCommentCount > 0 && totalShareCount > 0 && <span>·</span>}
+
+          {totalShareCount > 0 && <span>{totalShareCount} chia sẻ</span>}
+        </div>
       </div>
     </div>
   );

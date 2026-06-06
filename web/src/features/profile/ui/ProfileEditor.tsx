@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import { Save, Trash2 } from "lucide-react";
 import type { UserProfile } from "@/entities/user";
-import { Button, Input } from "@/shared/ui";
+import { Button, Input, Textarea } from "@/shared/ui";
 import {
   useDeleteProfileMutation,
   useSaveProfileMutation,
@@ -42,12 +42,12 @@ export function ProfileEditor({
       <div className="grid gap-5 md:grid-cols-2">
         <label className="block text-sm font-medium text-zinc-700">
           Bio
-          <textarea
+          <Textarea
             name="bio"
             defaultValue={profile?.bio ?? ""}
             maxLength={500}
             rows={5}
-            className="mt-2 min-h-32 w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-6 text-zinc-950 outline-none focus:border-blue-500 focus:bg-white"
+            className="mt-2 min-h-32 resize-y rounded-xl px-4 py-3 leading-6 text-zinc-950 focus:border-blue-500"
           />
         </label>
 
