@@ -1,6 +1,6 @@
 "use server";
 
-import { getOrCreateDeviceId, setAuthCookies } from "@/entities/session/server";
+import { getDeviceId, setAuthCookies } from "@/entities/session/server";
 import { ApiError } from "@/shared/api/api-error";
 import { authRegisterApi } from "../api/register-api.server";
 import { registerSchema } from "./register.schema";
@@ -27,10 +27,16 @@ export async function registerAction(
   }
 
   try {
-    const result = await authRegisterApi(
-      parsedInput.data,
-      await getOrCreateDeviceId(),
-    );
+    const deviceId = await getDeviceId();
+
+    if (!deviceId) {
+      return {
+        ok: false,
+        error: "Khong doc duoc thiet bi hien tai.",
+      };
+    }
+
+    const result = await authRegisterApi(parsedInput.data, deviceId);
 
     await setAuthCookies({
       accessToken: result.accessToken,
