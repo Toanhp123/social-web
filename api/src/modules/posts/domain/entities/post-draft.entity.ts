@@ -21,12 +21,20 @@ export class PostDraft {
     public readonly authorId: string,
     public readonly content: string,
     public readonly visibility: PostVisibility,
-    public readonly media: CreatePostMediaInput[],
+    public readonly media: readonly CreatePostMediaInput[],
   ) {}
 
   static create(input: CreatePostDraftInput): PostDraft {
+    const authorId = input.authorId.trim();
     const content = input.content?.trim() ?? '';
-    const media = input.media ?? [];
+    const media = [...(input.media ?? [])];
+
+    if (!authorId) {
+      throw new DomainError(
+        ErrorCode.VALIDATION_ERROR,
+        'Post author is required',
+      );
+    }
 
     if (!content && media.length === 0) {
       throw new DomainError(
@@ -54,7 +62,7 @@ export class PostDraft {
     }
 
     return new PostDraft(
-      input.authorId,
+      authorId,
       content,
       input.visibility ?? PostVisibility.PUBLIC,
       media,
@@ -66,7 +74,7 @@ export class PostDraft {
       authorId: this.authorId,
       content: this.content,
       visibility: this.visibility,
-      media: this.media,
+      media: [...this.media],
     };
   }
 }

@@ -5,14 +5,11 @@ import {
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
-import { DomainError } from '@/core/exceptions/domain.exception.js';
-import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { SharePostInput } from '@/modules/posts/domain/types/share-post-input.type.js';
-
-const MAX_SHARE_CONTENT_LENGTH = 5000;
+import { SharePostDraft } from '@/modules/posts/domain/value-objects/share-post-draft.value-object.js';
 
 @Injectable()
 export class SharePostService {
@@ -28,33 +25,15 @@ export class SharePostService {
   ) {}
 
   async execute(input: SharePostInput): Promise<Post> {
-    const content = this.normalizeContent(input.content);
+    const draft = SharePostDraft.create(input);
 
     const post = await this.unitOfWork.execute(() =>
-      this.postRepository.share({
-        ...input,
-        content,
-      }),
+      this.postRepository.share(draft.toShareInput()),
     );
 
     await this.invalidateFeedCache();
 
     return post;
-  }
-
-  private normalizeContent(content?: string | null): string {
-    const normalizedContent = content?.trim() ?? '';
-
-    if (normalizedContent.length > MAX_SHARE_CONTENT_LENGTH) {
-      throw new DomainError(
-        ErrorCode.VALIDATION_ERROR,
-        'Share content is too long',
-        400,
-        { maxLength: MAX_SHARE_CONTENT_LENGTH },
-      );
-    }
-
-    return normalizedContent;
   }
 
   private async invalidateFeedCache(): Promise<void> {
