@@ -55,7 +55,7 @@ function AppHeader({ actions }: { actions?: ReactNode }) {
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-white/90 px-3 py-3 backdrop-blur sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-        <Link href={ROUTES.dashboard} className="flex items-center gap-3">
+        <Link href={ROUTES.home} className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-200">
             <UserRound className="size-5" />
           </span>
@@ -72,7 +72,7 @@ function AppHeader({ actions }: { actions?: ReactNode }) {
         <div className="flex items-center gap-2">
           <nav className="hidden items-center gap-1 rounded-full border border-zinc-200 bg-zinc-100 p-1 lg:flex">
             <Link
-              href={ROUTES.dashboard}
+              href={ROUTES.home}
               className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm"
             >
               <Home className="size-4 text-blue-600" />

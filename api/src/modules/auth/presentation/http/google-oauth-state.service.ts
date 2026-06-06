@@ -5,7 +5,7 @@ import type { CookieOptions } from 'express';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 
-const CALLBACK_URL_FALLBACK = '/dashboard';
+const CALLBACK_URL_FALLBACK = '/';
 const BLOCKED_CALLBACK_PREFIXES = ['/login', '/register', '/auth/callback'];
 const STATE_TTL_SECONDS = 5 * 60;
 export const GOOGLE_OAUTH_STATE_COOKIE_NAME = 'googleOAuthState';

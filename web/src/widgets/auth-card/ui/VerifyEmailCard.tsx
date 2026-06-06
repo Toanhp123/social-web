@@ -15,10 +15,10 @@ export function VerifyEmailCard({ result }: VerifyEmailCardProps) {
       description={result.message}
     >
       <Link
-        href={result.ok ? ROUTES.dashboard : ROUTES.login}
+        href={result.ok ? ROUTES.home : ROUTES.login}
         className="block rounded-xl bg-blue-600 px-4 py-3 text-center font-medium text-white"
       >
-        {result.ok ? "Go to dashboard" : "Back to login"}
+        {result.ok ? "Go to feed" : "Back to login"}
       </Link>
     </AuthCardFrame>
   );

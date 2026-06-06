@@ -2,12 +2,20 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Newspaper, RefreshCw, WifiOff } from "lucide-react";
 import { PostCard, type ReactionType } from "@/entities/post";
 import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
+import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 
-export function PostFeed() {
+type PostFeedProps = {
+  canInteract?: boolean;
+};
+
+export function PostFeed({ canInteract = true }: PostFeedProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const feedQuery = usePostFeedQuery();
   const reactPostMutation = useReactPostMutation();
@@ -19,6 +27,16 @@ export function PostFeed() {
     feedQuery.error instanceof Error ? feedQuery.error.message : "";
 
   function handleReactionChange(postId: string, type: ReactionType | null) {
+    if (!canInteract) {
+      const callbackUrl = pathname ?? ROUTES.home;
+      const searchParams = new URLSearchParams();
+
+      searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
+
+      router.push(`${ROUTES.login}?${searchParams.toString()}`);
+      return;
+    }
+
     reactPostMutation.mutate({ postId, type });
   }
 

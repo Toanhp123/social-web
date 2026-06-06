@@ -49,7 +49,7 @@ export class PrismaPostRepository implements PostRepository {
           deletedAt: null,
           isHidden: false,
           AND: [
-            { OR: [{ visibility: 'PUBLIC' }, { authorId: query.viewerId }] },
+            this.getVisibilityWhere(query.viewerId),
             ...(query.cursor
               ? [
                   {
@@ -83,5 +83,13 @@ export class PrismaPostRepository implements PostRepository {
     } catch (error) {
       throw mapPrismaError(error);
     }
+  }
+
+  private getVisibilityWhere(viewerId?: string): Prisma.PostWhereInput {
+    if (!viewerId) {
+      return { visibility: 'PUBLIC' };
+    }
+
+    return { OR: [{ visibility: 'PUBLIC' }, { authorId: viewerId }] };
   }
 }

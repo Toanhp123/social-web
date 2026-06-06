@@ -1,4 +1,4 @@
-import { authApiFetch } from "@/entities/session/server";
+import { optionalAuthApiFetch } from "@/entities/session/server";
 import type { PostPage } from "@/entities/post";
 
 type ListPostFeedParams = {
@@ -16,5 +16,5 @@ export async function listPostFeedApi({
     searchParams.set("cursor", cursor);
   }
 
-  return authApiFetch<PostPage>(`/posts?${searchParams.toString()}`);
+  return optionalAuthApiFetch<PostPage>(`/posts?${searchParams.toString()}`);
 }

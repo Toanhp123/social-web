@@ -8,12 +8,12 @@ describe('GoogleOAuthStateService', () => {
   it('creates and verifies a signed OAuth state', () => {
     const service = createService();
     const state = service.create({
-      callbackUrl: '/dashboard?tab=feed',
+      callbackUrl: '/?tab=feed',
       deviceId: 'device-1',
     });
 
     expect(service.verify(state)).toEqual({
-      callbackUrl: '/dashboard?tab=feed',
+      callbackUrl: '/?tab=feed',
       deviceId: 'device-1',
     });
   });
@@ -21,7 +21,7 @@ describe('GoogleOAuthStateService', () => {
   it('rejects a tampered state', () => {
     const service = createService();
     const state = service.create({
-      callbackUrl: '/dashboard',
+      callbackUrl: '/',
       deviceId: 'device-1',
     });
 
@@ -41,7 +41,7 @@ describe('GoogleOAuthStateService', () => {
     });
 
     expect(service.verify(state)).toEqual({
-      callbackUrl: '/dashboard',
+      callbackUrl: '/',
       deviceId: 'device-1',
     });
   });
