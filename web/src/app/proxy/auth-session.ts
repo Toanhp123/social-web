@@ -27,7 +27,9 @@ export function hasRefreshToken(request: NextRequest) {
 }
 
 export function getProxyDeviceId(request: NextRequest) {
-  return request.cookies.get(DEVICE_ID_COOKIE_NAME)?.value ?? crypto.randomUUID();
+  return (
+    request.cookies.get(DEVICE_ID_COOKIE_NAME)?.value ?? crypto.randomUUID()
+  );
 }
 
 export function persistDeviceIdIfMissing(
