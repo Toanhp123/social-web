@@ -1,6 +1,6 @@
 "use server";
 
-import { getOrCreateDeviceId, setAuthCookies } from "@/entities/session/server";
+import { getDeviceId, setAuthCookies } from "@/entities/session/server";
 import { ApiError } from "@/shared/api/api-error";
 import { authLoginApi } from "../api/login-api.server";
 import { loginSchema } from "./login.schema";
@@ -22,10 +22,16 @@ export async function loginAction(formData: FormData): Promise<LoginActionResult
   }
 
   try {
-    const result = await authLoginApi(
-      parsedInput.data,
-      await getOrCreateDeviceId(),
-    );
+    const deviceId = await getDeviceId();
+
+    if (!deviceId) {
+      return {
+        ok: false,
+        error: "Khong doc duoc thiet bi hien tai.",
+      };
+    }
+
+    const result = await authLoginApi(parsedInput.data, deviceId);
 
     await setAuthCookies({
       accessToken: result.accessToken,

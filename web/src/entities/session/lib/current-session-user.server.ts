@@ -1,39 +1,25 @@
 "use server";
 
-import { getAccessToken, getRefreshToken } from "./auth-cookie.server";
-import { refreshAuthSession } from "./refresh-session.server";
+import { getAccessToken } from "./auth-cookie.server";
 import type { CurrentSessionUser } from "../model/current-session-user";
 
 type AccessTokenPayload = {
   id?: unknown;
   email?: unknown;
   role?: unknown;
+  exp?: unknown;
 };
 
+const EXPIRATION_SKEW_SECONDS = 30;
+
 export async function getCurrentSessionUser(): Promise<CurrentSessionUser | null> {
-  const token = await getReadableAccessToken();
+  const token = await getAccessToken();
 
   if (!token) {
     return null;
   }
 
   return parseCurrentSessionUser(token);
-}
-
-async function getReadableAccessToken(): Promise<string | undefined> {
-  const accessToken = await getAccessToken();
-
-  if (accessToken) {
-    return accessToken;
-  }
-
-  if (!(await getRefreshToken())) {
-    return undefined;
-  }
-
-  const refreshedSession = await refreshAuthSession();
-
-  return refreshedSession.accessToken;
 }
 
 function parseCurrentSessionUser(token: string): CurrentSessionUser | null {
@@ -51,7 +37,8 @@ function parseCurrentSessionUser(token: string): CurrentSessionUser | null {
     if (
       typeof decoded.id !== "string" ||
       typeof decoded.email !== "string" ||
-      typeof decoded.role !== "string"
+      typeof decoded.role !== "string" ||
+      isExpired(decoded.exp)
     ) {
       return null;
     }
@@ -64,6 +51,14 @@ function parseCurrentSessionUser(token: string): CurrentSessionUser | null {
   } catch {
     return null;
   }
+}
+
+function isExpired(exp: unknown): boolean {
+  if (typeof exp !== "number") {
+    return true;
+  }
+
+  return exp <= Date.now() / 1000 + EXPIRATION_SKEW_SECONDS;
 }
 
 function toBase64(value: string): string {

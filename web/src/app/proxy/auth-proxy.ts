@@ -27,11 +27,7 @@ export async function authProxy(request: NextRequest) {
     return handleAuthRoute(request, deviceId);
   }
 
-  const response = NextResponse.next();
-
-  persistDeviceIdIfMissing(request, response, deviceId);
-
-  return response;
+  return handlePublicRoute(request, deviceId);
 }
 
 async function handleProtectedRoute(request: NextRequest, deviceId: string) {
@@ -46,16 +42,20 @@ async function handleProtectedRoute(request: NextRequest, deviceId: string) {
   const response = NextResponse.next();
 
   if (hasRefreshToken(request)) {
-    const refreshed = await refreshAuthSessionInProxy(
-      request,
-      response,
-      deviceId,
-    );
+    try {
+      const refreshed = await refreshAuthSessionInProxy(
+        request,
+        response,
+        deviceId,
+      );
 
-    if (refreshed) {
-      persistDeviceIdIfMissing(request, response, deviceId);
+      if (refreshed) {
+        persistDeviceIdIfMissing(request, response, deviceId);
 
-      return response;
+        return response;
+      }
+    } catch (error) {
+      console.error("Failed to refresh auth session in proxy:", error);
     }
   }
 
@@ -107,6 +107,26 @@ async function handleAuthRoute(request: NextRequest, deviceId: string) {
   persistDeviceIdIfMissing(request, redirectResponse, deviceId);
 
   return redirectResponse;
+}
+
+async function handlePublicRoute(request: NextRequest, deviceId: string) {
+  const response = NextResponse.next();
+
+  if (!hasFreshAccessToken(request) && hasRefreshToken(request)) {
+    const refreshed = await refreshAuthSessionInProxy(
+      request,
+      response,
+      deviceId,
+    );
+
+    if (!refreshed) {
+      clearAuthCookies(response);
+    }
+  }
+
+  persistDeviceIdIfMissing(request, response, deviceId);
+
+  return response;
 }
 
 function createLoginRedirectUrl(request: NextRequest) {

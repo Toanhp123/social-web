@@ -3,7 +3,7 @@ import { apiFetchWithResponse } from "@/shared/api/api-fetch.server";
 import { readResponseCookie } from "@/shared/lib/set-cookie";
 import {
   clearAuthCookies,
-  getOrCreateDeviceId,
+  getDeviceId,
   getRefreshToken,
   setAuthCookies,
 } from "./auth-cookie.server";
@@ -27,13 +27,23 @@ export async function refreshAuthSession() {
   }
 
   try {
+    const deviceId = await getDeviceId();
+
+    if (!deviceId) {
+      throw new ApiError(
+        400,
+        "DEVICE_ID_MISSING",
+        "Khong doc duoc thiet bi hien tai.",
+      );
+    }
+
     const { data, response } = await apiFetchWithResponse<RefreshResponseDto>(
       "/auth/refresh",
       {
         method: "POST",
         headers: {
           Cookie: `${REFRESH_TOKEN_COOKIE_NAME}=${encodeURIComponent(refreshToken)}`,
-          "x-device-id": await getOrCreateDeviceId(),
+          "x-device-id": deviceId,
         },
       },
     );
