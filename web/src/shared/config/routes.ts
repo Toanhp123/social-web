@@ -5,6 +5,7 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   verifyEmail: "/verify-email",
+  profile: "/profile",
 } as const;
 
 export const AUTH_ROUTES = [

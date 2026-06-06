@@ -1,6 +1,3 @@
-import type { ReactNode } from "react";
-import { Globe2, ImagePlus, Smile } from "lucide-react";
-
 type CreatePostTriggerProps = {
   isOpen: boolean;
   onOpen: () => void;
@@ -24,57 +21,6 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
           Ban dang nghi gi?
         </button>
       </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2 border-t border-zinc-100 pt-3 sm:grid-cols-3">
-        <ComposerAction
-          icon={<ImagePlus className="size-5 text-emerald-600" />}
-          label="Anh/video"
-          onClick={onOpen}
-        />
-
-        <ComposerAction
-          icon={<Smile className="size-5 text-amber-500" />}
-          label="Cam xuc"
-          onClick={onOpen}
-        />
-
-        <ComposerAction
-          icon={<Globe2 className="size-5 text-blue-600" />}
-          label="Hien thi"
-          onClick={onOpen}
-          className="col-span-2 sm:col-span-1"
-        />
-      </div>
     </section>
-  );
-}
-
-type ComposerActionProps = {
-  icon: ReactNode;
-  label: string;
-  onClick: () => void;
-  className?: string;
-};
-
-function ComposerAction({
-  icon,
-  label,
-  onClick,
-  className,
-}: ComposerActionProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-50",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }

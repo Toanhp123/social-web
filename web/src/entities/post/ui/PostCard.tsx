@@ -15,6 +15,7 @@ type PostCardProps = {
   onReactionChange?: (type: ReactionType | null) => void;
   onCommentClick?: () => void;
   onShareClick?: () => void;
+  onMediaClick?: () => void;
   commentsSlot?: ReactNode;
 };
 
@@ -26,11 +27,13 @@ export function PostCard({
   onReactionChange,
   onCommentClick,
   onShareClick,
+  onMediaClick,
   commentsSlot,
 }: PostCardProps) {
   const currentReaction = post.currentReaction
     ? getReactionOption(post.currentReaction)
     : null;
+
   const authorInitial =
     post.author.fullName?.trim().slice(0, 1).toUpperCase() || "?";
 
@@ -57,7 +60,7 @@ export function PostCard({
         )}
       </div>
 
-      <PostMediaGrid media={post.media} />
+      <PostMediaGrid media={post.media} onMediaClick={onMediaClick} />
 
       <PostReactionControls
         post={post}
