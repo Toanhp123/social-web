@@ -26,7 +26,8 @@
     "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
     "preseed": "npm run generate",
     "seed": "tsx prisma/seed-users.ts",
-    "seed:users": "tsx prisma/seed-users.ts --users=100000"
+    "seed:users": "tsx prisma/seed-users.ts --users=100000",
+    "seed:posts": "tsx prisma/seed-posts.ts --posts=1000000"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",

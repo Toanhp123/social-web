@@ -15,7 +15,9 @@ describe('ListPostsService', () => {
     'Hello world',
     PostType.TEXT,
     PostVisibility.PUBLIC,
+    null,
     [],
+    new Date('2026-01-01T00:00:00.000Z'),
     new Date('2026-01-01T00:00:00.000Z'),
   );
 
@@ -26,6 +28,7 @@ describe('ListPostsService', () => {
   beforeEach(() => {
     postRepository = {
       create: jest.fn(),
+      share: jest.fn(),
       findPage: jest.fn().mockResolvedValue({
         items: [post],
         nextCursor: {

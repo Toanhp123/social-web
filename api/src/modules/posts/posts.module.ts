@@ -12,6 +12,7 @@ import { MediaModule } from '@/modules/media/media.module.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
+import { SharePostService } from '@/modules/posts/application/services/share-post.service.js';
 import { RedisPostFeedCache } from '@/modules/posts/infrastructure/cache/redis-post-feed-cache.js';
 import { PostPersistenceModule } from '@/modules/posts/infrastructure/persistence/post-persistence.module.js';
 import { BullMqPostFeedJobQueue } from '@/modules/posts/infrastructure/queue/bullmq-post-feed-job-queue.js';
@@ -34,6 +35,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     CreatePostService,
     ListPostsService,
     ReactToPostService,
+    SharePostService,
     PostFeedProcessor,
     {
       provide: POST_FEED_CACHE,
@@ -44,6 +46,6 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
       useClass: BullMqPostFeedJobQueue,
     },
   ],
-  exports: [PostPersistenceModule],
+  exports: [PostPersistenceModule, POST_FEED_CACHE],
 })
 export class PostsModule {}

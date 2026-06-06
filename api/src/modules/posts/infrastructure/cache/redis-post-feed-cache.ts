@@ -32,6 +32,7 @@ type CachedPost = {
   content: string;
   type: PostType;
   visibility: PostVisibility;
+  originalPostId: string | null;
   media: Array<{
     id: string;
     url: string;
@@ -53,6 +54,8 @@ type CachedPost = {
     sadCount: number;
     angryCount: number;
     totalReactionCount: number;
+    commentCount: number;
+    shareCount: number;
   };
   currentReaction?: ReactionType | null;
   createdAt: string;
@@ -135,6 +138,7 @@ export class RedisPostFeedCache implements PostFeedCache {
         content: post.content,
         type: post.type,
         visibility: post.visibility,
+        originalPostId: post.originalPostId,
         media: post.media.map((media) => ({
           id: media.id,
           url: media.url,
@@ -156,6 +160,8 @@ export class RedisPostFeedCache implements PostFeedCache {
           sadCount: post.reactionStats.sadCount,
           angryCount: post.reactionStats.angryCount,
           totalReactionCount: post.reactionStats.totalReactionCount,
+          commentCount: post.reactionStats.commentCount,
+          shareCount: post.reactionStats.shareCount,
         },
         currentReaction: post.currentReaction,
         createdAt: post.createdAt.toISOString(),
@@ -180,6 +186,7 @@ export class RedisPostFeedCache implements PostFeedCache {
             post.content,
             post.type,
             post.visibility,
+            post.originalPostId ?? null,
             post.media.map(
               (media) =>
                 new PostMedia(
@@ -207,6 +214,8 @@ export class RedisPostFeedCache implements PostFeedCache {
                   post.reactionStats.sadCount,
                   post.reactionStats.angryCount,
                   post.reactionStats.totalReactionCount,
+                  post.reactionStats.commentCount,
+                  post.reactionStats.shareCount,
                 )
               : PostReactionStats.empty(),
             post.currentReaction ?? null,

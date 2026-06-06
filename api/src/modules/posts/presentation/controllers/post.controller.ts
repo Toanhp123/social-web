@@ -20,11 +20,13 @@ import { RateLimit } from '@/core/rate-limiting/decorators/rate-limit.decorator.
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
+import { SharePostService } from '@/modules/posts/application/services/share-post.service.js';
 import { CreatePostInputDto } from '@/modules/posts/presentation/dto/create-post-input.dto.js';
 import { ListPostsQueryDto } from '@/modules/posts/presentation/dto/list-posts-query.dto.js';
 import { PostPageResponseDto } from '@/modules/posts/presentation/dto/post-page-response.dto.js';
 import { PostResponseDto } from '@/modules/posts/presentation/dto/post-response.dto.js';
 import { SetPostReactionInputDto } from '@/modules/posts/presentation/dto/set-post-reaction-input.dto.js';
+import { SharePostInputDto } from '@/modules/posts/presentation/dto/share-post-input.dto.js';
 import {
   PostUploadedFileMapper,
   type UploadedPostMediaFile,
@@ -39,6 +41,7 @@ export class PostController {
     private readonly createPostService: CreatePostService,
     private readonly listPostsService: ListPostsService,
     private readonly reactToPostService: ReactToPostService,
+    private readonly sharePostService: SharePostService,
   ) {}
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -107,6 +110,23 @@ export class PostController {
     const post = await this.reactToPostService.removeReaction({
       postId,
       userId: currentUser.userId,
+    });
+
+    return PostResponseDto.fromDomain(post);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':postId/shares')
+  async sharePost(
+    @Param('postId') postId: string,
+    @Body() dto: SharePostInputDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<PostResponseDto> {
+    const post = await this.sharePostService.execute({
+      authorId: currentUser.userId,
+      originalPostId: postId,
+      content: dto.content,
+      visibility: dto.visibility,
     });
 
     return PostResponseDto.fromDomain(post);

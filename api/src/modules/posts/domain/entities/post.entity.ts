@@ -14,6 +14,7 @@ export class Post {
     public readonly content: string,
     public readonly type: PostType,
     public readonly visibility: PostVisibility,
+    public readonly originalPostId: string | null,
     public readonly media: PostMedia[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date,

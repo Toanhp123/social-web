@@ -21,6 +21,7 @@ describe('CreatePostService', () => {
     'Hello world',
     PostType.MEDIA,
     PostVisibility.PUBLIC,
+    null,
     [
       new PostMedia(
         'media-1',
@@ -48,6 +49,7 @@ describe('CreatePostService', () => {
   beforeEach(() => {
     postRepository = {
       create: jest.fn().mockResolvedValue(post),
+      share: jest.fn(),
       findPage: jest.fn(),
     };
     fileStorage = {
