@@ -1,3 +1,4 @@
+import { cn } from "@/shared/lib/utils";
 import type { Post, ReactionType } from "../model/types";
 import { REACTION_OPTIONS } from "./post-reaction-options";
 
@@ -31,10 +32,11 @@ export function ReactionPicker({
               type="button"
               disabled={isReacting}
               onClick={() => onSelectReaction(isActive ? null : reaction.type)}
-              className={[
-                "group/reaction relative grid size-10 shrink-0 place-items-center rounded-full text-xl transition hover:-translate-y-1 hover:bg-zinc-50 disabled:opacity-60",
-                isActive ? reaction.className : "",
-              ].join(" ")}
+              className={cn(
+                "group/reaction relative grid size-10 shrink-0 place-items-center rounded-full text-xl transition hover:-translate-y-1 hover:bg-zinc-50",
+                "disabled:cursor-not-allowed disabled:opacity-60",
+                isActive && reaction.className,
+              )}
               aria-pressed={isActive}
               aria-label={`${reaction.label}${count > 0 ? `, ${count} lượt` : ""}`}
             >

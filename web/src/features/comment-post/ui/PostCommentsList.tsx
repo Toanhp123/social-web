@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Loader2, MessageCircle } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePostCommentsQuery } from "../model/use-post-comments-query";
 import { CommentThread } from "./CommentThread";
@@ -27,7 +28,7 @@ export function PostCommentsList({
   );
 
   return (
-    <div className={["space-y-4", className].filter(Boolean).join(" ")}>
+    <div className={cn("space-y-4", className)}>
       {commentsQuery.isLoading ? (
         <div className="flex items-center gap-2 text-sm text-zinc-500">
           <Loader2 className="size-4 animate-spin" />

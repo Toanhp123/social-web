@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ProfileImageUploader } from "@/features/profile";
 import type { UserProfile } from "@/entities/user";
+import { cn } from "@/shared/lib/utils";
 import type { ProfilePanelVariant } from "../model/types";
 
 type ProfileCoverProps = {
@@ -18,12 +19,10 @@ export function ProfileCover({
 
   return (
     <div
-      className={[
+      className={cn(
         "relative w-full overflow-hidden bg-zinc-100",
         isSidebar ? "h-36" : "h-56 sm:h-72",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       {profile?.coverUrl ? (
         <Image
@@ -43,12 +42,10 @@ export function ProfileCover({
       <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/5 to-transparent" />
 
       <div
-        className={[
+        className={cn(
           "absolute",
           isSidebar ? "right-3 bottom-3" : "right-4 bottom-4",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         <ProfileImageUploader kind="cover" onUploaded={onProfileChange} />
       </div>

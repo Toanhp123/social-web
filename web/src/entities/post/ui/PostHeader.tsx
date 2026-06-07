@@ -6,6 +6,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
 import type { Post } from "../model/types";
 
 type VisibilityConfig = {
@@ -19,6 +20,24 @@ type PostHeaderProps = {
   authorInitial: string;
   metaLabel?: string;
 };
+
+const VISIBILITY_CONFIGS = {
+  PUBLIC: {
+    icon: Globe2,
+    label: "Công khai",
+    className: "bg-blue-50 text-blue-700",
+  },
+  FRIENDS_ONLY: {
+    icon: Users,
+    label: "Bạn bè",
+    className: "bg-emerald-50 text-emerald-700",
+  },
+  PRIVATE: {
+    icon: Lock,
+    label: "Riêng tư",
+    className: "bg-zinc-100 text-zinc-600",
+  },
+} satisfies Record<Post["visibility"], VisibilityConfig>;
 
 export function PostHeader({
   post,
@@ -46,6 +65,7 @@ export function PostHeader({
           <p className="truncate text-sm font-semibold text-zinc-950">
             {post.author.fullName}
           </p>
+
           <VisibilityBadge visibility={post.visibility} />
         </div>
 
@@ -67,33 +87,15 @@ export function PostHeader({
 }
 
 function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
-  const configs = {
-    PUBLIC: {
-      icon: Globe2,
-      label: "Công khai",
-      className: "bg-blue-50 text-blue-700",
-    },
-    FRIENDS_ONLY: {
-      icon: Users,
-      label: "Bạn bè",
-      className: "bg-emerald-50 text-emerald-700",
-    },
-    PRIVATE: {
-      icon: Lock,
-      label: "Riêng tư",
-      className: "bg-zinc-100 text-zinc-600",
-    },
-  } satisfies Record<Post["visibility"], VisibilityConfig>;
-
-  const config = configs[visibility];
+  const config = VISIBILITY_CONFIGS[visibility];
   const Icon = config.icon;
 
   return (
     <span
-      className={[
+      className={cn(
         "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
         config.className,
-      ].join(" ")}
+      )}
     >
       <Icon className="size-3" />
       {config.label}

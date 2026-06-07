@@ -2,11 +2,12 @@
 
 import { useMemo, useRef, useState } from "react";
 import { CommentItem, type Comment } from "@/entities/comment";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
+import { useFirstReplyConnectorPosition } from "../lib/use-first-reply-connector-position";
 import { usePostCommentsQuery } from "../model/use-post-comments-query";
 import { CommentForm } from "./CommentForm";
 import { CommentReplies } from "./CommentReplies";
-import { useFirstReplyConnectorPosition } from "../lib/use-first-reply-connector-position";
 
 const MAX_COMMENT_VISUAL_DEPTH = 3;
 
@@ -15,6 +16,7 @@ type CommentThreadProps = {
   canInteract: boolean;
   onRequireAuth?: () => void;
   depth?: number;
+  replyToAuthor?: Comment["author"] | null;
 };
 
 export function CommentThread({
@@ -22,6 +24,7 @@ export function CommentThread({
   canInteract,
   onRequireAuth,
   depth = 0,
+  replyToAuthor = null,
 }: CommentThreadProps) {
   const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -30,7 +33,10 @@ export function CommentThread({
   const repliesListRef = useRef<HTMLDivElement | null>(null);
 
   const shouldIndentReplies = depth < MAX_COMMENT_VISUAL_DEPTH;
-  const isFlattenedDepth = depth >= MAX_COMMENT_VISUAL_DEPTH;
+  const shouldShowComposerReplyTarget = depth >= MAX_COMMENT_VISUAL_DEPTH;
+  const inlineReplyToAuthor =
+    depth > MAX_COMMENT_VISUAL_DEPTH ? replyToAuthor : null;
+
   const nextDepth = depth + 1;
 
   const repliesQuery = usePostCommentsQuery({
@@ -68,21 +74,18 @@ export function CommentThread({
         <CommentItem
           comment={comment}
           metaLabel={formatCommentDate(comment.createdAt)}
+          replyToAuthor={inlineReplyToAuthor}
           onReplyClick={handleReplyClick}
         />
       </div>
 
-      <div
-        className={["space-y-3", shouldIndentReplies ? "ml-11" : ""]
-          .filter(Boolean)
-          .join(" ")}
-      >
+      <div className={cn("space-y-3", shouldIndentReplies && "ml-11")}>
         {isReplying && (
           <ReplyComposer
             comment={comment}
             canInteract={canInteract}
             onRequireAuth={onRequireAuth}
-            showReplyTarget={isFlattenedDepth}
+            showReplyTarget={shouldShowComposerReplyTarget}
             onCreated={() => {
               setIsReplying(false);
               setShowReplies(true);
@@ -120,6 +123,7 @@ export function CommentThread({
                 canInteract={canInteract}
                 onRequireAuth={onRequireAuth}
                 depth={nextDepth}
+                replyToAuthor={comment.author}
               />
             )}
           />

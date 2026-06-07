@@ -1,6 +1,7 @@
 "use client";
 
 import { AUTH_ROUTES, CALLBACK_URL_SEARCH_PARAM } from "@/shared/config/routes";
+import { cn } from "@/shared/lib/utils";
 import { getSafeRedirectPath } from "@/shared/lib/redirect-path";
 
 type GoogleLoginLinkProps = {
@@ -22,11 +23,11 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
   return (
     <a
       href={href}
-      className={[
+      className={cn(
         "flex w-full items-center justify-center gap-3 rounded-xl",
         "border border-zinc-700 bg-white px-4 py-3",
         "font-medium text-zinc-950 transition hover:bg-zinc-100",
-      ].join(" ")}
+      )}
     >
       <span className="grid size-5 place-items-center rounded-full border border-zinc-300 text-sm font-semibold">
         G

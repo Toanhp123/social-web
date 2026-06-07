@@ -1,3 +1,4 @@
+import { cn } from "@/shared/lib/utils";
 import type { Post } from "../model/types";
 import {
   REACTION_OPTIONS,
@@ -39,10 +40,10 @@ export function PostSummary({
                   <span
                     key={reaction.type}
                     title={reaction.label}
-                    className={[
+                    className={cn(
                       "grid size-5 place-items-center rounded-full border border-white text-[11px] shadow-sm",
                       reaction.className,
-                    ].join(" ")}
+                    )}
                   >
                     <span aria-hidden>{reaction.emoji}</span>
                   </span>

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Post, ReactionType } from "../model/types";
+import { cn } from "@/shared/lib/utils";
 import { PostHeader } from "./PostHeader";
 import { PostMediaGrid } from "./PostMediaGrid";
 import { PostReactionControls } from "./PostReactionControls";
@@ -39,12 +40,10 @@ export function PostCard({
 
   return (
     <article
-      className={[
+      className={cn(
         "overflow-hidden rounded-2xl border border-white bg-white shadow-sm shadow-zinc-200/70",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       <div className="p-4 pb-3">
         <PostHeader

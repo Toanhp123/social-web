@@ -33,7 +33,7 @@ export function CreatePostDialog({
       open={open}
       onClose={handleClose}
       closeLabel="Đóng"
-      className="z-[9999] bg-zinc-950/60 backdrop-blur-sm"
+      className="z-9999 bg-zinc-950/60 backdrop-blur-sm"
       contentClassName="max-w-xl rounded-3xl"
       bodyClassName="p-0"
     >

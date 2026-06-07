@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
+import { cn } from "@/shared/lib/utils";
 import { buildProfileMetaItems } from "../lib/build-profile-meta-items";
 import type { ProfilePanelVariant } from "../model/types";
 import { ProfileAboutCard } from "./ProfileAboutCard";
@@ -50,12 +51,10 @@ export function ProfilePanel({
       </div>
 
       <div
-        className={[
+        className={cn(
           "grid w-full gap-4",
           isSidebar ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-[380px_1fr]",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         <div className="space-y-4">
           <ProfileAboutCard profile={profile} metaItems={metaItems} />

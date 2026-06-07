@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { cn } from "@/shared/lib/utils";
 import type { PostMedia } from "../model/types";
 
 type PostMediaGridProps = {
@@ -15,10 +16,10 @@ export function PostMediaGrid({ media, onMediaClick }: PostMediaGridProps) {
 
   return (
     <div
-      className={[
+      className={cn(
         "grid gap-1 bg-zinc-100",
         media.length === 1 ? "grid-cols-1" : "grid-cols-2",
-      ].join(" ")}
+      )}
     >
       {media.map((item) => (
         <button
@@ -26,12 +27,10 @@ export function PostMediaGrid({ media, onMediaClick }: PostMediaGridProps) {
           type="button"
           onClick={onMediaClick}
           disabled={!isClickable}
-          className={[
+          className={cn(
             "relative aspect-video overflow-hidden bg-zinc-200 text-left",
             isClickable ? "cursor-zoom-in" : "cursor-default",
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          )}
         >
           {item.type === "VIDEO" ? (
             <video
