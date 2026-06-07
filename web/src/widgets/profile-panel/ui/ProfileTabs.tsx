@@ -1,3 +1,5 @@
+import { cn } from "@/shared/lib/utils";
+
 const PROFILE_TABS = ["Bài viết", "Giới thiệu", "Bạn bè", "Ảnh"] as const;
 
 export function ProfileTabs() {
@@ -10,12 +12,10 @@ export function ProfileTabs() {
           <button
             key={item}
             type="button"
-            className={[
+            className={cn(
               "relative rounded-lg px-4 py-3 transition hover:bg-zinc-100",
               isActive && "text-blue-600",
-            ]
-              .filter(Boolean)
-              .join(" ")}
+            )}
           >
             {item}
 

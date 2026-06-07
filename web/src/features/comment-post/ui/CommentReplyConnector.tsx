@@ -1,6 +1,7 @@
 "use client";
 
 import { type CSSProperties, type ReactNode } from "react";
+import { cn } from "@/shared/lib/utils";
 import { useReplyConnectorPosition } from "../lib/use-reply-connector-position";
 
 type CommentReplyConnectorProps = {
@@ -45,58 +46,51 @@ export function CommentReplyConnector({
     <div
       ref={rootRef}
       style={style}
-      className={["relative", enabled ? getConnectorClass(isFirst, isLast) : ""]
-        .filter(Boolean)
-        .join(" ")}
+      className={cn("relative", enabled && getConnectorClass(isFirst, isLast))}
     >
       {children}
     </div>
   );
 }
+
 function getConnectorClass(isFirst: boolean, isLast: boolean) {
-  return [
+  return cn(
     // nhánh cong: từ trục dọc bo vào mép avatar reply
-    [
-      "before:absolute",
-      "before:left-[var(--reply-connector-x)]",
-      "before:top-[calc(var(--reply-connector-y)_-_var(--reply-connector-radius))]",
-      "before:h-[var(--reply-connector-radius)]",
-      "before:w-[calc(var(--reply-avatar-left-x)_-_var(--reply-connector-x))]",
-      "before:rounded-bl-[var(--reply-connector-radius)]",
-      "before:border-b",
-      "before:border-l",
-      "before:border-zinc-200",
-      "before:bg-transparent",
-    ].join(" "),
+    "before:absolute",
+    "before:left-[var(--reply-connector-x)]",
+    "before:top-[calc(var(--reply-connector-y)_-_var(--reply-connector-radius))]",
+    "before:h-[var(--reply-connector-radius)]",
+    "before:w-[calc(var(--reply-avatar-left-x)_-_var(--reply-connector-x))]",
+    "before:rounded-bl-[var(--reply-connector-radius)]",
+    "before:border-b",
+    "before:border-l",
+    "before:border-zinc-200",
+    "before:bg-transparent",
 
     // trục dọc
-    [
-      "after:absolute",
-      "after:left-[var(--reply-connector-x)]",
-      "after:w-px",
-      "after:-translate-x-1/2",
-      "after:rounded-full",
-      "after:bg-zinc-200",
-    ].join(" "),
+    "after:absolute",
+    "after:left-[var(--reply-connector-x)]",
+    "after:w-px",
+    "after:-translate-x-1/2",
+    "after:rounded-full",
+    "after:bg-zinc-200",
 
     // chỉ có 1 reply: trục dọc dừng ở đầu đoạn cong
-    isFirst && isLast
-      ? "after:top-[var(--first-reply-connector-top)] after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]"
-      : "",
+    isFirst &&
+      isLast &&
+      "after:top-[var(--first-reply-connector-top)] after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]",
 
     // reply đầu nhưng còn reply sau: trục dọc vẫn kéo xuống
-    isFirst && !isLast
-      ? "after:top-[var(--first-reply-connector-top)] after:-bottom-3"
-      : "",
+    isFirst &&
+      !isLast &&
+      "after:top-[var(--first-reply-connector-top)] after:-bottom-3",
 
     // reply cuối: trục dọc dừng ở đầu đoạn cong
-    !isFirst && isLast
-      ? "after:-top-3 after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]"
-      : "",
+    !isFirst &&
+      isLast &&
+      "after:-top-3 after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]",
 
     // reply giữa: trục dọc xuyên qua
-    !isFirst && !isLast ? "after:-top-3 after:-bottom-3" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+    !isFirst && !isLast && "after:-top-3 after:-bottom-3",
+  );
 }

@@ -4,10 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/shared/ui";
 import type { Comment } from "../model/types";
+import { cn } from "@/shared/lib/utils";
 
 type CommentItemProps = {
   comment: Comment;
   metaLabel?: string;
+  replyToAuthor?: Comment["author"] | null;
   onReplyClick?: (comment: Comment) => void;
 };
 
@@ -17,6 +19,7 @@ const COMMENT_PREVIEW_LINES = 3;
 export function CommentItem({
   comment,
   metaLabel,
+  replyToAuthor,
   onReplyClick,
 }: CommentItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,16 +59,20 @@ export function CommentItem({
           </p>
 
           <p
-            className={[
-              "mt-1 max-w-full text-sm leading-5 wrap-anywhere whitespace-pre-wrap text-zinc-800",
-              shouldCollapse && !isExpanded
-                ? "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]"
-                : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
+            className={cn(
+              "mt-1 max-w-full text-sm leading-5 wrap-break-word whitespace-pre-wrap text-zinc-800",
+              shouldCollapse &&
+                !isExpanded &&
+                "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]",
+            )}
           >
-            {comment.content}
+            {replyToAuthor && (
+              <span className="mr-1 font-semibold text-blue-600">
+                @{replyToAuthor.fullName}
+              </span>
+            )}
+
+            <span>{comment.content}</span>
           </p>
 
           {shouldCollapse && (

@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/entities/user";
+import { cn } from "@/shared/lib/utils";
 import type { ProfileMetaItem } from "../model/types";
 
 type ProfileAboutCardProps = {
@@ -15,12 +16,10 @@ export function ProfileAboutCard({
       <h3 className="text-lg font-bold text-zinc-950">Giới thiệu</h3>
 
       <p
-        className={[
+        className={cn(
           "mt-3 text-sm leading-6",
           profile?.bio ? "text-zinc-700" : "text-zinc-400",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         {profile?.bio ?? "Chưa có giới thiệu cá nhân."}
       </p>

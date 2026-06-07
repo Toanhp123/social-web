@@ -8,7 +8,7 @@ import { PostAction } from "./PostAction";
 import { PostSummary } from "./PostSummary";
 import { ReactionPicker } from "./ReactionPicker";
 
-const REACTION_PICKER_OPEN_DELAY_MS = 1500;
+const REACTION_PICKER_OPEN_DELAY_MS = 1000;
 
 type PostReactionControlsProps = {
   post: Post;

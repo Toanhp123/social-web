@@ -3,8 +3,9 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
-import { useCreateCommentMutation } from "../model/use-create-comment-mutation";
+import { cn } from "@/shared/lib/utils";
 import { Textarea } from "@/shared/ui";
+import { useCreateCommentMutation } from "../model/use-create-comment-mutation";
 
 type CommentFormProps = {
   postId: string;
@@ -53,7 +54,7 @@ export function CommentForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={["flex items-end gap-2", compact ? "text-sm" : ""].join(" ")}
+      className={cn("flex items-end gap-2", compact && "text-sm")}
     >
       <Textarea
         rows={compact ? 1 : 2}
@@ -71,7 +72,7 @@ export function CommentForm({
       <button
         type="submit"
         disabled={isDisabled}
-        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-600 text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Send comment"
       >
         {createCommentMutation.isPending ? (

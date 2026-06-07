@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { MoreHorizontal, Pencil, UserRound } from "lucide-react";
+import { ProfileImageUploader } from "@/features/profile";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
+import { cn } from "@/shared/lib/utils";
 import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
-import { ProfileImageUploader } from "@/features/profile";
 
 type ProfileHeaderProps = {
   profile: UserProfile | null;
@@ -29,30 +30,24 @@ export function ProfileHeader({
 
   return (
     <div
-      className={[
+      className={cn(
         "border-b border-zinc-200",
         isSidebar
           ? "pb-4"
           : "flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       <div
-        className={[
+        className={cn(
           "flex min-w-0 gap-4",
           isSidebar ? "-mt-10 flex-col" : "-mt-9 items-end",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         <div
-          className={[
+          className={cn(
             "relative grid shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white bg-zinc-100 shadow-md shadow-zinc-300/70",
             isSidebar ? "size-24" : "size-32 sm:size-40",
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          )}
         >
           {profile?.avatarUrl ? (
             <Image
@@ -65,21 +60,17 @@ export function ProfileHeader({
             />
           ) : (
             <UserRound
-              className={["text-zinc-400", isSidebar ? "size-11" : "size-16"]
-                .filter(Boolean)
-                .join(" ")}
+              className={cn("text-zinc-400", isSidebar ? "size-11" : "size-16")}
             />
           )}
         </div>
 
-        <div className={["min-w-0", isSidebar ? "" : "pb-5"].join(" ")}>
+        <div className={cn("min-w-0", !isSidebar && "pb-5")}>
           <h2
-            className={[
+            className={cn(
               "truncate font-bold tracking-tight text-zinc-950",
               isSidebar ? "text-xl" : "text-3xl",
-            ]
-              .filter(Boolean)
-              .join(" ")}
+            )}
           >
             {displayName}
           </h2>
@@ -99,12 +90,10 @@ export function ProfileHeader({
       </div>
 
       <div
-        className={[
+        className={cn(
           "flex flex-wrap items-center gap-2",
           isSidebar ? "mt-4" : "pb-5",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         <ProfileImageUploader kind="avatar" onUploaded={onProfileChange} />
 
