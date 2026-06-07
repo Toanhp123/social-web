@@ -33,6 +33,7 @@ export function CommentItem({
     <article className="flex min-w-0 gap-3">
       {comment.author.avatarUrl ? (
         <Image
+          data-comment-avatar
           src={comment.author.avatarUrl}
           alt=""
           width={32}
@@ -40,7 +41,10 @@ export function CommentItem({
           className="size-8 shrink-0 rounded-full object-cover"
         />
       ) : (
-        <div className="grid size-8 shrink-0 place-items-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
+        <div
+          data-comment-avatar
+          className="grid size-8 shrink-0 place-items-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600"
+        >
           {authorInitial}
         </div>
       )}

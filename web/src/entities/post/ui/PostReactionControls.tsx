@@ -8,7 +8,7 @@ import { PostAction } from "./PostAction";
 import { PostSummary } from "./PostSummary";
 import { ReactionPicker } from "./ReactionPicker";
 
-const REACTION_PICKER_OPEN_DELAY_MS = 1000;
+const REACTION_PICKER_OPEN_DELAY_MS = 1500;
 
 type PostReactionControlsProps = {
   post: Post;
@@ -79,9 +79,9 @@ export function PostReactionControls({
     <>
       <PostSummary post={post} currentReaction={currentReaction} />
 
-      <div className="flex items-center justify-between border-t border-zinc-100 px-2 py-2">
+      <div className="grid grid-cols-3 items-center border-t border-zinc-100 px-2 py-2">
         <div
-          className="relative flex-1"
+          className="relative"
           onMouseEnter={openReactionPickerWithDelay}
           onMouseLeave={closeReactionPicker}
           onFocus={() => {

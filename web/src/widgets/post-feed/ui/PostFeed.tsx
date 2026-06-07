@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Newspaper, WifiOff } from "lucide-react";
 import { PostCard, type Post, type ReactionType } from "@/entities/post";
-import { PostComments } from "@/features/comment-post";
+import { CommentForm, PostCommentsList } from "@/features/comment-post";
 import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
 import { SharePostDialog } from "@/features/share-post";
@@ -152,36 +152,37 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
         />
       )}
 
-      <PostDetailsDialog
-        open={Boolean(selectedPost)}
-        post={selectedPost}
-        metaLabel={
-          selectedPost ? formatPostDate(selectedPost.createdAt) : undefined
-        }
-        isReacting={
-          reactPostMutation.isPending &&
-          reactPostMutation.variables?.postId === selectedPost?.id
-        }
-        onClose={closePostDetails}
-        onReactionChange={
-          selectedPost
-            ? (type: ReactionType | null) =>
-                handleReactionChange(selectedPost.id, type)
-            : undefined
-        }
-        onShareClick={
-          selectedPost ? () => handleShareClick(selectedPost) : undefined
-        }
-        commentsSlot={
-          selectedPost ? (
-            <PostComments
+      {selectedPost && (
+        <PostDetailsDialog
+          key={selectedPost.id}
+          open
+          post={selectedPost}
+          metaLabel={formatPostDate(selectedPost.createdAt)}
+          isReacting={
+            reactPostMutation.isPending &&
+            reactPostMutation.variables?.postId === selectedPost.id
+          }
+          onClose={closePostDetails}
+          onReactionChange={(type) =>
+            handleReactionChange(selectedPost.id, type)
+          }
+          onShareClick={() => handleShareClick(selectedPost)}
+          commentsSlot={
+            <PostCommentsList
               postId={selectedPost.id}
               canInteract={canInteract}
               onRequireAuth={requireAuth}
             />
-          ) : null
-        }
-      />
+          }
+          commentFormSlot={
+            <CommentForm
+              postId={selectedPost.id}
+              canInteract={canInteract}
+              onRequireAuth={requireAuth}
+            />
+          }
+        />
+      )}
 
       <div ref={loadMoreRef} className="h-1" />
 

@@ -12,6 +12,7 @@ type DialogProps = {
   className?: string;
   contentClassName?: string;
   bodyClassName?: string;
+  bodyScrollable?: boolean;
 };
 
 export function Dialog({
@@ -22,6 +23,7 @@ export function Dialog({
   className,
   contentClassName,
   bodyClassName,
+  bodyScrollable = true,
 }: DialogProps) {
   useEffect(() => {
     if (!open) return;
@@ -50,7 +52,7 @@ export function Dialog({
   return createPortal(
     <div
       className={[
-        "fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-3 sm:p-6",
+        "fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-3 sm:p-6",
         className,
       ]
         .filter(Boolean)
@@ -64,7 +66,6 @@ export function Dialog({
           "relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl",
           "max-h-[calc(100dvh-2.5rem)]",
           "sm:max-h-[min(86dvh,760px)]",
-
           contentClassName,
         ]
           .filter(Boolean)
@@ -75,15 +76,17 @@ export function Dialog({
           type="button"
           aria-label={closeLabel}
           onClick={onClose}
-          className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+          className="absolute top-3 right-3 z-20 flex size-9 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
         >
           <X className="size-5" />
         </button>
 
         <div
           className={[
-            "min-h-0 flex-1 overflow-y-auto",
-            "scrollbar-none [&::-webkit-scrollbar]:hidden",
+            "min-h-0 flex-1",
+            bodyScrollable
+              ? "scrollbar-none overflow-y-auto [&::-webkit-scrollbar]:hidden"
+              : "flex flex-col overflow-hidden",
             bodyClassName,
           ]
             .filter(Boolean)

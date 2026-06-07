@@ -106,28 +106,45 @@ export class PrismaCommentRepository implements CommentRepository {
         await this.assertExistingComment(client, query.postId, query.parentId);
       }
 
+      const isReplyPage = Boolean(query.parentId);
+
+      const cursorFilter = query.cursor
+        ? isReplyPage
+          ? {
+              OR: [
+                { createdAt: { gt: query.cursor.createdAt } },
+                {
+                  createdAt: query.cursor.createdAt,
+                  id: { gt: query.cursor.id },
+                },
+              ],
+            }
+          : {
+              OR: [
+                { createdAt: { lt: query.cursor.createdAt } },
+                {
+                  createdAt: query.cursor.createdAt,
+                  id: { lt: query.cursor.id },
+                },
+              ],
+            }
+        : {};
+
       const comments = await client.comment.findMany({
         where: {
           postId: query.postId,
           parentId: query.parentId ?? null,
           deletedAt: null,
           isHidden: false,
-          ...(query.cursor
-            ? {
-                OR: [
-                  { createdAt: { gt: query.cursor.createdAt } },
-                  {
-                    createdAt: query.cursor.createdAt,
-                    id: { gt: query.cursor.id },
-                  },
-                ],
-              }
-            : {}),
+          ...cursorFilter,
         },
-        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        orderBy: isReplyPage
+          ? [{ createdAt: 'asc' }, { id: 'asc' }]
+          : [{ createdAt: 'desc' }, { id: 'desc' }],
         take: query.limit + 1,
         include: CommentMapper.include,
       });
+
       const hasNextPage = comments.length > query.limit;
       const pageItems = hasNextPage ? comments.slice(0, query.limit) : comments;
       const lastItem = pageItems.at(-1);

@@ -1,8 +1,5 @@
 export type {
-  MediaType,
   Post,
-  PostAuthor,
-  PostMedia,
   PostPage,
   PostReactionStats,
   PostVisibility,
