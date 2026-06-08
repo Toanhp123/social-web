@@ -2,6 +2,7 @@ import { REFRESH_TOKEN_COOKIE_NAME } from "@/entities/session";
 import { ApiError } from "@/shared/api/api-error";
 import { apiFetchWithResponse } from "@/shared/api/api-fetch.server";
 import { readResponseCookie } from "@/shared/lib/set-cookie";
+import { oauthSessionSchema } from "../model/oauth-session.schema";
 
 type OAuthSessionResultDto = {
   accessToken: string;
@@ -13,14 +14,16 @@ export async function authOAuthSessionApi(
   code: string,
   deviceId: string,
 ): Promise<OAuthSessionResultDto> {
+  const parsedInput = oauthSessionSchema.parse({ code, deviceId });
+
   const { data, response } = await apiFetchWithResponse<{
     accessToken: string;
   }>("/auth/oauth/session", {
     method: "POST",
     headers: {
-      "x-device-id": deviceId,
+      "x-device-id": parsedInput.deviceId,
     },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ code: parsedInput.code }),
   });
 
   const refreshCookie = readResponseCookie(
