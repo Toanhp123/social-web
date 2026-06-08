@@ -127,6 +127,22 @@ export class PrismaPostRepository implements PostRepository {
     }
   }
 
+  async findAuthorId(postId: string): Promise<string | null> {
+    const client = this.getClient();
+    const post = await client.post.findFirst({
+      where: {
+        id: postId,
+        deletedAt: null,
+        isHidden: false,
+      },
+      select: {
+        authorId: true,
+      },
+    });
+
+    return post?.authorId ?? null;
+  }
+
   private getVisibilityWhere(viewerId?: string): Prisma.PostWhereInput {
     if (!viewerId) {
       return { visibility: 'PUBLIC' };

@@ -8,6 +8,7 @@ import {
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
+import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import { PostDraft } from '@/modules/posts/domain/entities/post-draft.entity.js';
 import {
@@ -44,6 +45,8 @@ export class CreatePostService {
 
     @Inject(POST_FEED_JOB_QUEUE)
     private readonly postFeedJobQueue: PostFeedJobQueue,
+
+    private readonly realtimePublisher: RealtimePublisher,
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
@@ -62,8 +65,33 @@ export class CreatePostService {
     const post = await this.postRepository.create(draft.toCreateInput());
 
     await this.enqueuePostCreatedFeedJob(post.id, input.authorId);
+    this.publishPostCreated(post);
 
     return post;
+  }
+
+  private publishPostCreated(post: Post): void {
+    if (post.visibility === 'PUBLIC') {
+      this.realtimePublisher.publishToPublicFeed({
+        type: 'post.created',
+        data: {
+          postId: post.id,
+          authorId: post.author.id,
+          visibility: post.visibility,
+        },
+      });
+
+      return;
+    }
+
+    this.realtimePublisher.publishToUser(post.author.id, {
+      type: 'post.created',
+      data: {
+        postId: post.id,
+        authorId: post.author.id,
+        visibility: post.visibility,
+      },
+    });
   }
 
   private async enqueuePostCreatedFeedJob(

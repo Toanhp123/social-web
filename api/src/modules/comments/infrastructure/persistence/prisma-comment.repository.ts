@@ -165,6 +165,22 @@ export class PrismaCommentRepository implements CommentRepository {
     }
   }
 
+  async findAuthorId(commentId: string): Promise<string | null> {
+    const client = this.getClient();
+    const comment = await client.comment.findFirst({
+      where: {
+        id: commentId,
+        deletedAt: null,
+        isHidden: false,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    return comment?.userId ?? null;
+  }
+
   private async assertVisiblePost(
     client: PrismaClientLike,
     postId: string,

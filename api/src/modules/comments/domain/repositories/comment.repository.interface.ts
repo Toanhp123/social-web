@@ -8,4 +8,5 @@ import {
 export abstract class CommentRepository {
   abstract create(input: CreateCommentInput): Promise<Comment>;
   abstract findPage(query: ListCommentsQuery): Promise<ListCommentsPage>;
+  abstract findAuthorId(commentId: string): Promise<string | null>;
 }
