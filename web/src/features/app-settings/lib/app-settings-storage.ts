@@ -1,4 +1,5 @@
 import {
+  APP_THEME_COOKIE_NAME,
   APP_FONT_SIZE_STORAGE_KEY,
   APP_NOTIFICATION_SETTINGS_STORAGE_KEY,
   APP_THEME_STORAGE_KEY,
@@ -14,13 +15,15 @@ import {
 export function readStoredTheme(): AppTheme {
   if (typeof window === "undefined") return "system";
 
-  const storedTheme = localStorage.getItem(APP_THEME_STORAGE_KEY);
+  const storedTheme =
+    readCookie(APP_THEME_COOKIE_NAME) ?? localStorage.getItem(APP_THEME_STORAGE_KEY);
 
   return isAppTheme(storedTheme) ? storedTheme : "system";
 }
 
 export function persistTheme(theme: AppTheme) {
   localStorage.setItem(APP_THEME_STORAGE_KEY, theme);
+  document.cookie = `${APP_THEME_COOKIE_NAME}=${theme}; path=/; max-age=31536000; samesite=lax`;
 }
 
 export function readStoredFontSize(): AppFontSize {
@@ -82,6 +85,16 @@ export function applyFontSize(fontSize: AppFontSize) {
 
 function isAppTheme(value: string | null): value is AppTheme {
   return value === "system" || value === "light" || value === "dark";
+}
+
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(`${name}=`));
+
+  return cookie ? decodeURIComponent(cookie.split("=").slice(1).join("=")) : null;
 }
 
 function normalizeFontSize(value: unknown): AppFontSize {

@@ -1,4 +1,5 @@
 export const APP_THEME_STORAGE_KEY = "social-web:theme";
+export const APP_THEME_COOKIE_NAME = "social-web-theme";
 export const APP_FONT_SIZE_STORAGE_KEY = "social-web:font-size";
 export const APP_NOTIFICATION_SETTINGS_STORAGE_KEY =
   "social-web:notification-settings";
