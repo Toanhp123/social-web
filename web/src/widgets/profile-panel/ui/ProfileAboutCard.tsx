@@ -12,13 +12,13 @@ export function ProfileAboutCard({
   metaItems,
 }: ProfileAboutCardProps) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm shadow-zinc-200/70">
-      <h3 className="text-lg font-bold text-zinc-950">Giới thiệu</h3>
+    <div className="rounded-card bg-surface p-4 shadow-card">
+      <h3 className="text-lg font-bold text-primary">Giới thiệu</h3>
 
       <p
         className={cn(
           "mt-3 text-sm leading-6",
-          profile?.bio ? "text-zinc-700" : "text-zinc-400",
+          profile?.bio ? "text-secondary" : "text-placeholder",
         )}
       >
         {profile?.bio ?? "Chưa có giới thiệu cá nhân."}
@@ -36,9 +36,9 @@ export function ProfileAboutCard({
                   href={item.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex min-w-0 items-center gap-3 text-sm text-zinc-700 transition hover:text-blue-600"
+                  className="flex min-w-0 items-center gap-3 text-sm text-secondary transition hover:text-brand"
                 >
-                  <Icon className="size-5 shrink-0 text-zinc-500" />
+                  <Icon className="size-5 shrink-0 text-muted" />
                   <span className="truncate">{item.label}</span>
                 </a>
               );
@@ -47,9 +47,9 @@ export function ProfileAboutCard({
             return (
               <div
                 key={item.label}
-                className="flex min-w-0 items-center gap-3 text-sm text-zinc-700"
+                className="flex min-w-0 items-center gap-3 text-sm text-secondary"
               >
-                <Icon className="size-5 shrink-0 text-zinc-500" />
+                <Icon className="size-5 shrink-0 text-muted" />
                 <span className="truncate">{item.label}</span>
               </div>
             );
@@ -58,7 +58,7 @@ export function ProfileAboutCard({
       )}
 
       {metaItems.length === 0 && (
-        <p className="mt-3 text-sm text-zinc-400">
+        <p className="mt-3 text-sm text-placeholder">
           Chưa thêm vị trí, website hoặc ngày sinh.
         </p>
       )}

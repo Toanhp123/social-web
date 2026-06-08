@@ -12,7 +12,7 @@ export async function ResetPasswordPage({
   const { token } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-auth px-4">
       <ResetPasswordCard token={token} />
     </main>
   );

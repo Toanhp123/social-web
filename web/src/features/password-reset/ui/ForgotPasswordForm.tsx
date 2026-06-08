@@ -20,11 +20,11 @@ export function ForgotPasswordForm() {
   if (mutation.isSuccess) {
     return (
       <div className="space-y-5">
-        <p className="rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-300">
+        <p className="rounded-control bg-brand-soft px-3 py-2 text-sm text-auth-brand">
           Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi.
         </p>
         <Link
-          className="block text-center text-sm text-blue-400"
+          className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
           href={ROUTES.login}
         >
           Quay lại đăng nhập
@@ -36,12 +36,12 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-zinc-300">Email</label>
+        <label className="text-sm text-auth-label">Email</label>
         <Input name="email" type="email" required />
       </div>
 
       {errorMessage && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
           {errorMessage}
         </p>
       )}
@@ -51,7 +51,7 @@ export function ForgotPasswordForm() {
       </Button>
 
       <Link
-        className="block text-center text-sm text-blue-400"
+        className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
         href={ROUTES.login}
       >
         Quay lại đăng nhập

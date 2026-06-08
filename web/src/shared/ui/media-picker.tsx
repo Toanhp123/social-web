@@ -101,9 +101,9 @@ export function MediaPicker({
     <div className="space-y-3">
       <label
         className={[
-          "inline-flex cursor-pointer items-center gap-2 rounded-xl",
-          "border border-zinc-200 bg-zinc-50 px-4 py-2",
-          "text-sm font-medium text-zinc-700 hover:border-blue-400 hover:bg-white",
+          "inline-flex cursor-pointer items-center gap-2 rounded-control",
+          "border border-subtle bg-surface-soft px-4 py-2",
+          "text-sm font-medium text-secondary hover:border-brand hover:bg-surface",
           disabled || items.length >= maxFiles
             ? "pointer-events-none opacity-60"
             : "",
@@ -130,7 +130,7 @@ export function MediaPicker({
           {items.map((item) => (
             <div
               key={item.id}
-              className="group relative aspect-square overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
+              className="group relative aspect-square overflow-hidden rounded-control border border-subtle bg-surface-muted"
             >
               {item.type === "video" ? (
                 <video
@@ -150,7 +150,7 @@ export function MediaPicker({
               <button
                 type="button"
                 onClick={() => removeItem(item.id)}
-                className="absolute top-2 right-2 grid size-8 place-items-center rounded-full bg-zinc-950/80 text-white opacity-100 hover:bg-red-600"
+                className="absolute top-2 right-2 grid size-8 place-items-center rounded-pill bg-overlay text-inverse opacity-100 hover:bg-danger"
                 aria-label="Remove media"
               >
                 <X className="size-4" />
@@ -160,7 +160,7 @@ export function MediaPicker({
         </div>
       )}
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Toi da {maxFiles} file. Ho tro JPG, PNG, WEBP, MP4, WEBM, MOV.
       </p>
     </div>

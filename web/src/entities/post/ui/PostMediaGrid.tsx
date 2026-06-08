@@ -17,7 +17,7 @@ export function PostMediaGrid({ media, onMediaClick }: PostMediaGridProps) {
   return (
     <div
       className={cn(
-        "grid gap-1 bg-zinc-100",
+        "grid gap-1 bg-surface-muted",
         media.length === 1 ? "grid-cols-1" : "grid-cols-2",
       )}
     >
@@ -28,7 +28,7 @@ export function PostMediaGrid({ media, onMediaClick }: PostMediaGridProps) {
           onClick={onMediaClick}
           disabled={!isClickable}
           className={cn(
-            "relative aspect-video overflow-hidden bg-zinc-200 text-left",
+            "relative aspect-video overflow-hidden bg-surface-muted text-left",
             isClickable ? "cursor-zoom-in" : "cursor-default",
           )}
         >

@@ -8,14 +8,14 @@ type TextareaProps = ComponentPropsWithoutRef<"textarea"> & {
 
 const variantClassName: Record<TextareaVariant, string> = {
   default: [
-    "min-h-10 rounded-2xl border border-zinc-200 bg-zinc-50 px-3 py-2",
-    "text-sm text-zinc-900",
-    "focus:border-blue-300 focus:bg-white",
+    "min-h-10 rounded-card border border-subtle bg-surface-soft px-3 py-2",
+    "text-sm text-primary",
+    "focus:border-brand focus:bg-surface",
   ].join(" "),
   composer: [
     "border-0 bg-transparent px-0 py-0",
-    "text-2xl leading-9 text-zinc-950",
-    "placeholder:text-zinc-400",
+    "text-2xl leading-9 text-primary",
+    "placeholder:text-placeholder",
   ].join(" "),
 };
 

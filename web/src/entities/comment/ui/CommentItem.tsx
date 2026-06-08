@@ -41,33 +41,33 @@ export function CommentItem({
           alt=""
           width={32}
           height={32}
-          className="size-8 shrink-0 rounded-full object-cover"
+          className="size-8 shrink-0 rounded-pill object-cover"
         />
       ) : (
         <div
           data-comment-avatar
-          className="grid size-8 shrink-0 place-items-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600"
+          className="grid size-8 shrink-0 place-items-center rounded-pill bg-surface-muted text-xs font-semibold text-secondary"
         >
           {authorInitial}
         </div>
       )}
 
       <div className="min-w-0 flex-1">
-        <div className="inline-block max-w-full rounded-2xl bg-zinc-100 px-3 py-2">
-          <p className="truncate text-sm font-semibold text-zinc-950">
+        <div className="inline-block max-w-full rounded-card bg-surface-muted px-3 py-2">
+          <p className="truncate text-sm font-semibold text-primary">
             {comment.author.fullName}
           </p>
 
           <p
             className={cn(
-              "mt-1 max-w-full text-sm leading-5 wrap-break-word whitespace-pre-wrap text-zinc-800",
+              "mt-1 max-w-full text-sm leading-5 wrap-break-word whitespace-pre-wrap text-secondary",
               shouldCollapse &&
                 !isExpanded &&
                 "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]",
             )}
           >
             {replyToAuthor && (
-              <span className="mr-1 font-semibold text-blue-600">
+              <span className="mr-1 font-semibold text-brand">
                 @{replyToAuthor.fullName}
               </span>
             )}
@@ -82,14 +82,14 @@ export function CommentItem({
               fullWidth={false}
               onClick={() => setIsExpanded((current) => !current)}
               aria-expanded={isExpanded}
-              className="mt-1 text-xs font-semibold text-zinc-500 hover:text-blue-600"
+              className="mt-1 text-xs font-semibold text-muted hover:text-brand"
             >
               {isExpanded ? "Ẩn bớt" : "Xem thêm"}
             </Button>
           )}
         </div>
 
-        <div className="mt-1 flex items-center gap-3 px-2 text-xs font-medium text-zinc-500">
+        <div className="mt-1 flex items-center gap-3 px-2 text-xs font-medium text-muted">
           {metaLabel && <span>{metaLabel}</span>}
 
           {onReplyClick && (
@@ -98,7 +98,7 @@ export function CommentItem({
               variant="link"
               fullWidth={false}
               onClick={() => onReplyClick(comment)}
-              className="text-xs font-semibold text-zinc-500 hover:text-blue-600"
+              className="text-xs font-semibold text-muted hover:text-brand"
             >
               Trả lời
             </Button>

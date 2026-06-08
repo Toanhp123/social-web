@@ -4,19 +4,19 @@ import { ROUTES } from "@/shared/config/routes";
 
 export function GuestComposerPrompt() {
   return (
-    <section className="rounded-2xl border border-white bg-white p-5 shadow-sm shadow-zinc-200/70">
-      <p className="text-base font-semibold text-zinc-950">
+    <section className="rounded-card border border-surface bg-surface p-5 shadow-card">
+      <p className="text-base font-semibold text-primary">
         Chia sẻ câu chuyện của bạn
       </p>
 
-      <p className="mt-1 text-sm leading-6 text-zinc-500">
+      <p className="mt-1 text-sm leading-6 text-muted">
         Đăng nhập để đăng bài, tải ảnh/video và tham gia trò chuyện.
       </p>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <Link
           href={ROUTES.login}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-500"
+          className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand px-4 py-2.5 text-sm font-medium text-inverse hover:bg-brand-hover"
         >
           <LogIn className="size-4" />
           Đăng nhập
@@ -24,7 +24,7 @@ export function GuestComposerPrompt() {
 
         <Link
           href={ROUTES.register}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="inline-flex items-center justify-center gap-2 rounded-pill border border-subtle px-4 py-2.5 text-sm font-medium text-secondary hover:bg-surface-soft"
         >
           <UserPlus className="size-4" />
           Tạo tài khoản

@@ -12,7 +12,7 @@ export async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const result = await verifyEmailApi(token);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-auth px-4">
       <VerifyEmailCard result={result} />
     </main>
   );

@@ -24,12 +24,12 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
     <a
       href={href}
       className={cn(
-        "flex w-full items-center justify-center gap-3 rounded-xl",
-        "border border-zinc-700 bg-white px-4 py-3",
-        "font-medium text-zinc-950 transition hover:bg-zinc-100",
+        "flex w-full items-center justify-center gap-3 rounded-control",
+        "border border-auth bg-surface px-4 py-3 shadow-card",
+        "font-medium text-primary transition hover:bg-surface-muted",
       )}
     >
-      <span className="grid size-5 place-items-center rounded-full border border-zinc-300 text-sm font-semibold">
+      <span className="grid size-5 place-items-center rounded-pill border border-subtle text-sm font-semibold">
         G
       </span>
       Continue with Google

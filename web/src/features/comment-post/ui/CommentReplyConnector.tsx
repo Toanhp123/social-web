@@ -64,7 +64,7 @@ function getConnectorClass(isFirst: boolean, isLast: boolean) {
     "before:rounded-bl-[var(--reply-connector-radius)]",
     "before:border-b",
     "before:border-l",
-    "before:border-zinc-200",
+    "before:border-subtle",
     "before:bg-transparent",
 
     // trục dọc
@@ -72,8 +72,8 @@ function getConnectorClass(isFirst: boolean, isLast: boolean) {
     "after:left-[var(--reply-connector-x)]",
     "after:w-px",
     "after:-translate-x-1/2",
-    "after:rounded-full",
-    "after:bg-zinc-200",
+    "after:rounded-pill",
+    "after:bg-surface-muted",
 
     // chỉ có 1 reply: trục dọc dừng ở đầu đoạn cong
     isFirst &&

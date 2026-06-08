@@ -5,9 +5,9 @@ type CreatePostTriggerProps = {
 
 export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
   return (
-    <section className="rounded-2xl border border-white bg-white p-4 shadow-sm shadow-zinc-200/70">
+    <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
       <div className="flex items-center gap-3">
-        <div className="grid size-11 shrink-0 place-items-center rounded-full bg-linear-to-br from-blue-600 to-emerald-500 text-sm font-semibold text-white">
+        <div className="grid size-11 shrink-0 place-items-center rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
           SW
         </div>
 
@@ -16,7 +16,7 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
           onClick={onOpen}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
-          className="min-h-11 flex-1 rounded-full bg-zinc-100 px-4 text-left text-sm text-zinc-500 transition hover:bg-zinc-200"
+          className="min-h-11 flex-1 rounded-pill bg-surface-muted px-4 text-left text-sm text-muted transition hover:bg-surface-muted"
         >
           Ban dang nghi gi?
         </button>

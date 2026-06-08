@@ -16,7 +16,7 @@ export function VerifyEmailCard({ result }: VerifyEmailCardProps) {
     >
       <Link
         href={result.ok ? ROUTES.home : ROUTES.login}
-        className="block rounded-xl bg-blue-600 px-4 py-3 text-center font-medium text-white"
+        className="block rounded-control bg-brand px-4 py-3 text-center font-medium text-inverse hover:bg-brand-hover"
       >
         {result.ok ? "Go to feed" : "Back to login"}
       </Link>

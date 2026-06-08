@@ -8,10 +8,10 @@ type ButtonProps = ComponentPropsWithoutRef<"button"> & {
 };
 
 const variantClassName: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-500",
-  secondary: "bg-zinc-50 text-zinc-600 hover:bg-zinc-100",
-  ghost: "text-zinc-600 hover:bg-zinc-100",
-  link: "rounded-none px-0 py-0 text-zinc-500 hover:text-blue-600",
+  primary: "bg-brand text-inverse hover:bg-brand-hover",
+  secondary: "bg-surface-soft text-secondary hover:bg-surface-muted",
+  ghost: "text-secondary hover:bg-surface-muted",
+  link: "rounded-none px-0 py-0 text-muted hover:text-brand",
 };
 
 export function Button({
@@ -28,7 +28,7 @@ export function Button({
       className={[
         isLink
           ? "text-sm font-medium transition disabled:opacity-60"
-          : "rounded-xl px-4 py-2 text-sm font-medium transition disabled:opacity-60",
+          : "rounded-control px-4 py-2 text-sm font-medium transition disabled:opacity-60",
         fullWidth && !isLink ? "w-full" : "",
         variantClassName[variant],
         className,

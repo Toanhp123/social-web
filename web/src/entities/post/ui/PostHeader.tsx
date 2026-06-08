@@ -25,7 +25,7 @@ const VISIBILITY_CONFIGS = {
   PUBLIC: {
     icon: Globe2,
     label: "Công khai",
-    className: "bg-blue-50 text-blue-700",
+    className: "bg-brand-soft text-brand-strong",
   },
   FRIENDS_ONLY: {
     icon: Users,
@@ -35,7 +35,7 @@ const VISIBILITY_CONFIGS = {
   PRIVATE: {
     icon: Lock,
     label: "Riêng tư",
-    className: "bg-zinc-100 text-zinc-600",
+    className: "bg-surface-muted text-secondary",
   },
 } satisfies Record<Post["visibility"], VisibilityConfig>;
 
@@ -46,7 +46,7 @@ export function PostHeader({
 }: PostHeaderProps) {
   return (
     <div className="flex items-start gap-3">
-      <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-linear-to-br from-blue-600 to-emerald-500 text-sm font-semibold text-white">
+      <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
         {post.author.avatarUrl ? (
           <Image
             src={post.author.avatarUrl}
@@ -62,14 +62,14 @@ export function PostHeader({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-semibold text-zinc-950">
+          <p className="truncate text-sm font-semibold text-primary">
             {post.author.fullName}
           </p>
 
           <VisibilityBadge visibility={post.visibility} />
         </div>
 
-        <p className="truncate text-xs text-zinc-500">
+        <p className="truncate text-xs text-muted">
           {post.author.username ? `@${post.author.username}` : "Thành viên"}
           {metaLabel ? ` · ${metaLabel}` : ""}
         </p>
@@ -77,7 +77,7 @@ export function PostHeader({
 
       <button
         type="button"
-        className="grid size-9 shrink-0 place-items-center rounded-full text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
+        className="grid size-9 shrink-0 place-items-center rounded-pill text-placeholder transition hover:bg-surface-muted hover:text-secondary"
         aria-label="Tùy chọn bài viết"
       >
         <MoreHorizontal className="size-5" />
@@ -93,7 +93,7 @@ function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex shrink-0 items-center gap-1 rounded-pill px-2 py-0.5 text-[11px] font-medium",
         config.className,
       )}
     >

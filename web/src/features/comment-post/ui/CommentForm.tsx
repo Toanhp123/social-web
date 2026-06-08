@@ -72,7 +72,7 @@ export function CommentForm({
       <button
         type="submit"
         disabled={isDisabled}
-        className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-600 text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="grid size-10 shrink-0 place-items-center rounded-pill bg-brand text-inverse transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Send comment"
       >
         {createCommentMutation.isPending ? (

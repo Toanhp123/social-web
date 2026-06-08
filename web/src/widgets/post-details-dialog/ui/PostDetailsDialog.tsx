@@ -53,7 +53,7 @@ export function PostDetailsDialog({
             onShareClick={onShareClick}
             commentsSlot={
               commentsSlot ? (
-                <div className="border-t border-zinc-100 bg-white px-4 py-3">
+                <div className="border-t border-soft bg-surface px-4 py-3">
                   {commentsSlot}
                 </div>
               ) : null
@@ -63,7 +63,7 @@ export function PostDetailsDialog({
         </div>
 
         {commentFormSlot && (
-          <div className="shrink-0 border-t border-zinc-100 bg-white px-4 py-3">
+          <div className="shrink-0 border-t border-soft bg-surface px-4 py-3">
             {commentFormSlot}
           </div>
         )}
