@@ -140,6 +140,8 @@ export const viMessages = {
     share: "Chia sẻ",
     comments: "bình luận",
     shares: "lượt chia sẻ",
+    showMore: "Xem thêm",
+    showLess: "Ẩn bớt",
   },
   comment: {
     loading: "Đang tải bình luận",
