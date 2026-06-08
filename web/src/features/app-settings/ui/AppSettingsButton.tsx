@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Bell,
   Check,
+  Languages,
   MessageCircle,
   Monitor,
   Moon,
@@ -11,6 +12,7 @@ import {
   Sun,
   ThumbsUp,
 } from "lucide-react";
+import { useI18n, useTranslations, type AppLanguage } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import {
   APP_NOTIFICATION_SETTINGS_STORAGE_KEY,
@@ -22,34 +24,47 @@ import {
 
 const themeOptions: Array<{
   value: AppTheme;
-  label: string;
   icon: typeof Monitor;
 }> = [
-  { value: "system", label: "He thong", icon: Monitor },
-  { value: "light", label: "Sang", icon: Sun },
-  { value: "dark", label: "Toi", icon: Moon },
+  { value: "system", icon: Monitor },
+  { value: "light", icon: Sun },
+  { value: "dark", icon: Moon },
+];
+
+const languageOptions: Array<{
+  value: AppLanguage;
+  label: string;
+}> = [
+  { value: "vi", label: "VI" },
+  { value: "en", label: "EN" },
 ];
 
 const notificationOptions: Array<{
   key: keyof NotificationSettings;
-  label: string;
   icon: typeof Bell;
 }> = [
-  { key: "inApp", label: "Thong bao trong ung dung", icon: Bell },
-  { key: "comments", label: "Binh luan va tra loi", icon: MessageCircle },
-  { key: "reactions", label: "Cam xuc bai viet", icon: ThumbsUp },
+  { key: "inApp", icon: Bell },
+  { key: "comments", icon: MessageCircle },
+  { key: "reactions", icon: ThumbsUp },
 ];
 
 export function AppSettingsButton() {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const { language, setLanguage } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [theme, setTheme] = useState<AppTheme>(() => readStoredTheme());
   const [notificationSettings, setNotificationSettings] =
     useState<NotificationSettings>(() => readStoredNotificationSettings());
+  const copy = useTranslations().settings;
 
   const activeThemeLabel = useMemo(
-    () => themeOptions.find((option) => option.value === theme)?.label,
-    [theme],
+    () => copy.themeOptions[theme],
+    [copy.themeOptions, theme],
+  );
+
+  const activeLanguageLabel = useMemo(
+    () => copy.languageOptions[language],
+    [copy.languageOptions, language],
   );
 
   useEffect(() => {
@@ -96,8 +111,8 @@ export function AppSettingsButton() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="grid size-10 place-items-center rounded-pill border border-subtle bg-surface text-secondary shadow-sm transition hover:text-brand"
-        aria-label="Cai dat"
+        className="rounded-pill border-subtle bg-surface text-secondary hover:text-brand grid size-10 place-items-center border shadow-sm transition"
+        aria-label={copy.settingsLabel}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
       >
@@ -105,19 +120,19 @@ export function AppSettingsButton() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-40 mt-3 w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-card border border-subtle bg-surface shadow-popover">
-          <div className="border-b border-soft px-4 py-3">
-            <p className="text-sm font-semibold text-primary">Cai dat</p>
-            <p className="mt-0.5 text-xs text-muted">
-              Giao dien va tuy chon thong bao
+        <div className="rounded-card border-subtle bg-surface shadow-popover absolute right-0 z-40 mt-3 w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden border">
+          <div className="border-soft border-b px-4 py-3">
+            <p className="text-primary text-sm font-semibold">
+              {copy.settings}
             </p>
+            <p className="text-muted mt-0.5 text-xs">{copy.description}</p>
           </div>
 
           <div className="space-y-5 p-4">
             <section className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-primary">Giao dien</p>
-                <span className="text-xs font-medium text-muted">
+                <p className="text-primary text-sm font-medium">{copy.theme}</p>
+                <span className="text-muted text-xs font-medium">
                   {activeThemeLabel}
                 </span>
               </div>
@@ -132,7 +147,7 @@ export function AppSettingsButton() {
                       key={option.value}
                       type="button"
                       className={cn(
-                        "flex min-h-20 flex-col items-center justify-center gap-2 rounded-control border px-2 text-xs font-medium transition",
+                        "rounded-control flex min-h-20 flex-col items-center justify-center gap-2 border px-2 text-xs font-medium transition",
                         isSelected
                           ? "border-brand-soft bg-brand-soft text-brand-strong"
                           : "border-subtle bg-surface-soft text-secondary hover:border-brand hover:bg-surface",
@@ -140,7 +155,42 @@ export function AppSettingsButton() {
                       onClick={() => setTheme(option.value)}
                     >
                       <Icon className="size-4" />
-                      {option.label}
+                      {copy.themeOptions[option.value]}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-primary text-sm font-medium">
+                  {copy.language}
+                </p>
+                <span className="text-muted text-xs font-medium">
+                  {activeLanguageLabel}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {languageOptions.map((option) => {
+                  const isSelected = language === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={cn(
+                        "rounded-control flex min-h-14 items-center justify-center gap-2 border px-3 text-sm font-medium transition",
+                        isSelected
+                          ? "border-brand-soft bg-brand-soft text-brand-strong"
+                          : "border-subtle bg-surface-soft text-secondary hover:border-brand hover:bg-surface",
+                      )}
+                      onClick={() => setLanguage(option.value)}
+                    >
+                      <Languages className="size-4" />
+                      <span>{copy.languageOptions[option.value]}</span>
+                      <span className="text-muted text-xs">{option.label}</span>
                     </button>
                   );
                 })}
@@ -149,11 +199,11 @@ export function AppSettingsButton() {
 
             <section className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-primary">
-                  Thong bao
+                <p className="text-primary text-sm font-medium">
+                  {copy.notifications}
                 </p>
-                <p className="mt-0.5 text-xs leading-5 text-muted">
-                  Dang luu local, san sang noi vao API thong bao sau nay.
+                <p className="text-muted mt-0.5 text-xs leading-5">
+                  {copy.notificationsDescription}
                 </p>
               </div>
 
@@ -166,21 +216,21 @@ export function AppSettingsButton() {
                     <button
                       key={option.key}
                       type="button"
-                      className="flex w-full items-center justify-between gap-3 rounded-control border border-subtle bg-surface-soft px-3 py-2.5 text-left transition hover:bg-surface"
+                      className="rounded-control border-subtle bg-surface-soft hover:bg-surface flex w-full items-center justify-between gap-3 border px-3 py-2.5 text-left transition"
                       onClick={() => toggleNotification(option.key)}
                     >
                       <span className="flex min-w-0 items-center gap-3">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-control bg-surface-muted text-secondary">
+                        <span className="rounded-control bg-surface-muted text-secondary grid size-9 shrink-0 place-items-center">
                           <Icon className="size-4" />
                         </span>
-                        <span className="truncate text-sm font-medium text-secondary">
-                          {option.label}
+                        <span className="text-secondary truncate text-sm font-medium">
+                          {copy.notificationOptions[option.key]}
                         </span>
                       </span>
 
                       <span
                         className={cn(
-                          "grid size-6 shrink-0 place-items-center rounded-pill border transition",
+                          "rounded-pill grid size-6 shrink-0 place-items-center border transition",
                           isEnabled
                             ? "border-brand bg-brand text-inverse"
                             : "border-subtle bg-surface text-muted",

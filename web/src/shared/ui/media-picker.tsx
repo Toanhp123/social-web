@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 
 export type PickedMediaFile = {
   id: string;
@@ -31,6 +32,7 @@ export function MediaPicker({
   disabled,
   onFilesChange,
 }: MediaPickerProps) {
+  const t = useTranslations().shared;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [items, setItems] = useState<PickedMediaFile[]>([]);
 
@@ -151,7 +153,7 @@ export function MediaPicker({
                 type="button"
                 onClick={() => removeItem(item.id)}
                 className="absolute top-2 right-2 grid size-8 place-items-center rounded-pill bg-overlay text-inverse opacity-100 hover:bg-danger"
-                aria-label="Remove media"
+                aria-label={t.removeMedia}
               >
                 <X className="size-4" />
               </button>
@@ -161,7 +163,7 @@ export function MediaPicker({
       )}
 
       <p className="text-xs text-muted">
-        Toi da {maxFiles} file. Ho tro JPG, PNG, WEBP, MP4, WEBM, MOV.
+        {t.mediaHelp.replace("{maxFiles}", String(maxFiles))}
       </p>
     </div>
   );

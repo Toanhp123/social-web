@@ -1,11 +1,14 @@
 import { ForgotPasswordForm } from "@/features/password-reset";
+import { getServerTranslations } from "@/shared/i18n/server";
 import { AuthCardFrame } from "./AuthCardFrame";
 
-export function ForgotPasswordCard() {
+export async function ForgotPasswordCard() {
+  const t = (await getServerTranslations()).auth;
+
   return (
     <AuthCardFrame
-      title="Quen mat khau"
-      description="Nhap email de nhan lien ket dat lai mat khau."
+      title={t.forgotPasswordTitle}
+      description={t.forgotPasswordDescription}
     >
       <ForgotPasswordForm />
     </AuthCardFrame>

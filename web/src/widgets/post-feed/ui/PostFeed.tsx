@@ -9,6 +9,7 @@ import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
 import { SharePostDialog } from "@/features/share-post";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
+import { useTranslations } from "@/shared/i18n";
 import { PostDetailsDialog } from "@/widgets/post-details-dialog";
 import { FeedHeader } from "./FeedHeader";
 import { FeedNotice } from "./FeedNotice";
@@ -19,6 +20,7 @@ type PostFeedProps = {
 };
 
 export function PostFeed({ canInteract = true }: PostFeedProps) {
+  const t = useTranslations().feed;
   const router = useRouter();
   const pathname = usePathname();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -105,7 +107,7 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
       />
 
       {feedQuery.isLoading ? (
-        <div className="space-y-4" aria-label="Dang tai bang tin">
+        <div className="space-y-4" aria-label={t.loadingFeed}>
           <PostSkeleton />
           <PostSkeleton compact />
           <PostSkeleton />
@@ -113,16 +115,16 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
       ) : errorMessage ? (
         <FeedNotice
           icon={<WifiOff className="size-5" />}
-          title="Khong tai duoc bang tin"
+          title={t.cannotLoad}
           description={errorMessage}
-          actionLabel="Thu lai"
+          actionLabel={t.retry}
           onAction={() => void feedQuery.refetch()}
         />
       ) : posts.length === 0 ? (
         <FeedNotice
           icon={<Newspaper className="size-5" />}
-          title="Chua co bai viet nao"
-          description="Dang bai dau tien de bat dau bang tin cua ban."
+          title={t.emptyTitle}
+          description={t.emptyDescription}
         />
       ) : (
         <div className="space-y-4">
@@ -189,13 +191,13 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
       {feedQuery.isFetchingNextPage && (
         <div className="flex items-center justify-center gap-2 rounded-card border border-surface bg-surface py-4 text-sm text-muted shadow-card">
           <Loader2 className="size-4 animate-spin" />
-          Dang tai them
+          {t.loadingMore}
         </div>
       )}
 
       {!feedQuery.hasNextPage && posts.length > 0 && (
         <p className="py-4 text-center text-sm text-secondary">
-          Ban da xem het bai viet hien co.
+          {t.end}
         </p>
       )}
     </section>

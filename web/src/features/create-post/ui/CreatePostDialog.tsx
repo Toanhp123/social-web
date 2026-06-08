@@ -2,8 +2,9 @@
 
 import type { FormEvent } from "react";
 import { SendHorizontal } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 import { Button, Combobox, Dialog, MediaPicker, Textarea } from "@/shared/ui";
-import { VISIBILITY_OPTIONS } from "./VisibilityOptions";
+import { useVisibilityOptions } from "./VisibilityOptions";
 
 type CreatePostDialogProps = {
   open: boolean;
@@ -22,6 +23,9 @@ export function CreatePostDialog({
   onClose,
   onSubmit,
 }: CreatePostDialogProps) {
+  const t = useTranslations().createPost;
+  const visibilityOptions = useVisibilityOptions();
+
   const handleClose = () => {
     if (isSubmitting) return;
 
@@ -32,7 +36,7 @@ export function CreatePostDialog({
     <Dialog
       open={open}
       onClose={handleClose}
-      closeLabel="Đóng"
+      closeLabel={t.close}
       className="z-9999 bg-overlay backdrop-blur-sm"
       contentClassName="max-w-xl rounded-panel"
       bodyClassName="p-0"
@@ -42,7 +46,7 @@ export function CreatePostDialog({
           id="create-post-title"
           className="text-center text-lg font-semibold text-primary"
         >
-          Tạo bài viết
+          {t.title}
         </h2>
       </header>
 
@@ -60,7 +64,7 @@ export function CreatePostDialog({
               defaultValue="PUBLIC"
               size="xs"
               variant="compact"
-              options={VISIBILITY_OPTIONS}
+              options={visibilityOptions}
               className="mt-1"
             />
           </div>
@@ -71,13 +75,13 @@ export function CreatePostDialog({
           rows={5}
           maxLength={5000}
           autoFocus
-          placeholder="Bạn đang nghĩ gì?"
+          placeholder={t.placeholder}
           variant="composer"
           className="mt-4 min-h-36"
         />
 
         <div className="mt-4 rounded-card border border-subtle bg-surface-soft p-3">
-          <MediaPicker name="media" label="Thêm ảnh/video" maxFiles={10} />
+          <MediaPicker name="media" label={t.addMedia} maxFiles={10} />
         </div>
 
         {errorMessage && (
@@ -94,10 +98,11 @@ export function CreatePostDialog({
             className="inline-flex h-11 items-center justify-center gap-2 rounded-pill"
           >
             <SendHorizontal className="size-4" />
-            {isSubmitting ? "Đang đăng..." : "Đăng bài"}
+            {isSubmitting ? t.posting : t.submit}
           </Button>
         </div>
       </form>
     </Dialog>
   );
 }
+

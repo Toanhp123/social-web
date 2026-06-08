@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Loader2, MessageCircle } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePostCommentsQuery } from "../model/use-post-comments-query";
@@ -20,6 +21,7 @@ export function PostCommentsList({
   onRequireAuth,
   className,
 }: PostCommentsListProps) {
+  const t = useTranslations().comment;
   const commentsQuery = usePostCommentsQuery({ postId });
 
   const comments = useMemo(
@@ -32,14 +34,14 @@ export function PostCommentsList({
       {commentsQuery.isLoading ? (
         <div className="flex items-center gap-2 text-sm text-muted">
           <Loader2 className="size-4 animate-spin" />
-          Đang tải bình luận
+          {t.loading}
         </div>
       ) : commentsQuery.error instanceof Error ? (
         <p className="text-sm text-danger">{commentsQuery.error.message}</p>
       ) : comments.length === 0 ? (
         <div className="flex items-center gap-2 rounded-control bg-surface-soft px-3 py-3 text-sm text-muted">
           <MessageCircle className="size-4" />
-          Hãy là người đầu tiên bình luận.
+          {t.empty}
         </div>
       ) : (
         comments.map((comment) => (
@@ -65,11 +67,10 @@ export function PostCommentsList({
             <Loader2 className="size-4 animate-spin" />
           )}
 
-          {commentsQuery.isFetchingNextPage
-            ? "Đang tải..."
-            : "Xem thêm bình luận"}
+          {commentsQuery.isFetchingNextPage ? t.loading : t.loadMore}
         </Button>
       )}
     </div>
   );
 }
+

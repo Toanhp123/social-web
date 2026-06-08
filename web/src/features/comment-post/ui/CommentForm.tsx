@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Textarea } from "@/shared/ui";
 import { useCreateCommentMutation } from "../model/use-create-comment-mutation";
@@ -24,6 +25,7 @@ export function CommentForm({
   onRequireAuth,
   onCreated,
 }: CommentFormProps) {
+  const t = useTranslations().comment;
   const [content, setContent] = useState("");
   const createCommentMutation = useCreateCommentMutation();
   const isDisabled = createCommentMutation.isPending || !content.trim();
@@ -65,7 +67,7 @@ export function CommentForm({
           }
         }}
         onChange={(event) => setContent(event.target.value)}
-        placeholder={compact ? "Write a reply..." : "Write a comment..."}
+        placeholder={compact ? t.writeReply : t.writeComment}
         className="flex-1"
       />
 
@@ -73,7 +75,7 @@ export function CommentForm({
         type="submit"
         disabled={isDisabled}
         className="grid size-10 shrink-0 place-items-center rounded-pill bg-brand text-inverse transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
-        aria-label="Send comment"
+        aria-label={t.send}
       >
         {createCommentMutation.isPending ? (
           <Loader2 className="size-4 animate-spin" />
@@ -84,3 +86,4 @@ export function CommentForm({
     </form>
   );
 }
+

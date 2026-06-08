@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 
 type DialogProps = {
   open: boolean;
@@ -19,12 +20,15 @@ export function Dialog({
   open,
   onClose,
   children,
-  closeLabel = "Đóng",
+  closeLabel,
   className,
   contentClassName,
   bodyClassName,
   bodyScrollable = true,
 }: DialogProps) {
+  const t = useTranslations().shared;
+  const resolvedCloseLabel = closeLabel ?? t.close;
+
   useEffect(() => {
     if (!open) return;
 
@@ -74,7 +78,7 @@ export function Dialog({
       >
         <button
           type="button"
-          aria-label={closeLabel}
+          aria-label={resolvedCloseLabel}
           onClick={onClose}
           className="absolute top-3 right-3 z-20 flex size-9 items-center justify-center rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted"
         >

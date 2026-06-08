@@ -3,6 +3,7 @@
 import type { KeyboardEvent, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 
 export type ComboboxOption = {
   value: string;
@@ -68,6 +69,7 @@ export function Combobox({
   className,
   onValueChange,
 }: ComboboxProps) {
+  const t = useTranslations().shared;
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -210,7 +212,7 @@ export function Combobox({
                   : "wrap-break-word whitespace-normal",
               ].join(" ")}
             >
-              {selectedOption?.label ?? placeholder}
+              {selectedOption?.label ?? placeholder ?? t.choose}
             </span>
 
             {showDetails && selectedOption?.description && (

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import {
   Globe2,
@@ -6,12 +8,13 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { Post } from "../model/types";
 
 type VisibilityConfig = {
   icon: LucideIcon;
-  label: string;
+  labelKey: "public" | "friends" | "private";
   className: string;
 };
 
@@ -24,17 +27,17 @@ type PostHeaderProps = {
 const VISIBILITY_CONFIGS = {
   PUBLIC: {
     icon: Globe2,
-    label: "Công khai",
+    labelKey: "public",
     className: "bg-brand-soft text-brand-strong",
   },
   FRIENDS_ONLY: {
     icon: Users,
-    label: "Bạn bè",
+    labelKey: "friends",
     className: "bg-emerald-50 text-emerald-700",
   },
   PRIVATE: {
     icon: Lock,
-    label: "Riêng tư",
+    labelKey: "private",
     className: "bg-surface-muted text-secondary",
   },
 } satisfies Record<Post["visibility"], VisibilityConfig>;
@@ -44,6 +47,8 @@ export function PostHeader({
   authorInitial,
   metaLabel,
 }: PostHeaderProps) {
+  const t = useTranslations().post;
+
   return (
     <div className="flex items-start gap-3">
       <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
@@ -70,7 +75,7 @@ export function PostHeader({
         </div>
 
         <p className="truncate text-xs text-muted">
-          {post.author.username ? `@${post.author.username}` : "Thành viên"}
+          {post.author.username ? `@${post.author.username}` : "Member"}
           {metaLabel ? ` · ${metaLabel}` : ""}
         </p>
       </div>
@@ -78,7 +83,7 @@ export function PostHeader({
       <button
         type="button"
         className="grid size-9 shrink-0 place-items-center rounded-pill text-placeholder transition hover:bg-surface-muted hover:text-secondary"
-        aria-label="Tùy chọn bài viết"
+        aria-label={t.menu}
       >
         <MoreHorizontal className="size-5" />
       </button>
@@ -88,6 +93,7 @@ export function PostHeader({
 
 function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
   const config = VISIBILITY_CONFIGS[visibility];
+  const t = useTranslations().createPost.visibility;
   const Icon = config.icon;
 
   return (
@@ -98,7 +104,8 @@ function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
       )}
     >
       <Icon className="size-3" />
-      {config.label}
+      {t[config.labelKey]}
     </span>
   );
 }
+

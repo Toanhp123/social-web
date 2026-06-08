@@ -1,8 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import { MoreHorizontal, Pencil, UserRound } from "lucide-react";
 import { ProfileImageUploader } from "@/features/profile";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
 
@@ -21,6 +24,7 @@ export function ProfileHeader({
   metaItems,
   onProfileChange,
 }: ProfileHeaderProps) {
+  const t = useTranslations().profile;
   const isSidebar = variant === "sidebar";
 
   const displayName = profile?.fullName?.trim() || currentUser.email;
@@ -52,7 +56,7 @@ export function ProfileHeader({
           {profile?.avatarUrl ? (
             <Image
               src={profile.avatarUrl}
-              alt={`Ảnh đại diện của ${displayName}`}
+              alt={`${t.avatarAlt} ${displayName}`}
               width={isSidebar ? 96 : 160}
               height={isSidebar ? 96 : 160}
               sizes={isSidebar ? "96px" : "160px"}
@@ -60,7 +64,10 @@ export function ProfileHeader({
             />
           ) : (
             <UserRound
-              className={cn("text-placeholder", isSidebar ? "size-11" : "size-16")}
+              className={cn(
+                "text-placeholder",
+                isSidebar ? "size-11" : "size-16",
+              )}
             />
           )}
         </div>
@@ -82,8 +89,8 @@ export function ProfileHeader({
           {!isSidebar && (
             <p className="mt-1 text-sm text-muted">
               {metaItems.length > 0
-                ? `${metaItems.length} thông tin đã thêm`
-                : "Chưa cập nhật thông tin cá nhân"}
+                ? `${metaItems.length} ${t.addedInfo}`
+                : t.noProfileInfo}
             </p>
           )}
         </div>
@@ -104,12 +111,12 @@ export function ProfileHeader({
               className="inline-flex items-center gap-2 rounded-control bg-surface-muted px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-muted"
             >
               <Pencil className="size-4" />
-              Chỉnh sửa
+              {t.editProfile}
             </button>
 
             <button
               type="button"
-              aria-label="Mở thêm tuỳ chọn"
+              aria-label={t.moreOptions}
               className="grid size-10 place-items-center rounded-control bg-surface-muted text-secondary transition hover:bg-surface-muted"
             >
               <MoreHorizontal className="size-5" />
@@ -120,3 +127,4 @@ export function ProfileHeader({
     </div>
   );
 }
+

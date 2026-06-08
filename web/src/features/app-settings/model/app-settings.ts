@@ -15,4 +15,3 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   comments: true,
   reactions: true,
 };
-

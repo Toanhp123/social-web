@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { Post, ReactionType } from "@/entities/post";
 import { PostCard } from "@/entities/post";
+import { useTranslations } from "@/shared/i18n";
 import { Dialog } from "@/shared/ui";
 
 type PostDetailsDialogProps = {
@@ -30,6 +31,8 @@ export function PostDetailsDialog({
   onCommentClick,
   onShareClick,
 }: PostDetailsDialogProps) {
+  const t = useTranslations().post;
+
   if (!post) {
     return null;
   }
@@ -38,7 +41,7 @@ export function PostDetailsDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      closeLabel="Đóng bài viết"
+      closeLabel={t.closeDetails}
       contentClassName="max-w-2xl"
       bodyScrollable={false}
     >
@@ -71,3 +74,4 @@ export function PostDetailsDialog({
     </Dialog>
   );
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { AUTH_ROUTES, CALLBACK_URL_SEARCH_PARAM } from "@/shared/config/routes";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { getSafeRedirectPath } from "@/shared/lib/redirect-path";
 
@@ -9,6 +10,7 @@ type GoogleLoginLinkProps = {
 };
 
 export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
+  const t = useTranslations().auth;
   const safeCallbackUrl = getSafeRedirectPath(callbackUrl, "", AUTH_ROUTES);
   const searchParams = new URLSearchParams();
 
@@ -32,7 +34,8 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
       <span className="grid size-5 place-items-center rounded-pill border border-subtle text-sm font-semibold">
         G
       </span>
-      Continue with Google
+      {t.google}
     </a>
   );
 }
+

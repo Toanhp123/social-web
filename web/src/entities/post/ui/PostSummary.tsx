@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { Post } from "../model/types";
 import {
@@ -14,6 +17,7 @@ export function PostSummary({
   post,
   currentReaction,
 }: PostReactionSummaryProps) {
+  const t = useTranslations().post;
   const totalReactionCount = post.reactionStats.totalReactionCount;
   const totalCommentCount = post.reactionStats.commentCount;
   const totalShareCount = post.reactionStats.shareCount;
@@ -34,7 +38,7 @@ export function PostSummary({
             <>
               <div
                 className="flex -space-x-1"
-                aria-label={`${totalReactionCount} cảm xúc`}
+                aria-label={`${totalReactionCount} reactions`}
               >
                 {visibleReactions.map((reaction) => (
                   <span
@@ -55,20 +59,29 @@ export function PostSummary({
               </span>
             </>
           ) : (
-            <span>Chưa có cảm xúc</span>
+            <span>0 {t.like}</span>
           )}
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          {currentReaction && <span>{currentReaction.emoji} Bạn</span>}
+          {currentReaction && <span>{currentReaction.emoji} You</span>}
 
-          {totalCommentCount > 0 && <span>{totalCommentCount} bình luận</span>}
+          {totalCommentCount > 0 && (
+            <span>
+              {totalCommentCount} {t.comments}
+            </span>
+          )}
 
           {totalCommentCount > 0 && totalShareCount > 0 && <span>·</span>}
 
-          {totalShareCount > 0 && <span>{totalShareCount} chia sẻ</span>}
+          {totalShareCount > 0 && (
+            <span>
+              {totalShareCount} {t.shares}
+            </span>
+          )}
         </div>
       </div>
     </div>
   );
 }
+

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import type { Comment } from "../model/types";
-import { cn } from "@/shared/lib/utils";
 
 type CommentItemProps = {
   comment: Comment;
@@ -22,6 +23,7 @@ export function CommentItem({
   replyToAuthor,
   onReplyClick,
 }: CommentItemProps) {
+  const t = useTranslations().comment;
   const [isExpanded, setIsExpanded] = useState(false);
 
   const authorInitial =
@@ -84,7 +86,7 @@ export function CommentItem({
               aria-expanded={isExpanded}
               className="mt-1 text-xs font-semibold text-muted hover:text-brand"
             >
-              {isExpanded ? "Ẩn bớt" : "Xem thêm"}
+              {isExpanded ? t.hide : t.showMore}
             </Button>
           )}
         </div>
@@ -100,7 +102,7 @@ export function CommentItem({
               onClick={() => onReplyClick(comment)}
               className="text-xs font-semibold text-muted hover:text-brand"
             >
-              Trả lời
+              {t.reply}
             </Button>
           )}
         </div>
@@ -108,3 +110,4 @@ export function CommentItem({
     </article>
   );
 }
+

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { ImagePlus } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 
 type ImageUploaderProps<TResult> = {
   label: string;
@@ -22,7 +23,7 @@ const DEFAULT_IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
 
 export function ImageUploader<TResult>({
   label,
-  loadingLabel = "Dang tai...",
+  loadingLabel,
   accept = DEFAULT_IMAGE_ACCEPT,
   fileFieldName = "file",
   extraFields,
@@ -33,6 +34,7 @@ export function ImageUploader<TResult>({
   onUploaded,
   getErrorMessage = defaultGetErrorMessage,
 }: ImageUploaderProps<TResult>) {
+  const t = useTranslations().shared;
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -78,7 +80,7 @@ export function ImageUploader<TResult>({
           .join(" ")}
       >
         {icon ?? <ImagePlus className="size-4" />}
-        {isUploading ? loadingLabel : label}
+        {isUploading ? loadingLabel || t.uploading : label}
         <input
           type="file"
           accept={accept}
@@ -94,5 +96,5 @@ export function ImageUploader<TResult>({
 }
 
 function defaultGetErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : "Da co loi xay ra.";
+  return error instanceof Error ? error.message : "Something went wrong.";
 }

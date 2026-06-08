@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
+import { useTranslations } from "@/shared/i18n";
 import { getAuthRouteHref } from "@/shared/lib/auth-redirect";
 import { Button, Input } from "@/shared/ui";
 import { useRegisterMutation } from "../model/use-register-mutation";
@@ -11,6 +12,7 @@ import { useRegisterMutation } from "../model/use-register-mutation";
 export function RegisterForm() {
   const registerMutation = useRegisterMutation();
   const searchParams = useSearchParams();
+  const t = useTranslations().auth;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,22 +27,22 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-auth-label">Họ tên</label>
+        <label className="text-sm text-auth-label">{t.fullName}</label>
         <Input name="fullName" type="text" required minLength={5} />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">Username</label>
+        <label className="text-sm text-auth-label">{t.username}</label>
         <Input name="username" type="text" minLength={6} />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">Email</label>
+        <label className="text-sm text-auth-label">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">Mật khẩu</label>
+        <label className="text-sm text-auth-label">{t.password}</label>
         <Input name="password" type="password" required minLength={6} />
       </div>
 
@@ -51,11 +53,11 @@ export function RegisterForm() {
       )}
 
       <Button type="submit" disabled={registerMutation.isPending}>
-        {registerMutation.isPending ? "Đang đăng ký..." : "Đăng ký"}
+        {registerMutation.isPending ? t.registering : t.register}
       </Button>
 
       <p className="text-center text-sm text-auth-muted">
-        Đã có tài khoản?{" "}
+        {t.alreadyHaveAccount}{" "}
         <Link
           href={getAuthRouteHref(
             ROUTES.login,
@@ -63,9 +65,10 @@ export function RegisterForm() {
           )}
           className="font-medium text-auth-brand hover:text-auth-brand-hover"
         >
-          Đăng nhập
+          {t.login}
         </Link>
       </p>
     </form>
   );
 }
+

@@ -1,31 +1,45 @@
 import { BellDot, Sparkles, UsersRound } from "lucide-react";
+import type { AppMessages } from "@/shared/i18n";
+
+type HomeMessages = AppMessages["home"];
 
 type HomeRailProps = {
   currentUserEmail?: string;
+  t: HomeMessages;
 };
 
-export function HomeRail({ currentUserEmail }: HomeRailProps) {
+export function HomeRail({ currentUserEmail, t }: HomeRailProps) {
   const items = [
-    { icon: BellDot, label: "Thông báo mới", meta: "Theo dõi các cập nhật" },
-    { icon: UsersRound, label: "Cộng đồng", meta: "Khám phá chủ đề yêu thích" },
-    { icon: Sparkles, label: "Nổi bật", meta: "Bài viết được quan tâm" },
+    {
+      icon: BellDot,
+      label: t.railItems.newNotifications,
+      meta: t.railItems.newNotificationsMeta,
+    },
+    {
+      icon: UsersRound,
+      label: t.railItems.community,
+      meta: t.railItems.communityMeta,
+    },
+    {
+      icon: Sparkles,
+      label: t.railItems.highlights,
+      meta: t.railItems.highlightsMeta,
+    },
   ];
 
   return (
     <div className="space-y-4">
       <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
         <p className="text-xs font-semibold tracking-wide text-brand uppercase">
-          {currentUserEmail ? "Xin chào" : "Social Web"}
+          {currentUserEmail ? t.hello : "Social Web"}
         </p>
 
         <h2 className="mt-2 text-lg font-semibold break-all text-primary">
-          {currentUserEmail ?? "Bảng tin công khai"}
+          {currentUserEmail ?? t.publicFeed}
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-muted">
-          {currentUserEmail
-            ? "Chọn một luồng cập nhật, viết bài mới hoặc chăm lại profile."
-            : "Bạn có thể đọc feed trước, đăng nhập khi muốn tương tác."}
+          {currentUserEmail ? t.railSignedIn : t.railGuest}
         </p>
       </section>
 

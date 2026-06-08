@@ -1,12 +1,15 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/features/login";
+import { getServerTranslations } from "@/shared/i18n/server";
 import { AuthCardFrame } from "./AuthCardFrame";
 
-export function LoginCard() {
+export async function LoginCard() {
+  const t = (await getServerTranslations()).auth;
+
   return (
     <AuthCardFrame
-      title="Dang nhap"
-      description="Dang nhap de tiep tuc vao he thong."
+      title={t.loginTitle}
+      description={t.loginDescription}
     >
       <Suspense fallback={<div className="h-72" />}>
         <LoginForm />

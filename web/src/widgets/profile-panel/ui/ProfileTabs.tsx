@@ -1,12 +1,16 @@
+"use client";
+
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 
-const PROFILE_TABS = ["Bài viết", "Giới thiệu", "Bạn bè", "Ảnh"] as const;
-
 export function ProfileTabs() {
+  const t = useTranslations().profile;
+  const tabs = [t.posts, t.aboutTab, t.friendsTab, t.photos];
+
   return (
     <nav className="flex gap-1 overflow-x-auto py-1 text-sm font-semibold text-secondary">
-      {PROFILE_TABS.map((item) => {
-        const isActive = item === "Bài viết";
+      {tabs.map((item, index) => {
+        const isActive = index === 0;
 
         return (
           <button
@@ -28,3 +32,4 @@ export function ProfileTabs() {
     </nav>
   );
 }
+

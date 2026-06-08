@@ -2,6 +2,7 @@
 
 import { Camera, ImageUp } from "lucide-react";
 import type { UserProfile } from "@/entities/user";
+import { useTranslations } from "@/shared/i18n";
 import { ImageUploader } from "@/shared/ui";
 import { uploadMyProfileImageAction } from "../model/profile.action";
 
@@ -14,11 +15,12 @@ export function ProfileImageUploader({
   kind,
   onUploaded,
 }: ProfileImageUploaderProps) {
+  const t = useTranslations().profile;
   const isAvatar = kind === "avatar";
 
   return (
     <ImageUploader
-      label={isAvatar ? "Đổi avatar" : "Đổi ảnh bìa"}
+      label={isAvatar ? t.changeAvatar : t.changeCover}
       icon={
         isAvatar ? (
           <Camera className="size-4" />
@@ -42,3 +44,4 @@ async function uploadProfileImage(formData: FormData) {
 
   return result.profile;
 }
+

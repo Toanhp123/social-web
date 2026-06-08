@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/app/providers/query-provider";
+import { I18nProvider } from "@/shared/i18n";
+import { getServerLanguage } from "@/shared/i18n/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,22 +27,29 @@ const themeBootstrapScript = `
   (function () {
     try {
       var storedTheme = localStorage.getItem("social-web:theme") || "system";
+      var cookieLanguageMatch = document.cookie.match(/(?:^|; )social-web-language=([^;]+)/);
+      var cookieLanguage = cookieLanguageMatch ? decodeURIComponent(cookieLanguageMatch[1]) : "";
+      var storedLanguage = localStorage.getItem("social-web:language") || cookieLanguage || "vi";
       var systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       var theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : systemTheme;
+      var language = storedLanguage === "en" ? "en" : "vi";
+      document.documentElement.lang = language;
       document.documentElement.dataset.theme = theme;
       document.documentElement.classList.toggle("dark", theme === "dark");
     } catch (_) {}
   })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const language = await getServerLanguage();
+
   return (
     <html
-      lang="en"
+      lang={language}
       suppressHydrationWarning
       className={cn(
         "h-full",
@@ -55,7 +64,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <QueryProvider>{children}</QueryProvider>
+        <I18nProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </I18nProvider>
       </body>
     </html>
   );
