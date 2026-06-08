@@ -24,12 +24,14 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 type I18nProviderProps = {
   children: ReactNode;
+  initialLanguage: AppLanguage;
 };
 
-export function I18nProvider({ children }: I18nProviderProps) {
-  const [language, setLanguage] = useState<AppLanguage>(() =>
-    readStoredLanguage(),
-  );
+export function I18nProvider({
+  children,
+  initialLanguage,
+}: I18nProviderProps) {
+  const [language, setLanguage] = useState<AppLanguage>(initialLanguage);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -66,12 +68,4 @@ export function useI18n() {
   }
 
   return context;
-}
-
-function readStoredLanguage(): AppLanguage {
-  if (typeof window === "undefined") return DEFAULT_APP_LANGUAGE;
-
-  const storedLanguage = localStorage.getItem(APP_LANGUAGE_STORAGE_KEY);
-
-  return isAppLanguage(storedLanguage) ? storedLanguage : DEFAULT_APP_LANGUAGE;
 }
