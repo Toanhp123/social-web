@@ -1,27 +1,20 @@
 import { authApiFetch } from "@/entities/session/server";
 import type { Post } from "@/entities/post";
+import type { CreatePostInput } from "../model/create-post.schema";
 
-export async function createPostApi(formData: FormData): Promise<Post> {
+export async function createPostApi(input: CreatePostInput): Promise<Post> {
   return authApiFetch<Post>("/posts", {
     method: "POST",
-    body: toCreatePostFormData(formData),
+    body: toCreatePostFormData(input),
   });
 }
 
-function toCreatePostFormData(formData: FormData) {
-  const normalizedFormData = new FormData();
+function toCreatePostFormData(input: CreatePostInput) {
+  const formData = new FormData();
 
-  for (const [key, value] of formData.entries()) {
-    if (value instanceof File) {
-      if (value.size > 0) {
-        normalizedFormData.append(key, value, value.name);
-      }
+  formData.set("content", input.content);
+  formData.set("visibility", input.visibility);
+  input.media.forEach((file) => formData.append("media", file, file.name));
 
-      continue;
-    }
-
-    normalizedFormData.append(key, value);
-  }
-
-  return normalizedFormData;
+  return formData;
 }
