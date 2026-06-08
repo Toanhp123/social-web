@@ -7,18 +7,18 @@ type HomeMessages = AppMessages["home"];
 
 export function GuestProfilePrompt({ t }: { t: HomeMessages }) {
   return (
-    <section className="rounded-card border border-surface bg-surface p-5 shadow-card">
-      <p className="text-base font-semibold text-primary">
+    <section className="rounded-card border-surface bg-surface shadow-card border p-5">
+      <p className="text-primary text-base font-semibold">
         {t.guestProfileTitle}
       </p>
 
-      <p className="mt-2 text-sm leading-6 text-muted">
+      <p className="text-muted mt-2 text-sm leading-6">
         {t.guestProfileDescription}
       </p>
 
       <Link
         href={ROUTES.register}
-        className="mt-4 inline-flex items-center justify-center gap-2 rounded-pill bg-surface-inverse px-4 py-2.5 text-sm font-medium text-inverse hover:bg-zinc-800"
+        className="rounded-pill bg-surface-inverse text-inverse mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium hover:bg-zinc-800"
       >
         <UserPlus className="size-4" />
         {t.getStarted}

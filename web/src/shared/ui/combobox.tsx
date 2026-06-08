@@ -4,6 +4,7 @@ import type { KeyboardEvent, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 
 export type ComboboxOption = {
   value: string;
@@ -152,12 +153,9 @@ export function Combobox({
   }
 
   return (
-    <div
-      ref={rootRef}
-      className={["relative", className].filter(Boolean).join(" ")}
-    >
+    <div ref={rootRef} className={cn("relative", className)}>
       {label && (
-        <p className="mb-2 text-sm font-medium text-secondary">{label}</p>
+        <p className="text-secondary mb-2 text-sm font-medium">{label}</p>
       )}
 
       <input type="hidden" name={name} value={selectedValue} />
@@ -170,53 +168,53 @@ export function Combobox({
         disabled={disabled}
         onClick={() => setIsOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={[
+        className={cn(
           "flex items-center justify-between text-left transition outline-none",
           "disabled:pointer-events-none disabled:opacity-60",
           triggerSizeClass[size],
           triggerMinWidthClass[size],
           isPill ? "w-fit max-w-full" : "w-full",
           isPill
-            ? "gap-1.5 rounded-pill border border-transparent bg-surface-muted text-xs font-semibold text-secondary shadow-none hover:bg-surface-muted focus:ring-2 focus:ring-brand"
-            : "gap-3 rounded-control border border-subtle bg-surface-soft text-sm text-primary shadow-sm hover:border-brand hover:bg-surface focus:border-brand focus:ring-2 focus:ring-brand",
-        ].join(" ")}
+            ? "rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted focus:ring-brand gap-1.5 border border-transparent text-xs font-semibold shadow-none focus:ring-2"
+            : "rounded-control border-subtle bg-surface-soft text-primary hover:border-brand hover:bg-surface focus:border-brand focus:ring-brand gap-3 border text-sm shadow-sm focus:ring-2",
+        )}
       >
         <span
-          className={[
+          className={cn(
             "flex min-w-0 flex-1 items-center",
             isPill ? "gap-1.5" : "gap-3",
-          ].join(" ")}
+          )}
         >
           {selectedOption?.icon && !isPill && (
             <span
-              className={[
-                "grid shrink-0 place-items-center rounded-lg bg-brand-soft text-brand",
+              className={cn(
+                "bg-brand-soft text-brand grid shrink-0 place-items-center rounded-lg",
                 iconSizeClass[size],
-              ].join(" ")}
+              )}
             >
               {selectedOption.icon}
             </span>
           )}
 
           <span
-            className={[
+            className={cn(
               "min-w-0 flex-1 leading-tight",
-              isPill ? "whitespace-nowrap" : "",
-            ].join(" ")}
+              isPill && "whitespace-nowrap",
+            )}
           >
             <span
-              className={[
+              className={cn(
                 "block font-medium",
                 isPill
                   ? "whitespace-nowrap"
                   : "wrap-break-word whitespace-normal",
-              ].join(" ")}
+              )}
             >
               {selectedOption?.label ?? placeholder ?? t.choose}
             </span>
 
             {showDetails && selectedOption?.description && (
-              <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-muted">
+              <span className="text-muted mt-0.5 block text-xs wrap-break-word whitespace-normal">
                 {selectedOption.description}
               </span>
             )}
@@ -224,13 +222,11 @@ export function Combobox({
         </span>
 
         <ChevronDown
-          className={[
-            "shrink-0 text-muted transition-transform",
+          className={cn(
+            "text-muted shrink-0 transition-transform",
             isPill ? "size-3.5" : "size-4",
-            isOpen ? "rotate-180" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
+            isOpen && "rotate-180",
+          )}
         />
       </button>
 
@@ -238,11 +234,11 @@ export function Combobox({
         <div
           id={listboxId}
           role="listbox"
-          className={[
-            "absolute z-20 mt-2 max-w-[calc(100vw-2rem)] overflow-hidden rounded-control",
-            "border border-subtle bg-surface p-1 shadow-popover",
+          className={cn(
+            "rounded-control absolute z-20 mt-2 max-w-[calc(100vw-2rem)] overflow-hidden",
+            "border-subtle bg-surface shadow-popover border p-1",
             listboxWidthClass[size],
-          ].join(" ")}
+          )}
         >
           {options.map((option) => {
             const isSelected = option.value === selectedValue;
@@ -254,21 +250,21 @@ export function Combobox({
                 role="option"
                 aria-selected={isSelected}
                 onClick={() => selectValue(option.value)}
-                className={[
+                className={cn(
                   "flex w-full items-center gap-3 rounded-lg text-left",
-                  "text-sm transition hover:bg-surface-soft",
+                  "hover:bg-surface-soft text-sm transition",
                   optionSizeClass[size],
-                  isSelected ? "bg-brand-soft text-brand-strong" : "text-secondary",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+                  isSelected
+                    ? "bg-brand-soft text-brand-strong"
+                    : "text-secondary",
+                )}
               >
                 {option.icon && (
                   <span
-                    className={[
-                      "grid shrink-0 place-items-center rounded-lg bg-surface-muted text-brand",
+                    className={cn(
+                      "bg-surface-muted text-brand grid shrink-0 place-items-center rounded-lg",
                       iconSizeClass[size],
-                    ].join(" ")}
+                    )}
                   >
                     {option.icon}
                   </span>
@@ -280,15 +276,13 @@ export function Combobox({
                   </span>
 
                   {showDetails && option.description && (
-                    <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-muted">
+                    <span className="text-muted mt-0.5 block text-xs wrap-break-word whitespace-normal">
                       {option.description}
                     </span>
                   )}
                 </span>
 
-                {isSelected && (
-                  <Check className="size-4 shrink-0 text-brand" />
-                )}
+                {isSelected && <Check className="text-brand size-4 shrink-0" />}
               </button>
             );
           })}

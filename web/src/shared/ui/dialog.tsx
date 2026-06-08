@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 
 type DialogProps = {
   open: boolean;
@@ -55,46 +56,40 @@ export function Dialog({
 
   return createPortal(
     <div
-      className={[
+      className={cn(
         "fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-3 sm:p-6",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className={[
-          "relative flex w-full max-w-2xl flex-col overflow-hidden rounded-card bg-surface shadow-popover",
+        className={cn(
+          "rounded-card bg-surface shadow-popover relative flex w-full max-w-2xl flex-col overflow-hidden",
           "max-h-[calc(100dvh-2.5rem)]",
           "sm:max-h-[min(86dvh,760px)]",
           contentClassName,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           aria-label={resolvedCloseLabel}
           onClick={onClose}
-          className="absolute top-3 right-3 z-20 flex size-9 items-center justify-center rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted"
+          className="rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted absolute top-3 right-3 z-20 flex size-9 items-center justify-center"
         >
           <X className="size-5" />
         </button>
 
         <div
-          className={[
+          className={cn(
             "min-h-0 flex-1",
             bodyScrollable
               ? "scrollbar-none overflow-y-auto [&::-webkit-scrollbar]:hidden"
               : "flex flex-col overflow-hidden",
             bodyClassName,
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          )}
         >
           {children}
         </div>

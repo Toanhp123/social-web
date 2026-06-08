@@ -27,14 +27,17 @@ const themeBootstrapScript = `
   (function () {
     try {
       var storedTheme = localStorage.getItem("social-web:theme") || "system";
+      var storedFontSize = parseInt(localStorage.getItem("social-web:font-size") || "16", 10);
       var cookieLanguageMatch = document.cookie.match(/(?:^|; )social-web-language=([^;]+)/);
       var cookieLanguage = cookieLanguageMatch ? decodeURIComponent(cookieLanguageMatch[1]) : "";
       var storedLanguage = cookieLanguage || localStorage.getItem("social-web:language") || "vi";
       var systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       var theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : systemTheme;
+      var fontSize = Number.isFinite(storedFontSize) ? Math.min(20, Math.max(14, storedFontSize)) : 16;
       var language = storedLanguage === "en" ? "en" : "vi";
       document.documentElement.lang = language;
       document.documentElement.dataset.theme = theme;
+      document.documentElement.style.setProperty("--app-font-size", fontSize + "px");
       document.documentElement.classList.toggle("dark", theme === "dark");
     } catch (_) {}
   })();

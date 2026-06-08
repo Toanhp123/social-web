@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react";
+import { cn } from "@/shared/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "link";
 
@@ -25,16 +26,14 @@ export function Button({
   return (
     <button
       {...props}
-      className={[
+      className={cn(
         isLink
           ? "text-sm font-medium transition disabled:opacity-60"
           : "rounded-control px-4 py-2 text-sm font-medium transition disabled:opacity-60",
-        fullWidth && !isLink ? "w-full" : "",
+        fullWidth && !isLink && "w-full",
         variantClassName[variant],
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     />
   );
 }

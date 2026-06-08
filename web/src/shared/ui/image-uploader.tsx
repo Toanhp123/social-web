@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { ImagePlus } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 
 type ImageUploaderProps<TResult> = {
   label: string;
@@ -69,15 +70,13 @@ export function ImageUploader<TResult>({
   return (
     <div className="space-y-2">
       <label
-        className={[
-          "inline-flex cursor-pointer items-center gap-2 rounded-control",
-          "border border-subtle bg-surface px-4 py-2 shadow-sm",
-          "text-sm font-medium text-secondary hover:border-brand hover:text-brand",
-          disabled || isUploading ? "pointer-events-none opacity-60" : "",
+        className={cn(
+          "rounded-control inline-flex cursor-pointer items-center gap-2",
+          "border-subtle bg-surface border px-4 py-2 shadow-sm",
+          "text-secondary hover:border-brand hover:text-brand text-sm font-medium",
+          (disabled || isUploading) && "pointer-events-none opacity-60",
           className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         {icon ?? <ImagePlus className="size-4" />}
         {isUploading ? loadingLabel || t.uploading : label}
@@ -90,7 +89,7 @@ export function ImageUploader<TResult>({
         />
       </label>
 
-      {errorMessage && <p className="text-xs text-danger">{errorMessage}</p>}
+      {errorMessage && <p className="text-danger text-xs">{errorMessage}</p>}
     </div>
   );
 }

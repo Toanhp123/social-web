@@ -19,9 +19,11 @@ type ConnectorStyle = CSSProperties & {
   "--reply-connector-y": string;
   "--reply-avatar-left-x": string;
   "--reply-connector-radius": string;
+  "--reply-connector-end-gap": string;
 };
 
 const DEFAULT_REPLY_CONNECTOR_RADIUS = "12px";
+const DEFAULT_REPLY_CONNECTOR_END_GAP = "6px";
 
 export function CommentReplyConnector({
   children,
@@ -40,6 +42,7 @@ export function CommentReplyConnector({
     "--reply-connector-y": replyConnectorY,
     "--reply-avatar-left-x": replyAvatarLeftX,
     "--reply-connector-radius": DEFAULT_REPLY_CONNECTOR_RADIUS,
+    "--reply-connector-end-gap": DEFAULT_REPLY_CONNECTOR_END_GAP,
   };
 
   return (
@@ -60,37 +63,32 @@ function getConnectorClass(isFirst: boolean, isLast: boolean) {
     "before:left-[var(--reply-connector-x)]",
     "before:top-[calc(var(--reply-connector-y)_-_var(--reply-connector-radius))]",
     "before:h-[var(--reply-connector-radius)]",
-    "before:w-[calc(var(--reply-avatar-left-x)_-_var(--reply-connector-x))]",
+    "before:w-[calc(var(--reply-avatar-left-x)_-_var(--reply-connector-x)_-_var(--reply-connector-end-gap))]",
     "before:rounded-bl-[var(--reply-connector-radius)]",
-    "before:border-b",
-    "before:border-l",
-    "before:border-subtle",
+    "before:border-b-2",
+    "before:border-l-2",
+    "before:border-[var(--comment-connector)]",
     "before:bg-transparent",
 
     // trục dọc
     "after:absolute",
     "after:left-[var(--reply-connector-x)]",
-    "after:w-px",
-    "after:-translate-x-1/2",
-    "after:rounded-pill",
-    "after:bg-surface-muted",
+    "after:w-0",
+    "after:border-l-2",
+    "after:border-[var(--comment-connector)]",
 
-    // chỉ có 1 reply: trục dọc dừng ở đầu đoạn cong
     isFirst &&
       isLast &&
       "after:top-[var(--first-reply-connector-top)] after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]",
 
-    // reply đầu nhưng còn reply sau: trục dọc vẫn kéo xuống
     isFirst &&
       !isLast &&
       "after:top-[var(--first-reply-connector-top)] after:-bottom-3",
 
-    // reply cuối: trục dọc dừng ở đầu đoạn cong
     !isFirst &&
       isLast &&
       "after:-top-3 after:bottom-[calc(100%_-_var(--reply-connector-y)_+_var(--reply-connector-radius))]",
 
-    // reply giữa: trục dọc xuyên qua
     !isFirst && !isLast && "after:-top-3 after:-bottom-3",
   );
 }
