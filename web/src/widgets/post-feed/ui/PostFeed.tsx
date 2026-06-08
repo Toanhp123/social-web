@@ -187,14 +187,14 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
       <div ref={loadMoreRef} className="h-1" />
 
       {feedQuery.isFetchingNextPage && (
-        <div className="flex items-center justify-center gap-2 rounded-2xl border border-white bg-white py-4 text-sm text-zinc-500 shadow-sm shadow-zinc-200/70">
+        <div className="flex items-center justify-center gap-2 rounded-card border border-surface bg-surface py-4 text-sm text-muted shadow-card">
           <Loader2 className="size-4 animate-spin" />
           Dang tai them
         </div>
       )}
 
       {!feedQuery.hasNextPage && posts.length > 0 && (
-        <p className="py-4 text-center text-sm text-zinc-600">
+        <p className="py-4 text-center text-sm text-secondary">
           Ban da xem het bai viet hien co.
         </p>
       )}

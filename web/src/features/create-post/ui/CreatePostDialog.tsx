@@ -33,14 +33,14 @@ export function CreatePostDialog({
       open={open}
       onClose={handleClose}
       closeLabel="Đóng"
-      className="z-9999 bg-zinc-950/60 backdrop-blur-sm"
-      contentClassName="max-w-xl rounded-3xl"
+      className="z-9999 bg-overlay backdrop-blur-sm"
+      contentClassName="max-w-xl rounded-panel"
       bodyClassName="p-0"
     >
-      <header className="border-b border-zinc-100 px-5 py-4">
+      <header className="border-b border-soft px-5 py-4">
         <h2
           id="create-post-title"
-          className="text-center text-lg font-semibold text-zinc-950"
+          className="text-center text-lg font-semibold text-primary"
         >
           Tạo bài viết
         </h2>
@@ -48,12 +48,12 @@ export function CreatePostDialog({
 
       <form key={formKey} onSubmit={onSubmit} className="p-5">
         <div className="flex items-center gap-3">
-          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-linear-to-br from-blue-600 to-emerald-500 text-sm font-semibold text-white">
+          <div className="grid size-11 shrink-0 place-items-center rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
             SW
           </div>
 
           <div className="min-w-0">
-            <p className="truncate font-semibold text-zinc-950">Social Web</p>
+            <p className="truncate font-semibold text-primary">Social Web</p>
 
             <Combobox
               name="visibility"
@@ -76,22 +76,22 @@ export function CreatePostDialog({
           className="mt-4 min-h-36"
         />
 
-        <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50/40 p-3">
+        <div className="mt-4 rounded-card border border-subtle bg-surface-soft p-3">
           <MediaPicker name="media" label="Thêm ảnh/video" maxFiles={10} />
         </div>
 
         {errorMessage && (
-          <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+          <p className="mt-4 rounded-card bg-danger-soft px-4 py-3 text-sm font-medium text-danger">
             {errorMessage}
           </p>
         )}
 
-        <div className="mt-5 border-t border-zinc-100 pt-4">
+        <div className="mt-5 border-t border-soft pt-4">
           <Button
             type="submit"
             disabled={isSubmitting}
             fullWidth
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-pill"
           >
             <SendHorizontal className="size-4" />
             {isSubmitting ? "Đang đăng..." : "Đăng bài"}

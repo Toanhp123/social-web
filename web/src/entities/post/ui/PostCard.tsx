@@ -41,7 +41,7 @@ export function PostCard({
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-2xl border border-white bg-white shadow-sm shadow-zinc-200/70",
+        "overflow-hidden rounded-card border border-surface bg-surface shadow-card",
         className,
       )}
     >
@@ -53,7 +53,7 @@ export function PostCard({
         />
 
         {post.content && (
-          <p className="mt-4 text-sm leading-6 whitespace-pre-wrap text-zinc-800">
+          <p className="mt-4 text-sm leading-6 whitespace-pre-wrap text-secondary">
             {post.content}
           </p>
         )}

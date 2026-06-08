@@ -13,23 +13,23 @@ export function HomeRail({ currentUserEmail }: HomeRailProps) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-white bg-white p-4 shadow-sm shadow-zinc-200/70">
-        <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+      <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
+        <p className="text-xs font-semibold tracking-wide text-brand uppercase">
           {currentUserEmail ? "Xin chào" : "Social Web"}
         </p>
 
-        <h2 className="mt-2 text-lg font-semibold break-all text-zinc-950">
+        <h2 className="mt-2 text-lg font-semibold break-all text-primary">
           {currentUserEmail ?? "Bảng tin công khai"}
         </h2>
 
-        <p className="mt-2 text-sm leading-6 text-zinc-500">
+        <p className="mt-2 text-sm leading-6 text-muted">
           {currentUserEmail
             ? "Chọn một luồng cập nhật, viết bài mới hoặc chăm lại profile."
             : "Bạn có thể đọc feed trước, đăng nhập khi muốn tương tác."}
         </p>
       </section>
 
-      <section className="rounded-2xl border border-white bg-white p-3 shadow-sm shadow-zinc-200/70">
+      <section className="rounded-card border border-surface bg-surface p-3 shadow-card">
         <div className="space-y-1">
           {items.map((item) => {
             const Icon = item.icon;
@@ -37,17 +37,17 @@ export function HomeRail({ currentUserEmail }: HomeRailProps) {
             return (
               <div
                 key={item.label}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-3"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-3"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-zinc-100 text-zinc-700">
+                <span className="grid size-10 shrink-0 place-items-center rounded-control bg-surface-muted text-secondary">
                   <Icon className="size-5" />
                 </span>
 
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium text-zinc-950">
+                  <span className="block text-sm font-medium text-primary">
                     {item.label}
                   </span>
-                  <span className="block truncate text-xs text-zinc-500">
+                  <span className="block truncate text-xs text-muted">
                     {item.meta}
                   </span>
                 </span>

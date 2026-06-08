@@ -79,7 +79,7 @@ export function PostReactionControls({
     <>
       <PostSummary post={post} currentReaction={currentReaction} />
 
-      <div className="grid grid-cols-3 items-center border-t border-zinc-100 px-2 py-2">
+      <div className="grid grid-cols-3 items-center border-t border-soft px-2 py-2">
         <div
           className="relative"
           onMouseEnter={openReactionPickerWithDelay}

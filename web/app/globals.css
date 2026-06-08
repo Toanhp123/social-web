@@ -1,3 +1,273 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+:root {
+  --app-bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-elevated: rgb(255 255 255 / 0.9);
+  --surface-soft: #f8fafc;
+  --surface-muted: #f4f4f5;
+  --surface-inverse: #09090b;
+
+  --border-subtle: #e4e4e7;
+  --border-soft: rgb(228 228 231 / 0.72);
+  --border-surface: #ffffff;
+
+  --text-primary: #09090b;
+  --text-secondary: #3f3f46;
+  --text-muted: #71717a;
+  --text-placeholder: #a1a1aa;
+  --text-inverse: #ffffff;
+
+  --brand: #2563eb;
+  --brand-hover: #3b82f6;
+  --brand-soft: #eff6ff;
+  --brand-border: #bfdbfe;
+  --brand-ring: rgb(37 99 235 / 0.2);
+  --brand-gradient: linear-gradient(135deg, #2563eb, #10b981 58%, #f59e0b);
+  --brand-strong: #1d4ed8;
+
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --overlay: rgb(9 9 11 / 0.6);
+
+  --auth-bg: #09090b;
+  --auth-surface: #18181b;
+  --auth-border: #27272a;
+  --auth-divider: #27272a;
+  --auth-text: #ffffff;
+  --auth-muted: #a1a1aa;
+  --auth-label: #d4d4d8;
+  --auth-brand: #93c5fd;
+  --auth-brand-hover: #bfdbfe;
+
+  --radius-card: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-control: 0.75rem;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 1px 2px rgb(39 39 42 / 0.06), 0 10px 30px rgb(39 39 42 / 0.08);
+  --shadow-popover: 0 18px 50px rgb(39 39 42 / 0.16);
+}
+
+.dark,
+[data-theme="dark"] {
+  --app-bg: #0b0f17;
+  --surface: #111827;
+  --surface-elevated: rgb(17 24 39 / 0.9);
+  --surface-soft: #172033;
+  --surface-muted: #1f2937;
+  --surface-inverse: #f8fafc;
+
+  --border-subtle: #263244;
+  --border-soft: rgb(55 65 81 / 0.72);
+  --border-surface: #1f2937;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-placeholder: #6b7280;
+  --text-inverse: #0f172a;
+
+  --brand: #60a5fa;
+  --brand-hover: #93c5fd;
+  --brand-soft: rgb(37 99 235 / 0.18);
+  --brand-border: rgb(96 165 250 / 0.36);
+  --brand-ring: rgb(96 165 250 / 0.24);
+  --brand-gradient: linear-gradient(135deg, #3b82f6, #14b8a6 58%, #fbbf24);
+  --brand-strong: #bfdbfe;
+
+  --danger: #f87171;
+  --danger-soft: rgb(220 38 38 / 0.16);
+  --danger-border: rgb(248 113 113 / 0.32);
+  --overlay: rgb(0 0 0 / 0.68);
+
+  --auth-bg: #050816;
+  --auth-surface: #111827;
+  --auth-border: #263244;
+  --auth-divider: #263244;
+  --auth-text: #f8fafc;
+  --auth-muted: #9ca3af;
+  --auth-label: #d1d5db;
+  --auth-brand: #93c5fd;
+  --auth-brand-hover: #bfdbfe;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
+  --shadow-popover: 0 20px 60px rgb(0 0 0 / 0.42);
+}
+
+@layer utilities {
+  .bg-app {
+    background-color: var(--app-bg);
+  }
+
+  .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .bg-surface-elevated {
+    background-color: var(--surface-elevated);
+  }
+
+  .bg-surface-soft {
+    background-color: var(--surface-soft);
+  }
+
+  .bg-surface-muted {
+    background-color: var(--surface-muted);
+  }
+
+  .bg-surface-inverse {
+    background-color: var(--surface-inverse);
+  }
+
+  .bg-brand {
+    background-color: var(--brand);
+  }
+
+  .bg-brand-hover {
+    background-color: var(--brand-hover);
+  }
+
+  .bg-brand-soft {
+    background-color: var(--brand-soft);
+  }
+
+  .bg-brand-gradient {
+    background-image: var(--brand-gradient);
+  }
+
+  .bg-overlay {
+    background-color: var(--overlay);
+  }
+
+  .bg-auth {
+    background-color: var(--auth-bg);
+  }
+
+  .bg-auth-surface {
+    background-color: var(--auth-surface);
+  }
+
+  .bg-danger {
+    background-color: var(--danger);
+  }
+
+  .bg-danger-soft {
+    background-color: var(--danger-soft);
+  }
+
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+
+  .border-soft {
+    border-color: var(--border-soft);
+  }
+
+  .border-surface {
+    border-color: var(--border-surface);
+  }
+
+  .border-brand {
+    border-color: var(--brand);
+  }
+
+  .border-brand-soft {
+    border-color: var(--brand-border);
+  }
+
+  .border-danger-soft {
+    border-color: var(--danger-border);
+  }
+
+  .border-auth {
+    border-color: var(--auth-border);
+  }
+
+  .bg-auth-divider {
+    background-color: var(--auth-divider);
+  }
+
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .text-placeholder {
+    color: var(--text-placeholder);
+  }
+
+  .text-inverse {
+    color: var(--text-inverse);
+  }
+
+  .text-brand {
+    color: var(--brand);
+  }
+
+  .text-brand-strong {
+    color: var(--brand-strong);
+  }
+
+  .text-danger {
+    color: var(--danger);
+  }
+
+  .text-auth {
+    color: var(--auth-text);
+  }
+
+  .text-auth-muted {
+    color: var(--auth-muted);
+  }
+
+  .text-auth-label {
+    color: var(--auth-label);
+  }
+
+  .text-auth-brand {
+    color: var(--auth-brand);
+  }
+
+  .text-auth-brand-hover {
+    color: var(--auth-brand-hover);
+  }
+
+  .ring-brand {
+    --tw-ring-color: var(--brand-ring);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-popover {
+    box-shadow: var(--shadow-popover);
+  }
+
+  .rounded-card {
+    border-radius: var(--radius-card);
+  }
+
+  .rounded-panel {
+    border-radius: var(--radius-panel);
+  }
+
+  .rounded-control {
+    border-radius: var(--radius-control);
+  }
+
+  .rounded-pill {
+    border-radius: var(--radius-pill);
+  }
+}

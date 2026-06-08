@@ -30,14 +30,14 @@ export function PostCommentsList({
   return (
     <div className={cn("space-y-4", className)}>
       {commentsQuery.isLoading ? (
-        <div className="flex items-center gap-2 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 text-sm text-muted">
           <Loader2 className="size-4 animate-spin" />
           Đang tải bình luận
         </div>
       ) : commentsQuery.error instanceof Error ? (
-        <p className="text-sm text-red-600">{commentsQuery.error.message}</p>
+        <p className="text-sm text-danger">{commentsQuery.error.message}</p>
       ) : comments.length === 0 ? (
-        <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-3 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 rounded-control bg-surface-soft px-3 py-3 text-sm text-muted">
           <MessageCircle className="size-4" />
           Hãy là người đầu tiên bình luận.
         </div>

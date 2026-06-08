@@ -14,7 +14,7 @@ export const REACTION_OPTIONS: PostReactionOption[] = [
     emoji: "👍",
     label: "Thích",
     countKey: "likeCount",
-    className: "text-blue-600 bg-blue-50",
+    className: "text-brand bg-brand-soft",
   },
   {
     type: "LOVE",
@@ -49,7 +49,7 @@ export const REACTION_OPTIONS: PostReactionOption[] = [
     emoji: "😡",
     label: "Phẫn nộ",
     countKey: "angryCount",
-    className: "text-red-700 bg-red-50",
+    className: "text-red-700 bg-danger-soft",
   },
 ];
 

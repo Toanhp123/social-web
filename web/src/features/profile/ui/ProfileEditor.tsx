@@ -40,19 +40,19 @@ export function ProfileEditor({
       />
 
       <div className="grid gap-5 md:grid-cols-2">
-        <label className="block text-sm font-medium text-zinc-700">
+        <label className="block text-sm font-medium text-secondary">
           Bio
           <Textarea
             name="bio"
             defaultValue={profile?.bio ?? ""}
             maxLength={500}
             rows={5}
-            className="mt-2 min-h-32 resize-y rounded-xl px-4 py-3 leading-6 text-zinc-950 focus:border-blue-500"
+            className="mt-2 min-h-32 resize-y rounded-control px-4 py-3 leading-6 text-primary focus:border-brand"
           />
         </label>
 
         <div className="space-y-5">
-          <label className="block text-sm font-medium text-zinc-700">
+          <label className="block text-sm font-medium text-secondary">
             Website
             <Input
               name="website"
@@ -63,7 +63,7 @@ export function ProfileEditor({
             />
           </label>
 
-          <label className="block text-sm font-medium text-zinc-700">
+          <label className="block text-sm font-medium text-secondary">
             Dia diem
             <Input
               name="locationName"
@@ -75,7 +75,7 @@ export function ProfileEditor({
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
-        <label className="block text-sm font-medium text-zinc-700">
+        <label className="block text-sm font-medium text-secondary">
           Gioi tinh
           <Input
             name="gender"
@@ -84,7 +84,7 @@ export function ProfileEditor({
           />
         </label>
 
-        <label className="block text-sm font-medium text-zinc-700">
+        <label className="block text-sm font-medium text-secondary">
           Tinh trang
           <Input
             name="relationshipStatus"
@@ -93,7 +93,7 @@ export function ProfileEditor({
           />
         </label>
 
-        <label className="block text-sm font-medium text-zinc-700">
+        <label className="block text-sm font-medium text-secondary">
           Sinh nhat
           <Input
             name="birthday"
@@ -103,8 +103,8 @@ export function ProfileEditor({
         </label>
       </div>
 
-      <div className="grid gap-3 text-sm text-zinc-700 sm:grid-cols-2">
-        <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
+      <div className="grid gap-3 text-sm text-secondary sm:grid-cols-2">
+        <label className="flex items-center gap-3 rounded-control border border-subtle bg-surface-soft px-4 py-3">
           <input
             name="isBirthdayPublic"
             type="checkbox"
@@ -114,7 +114,7 @@ export function ProfileEditor({
           Cong khai sinh nhat
         </label>
 
-        <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
+        <label className="flex items-center gap-3 rounded-control border border-subtle bg-surface-soft px-4 py-3">
           <input
             name="isFriendListPublic"
             type="checkbox"
@@ -126,7 +126,7 @@ export function ProfileEditor({
       </div>
 
       {(saveError || deleteError) && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="rounded-control bg-danger-soft px-4 py-3 text-sm text-danger">
           {saveError || deleteError}
         </p>
       )}
@@ -150,7 +150,7 @@ export function ProfileEditor({
             type="button"
             onClick={() => deleteMutation.mutate()}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-3 font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-control border border-danger-soft px-4 py-3 font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
           >
             <Trash2 className="size-4" />
             {deleteMutation.isPending ? "Dang xoa..." : "Xoa profile"}

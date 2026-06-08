@@ -2,7 +2,7 @@ import { RegisterCard } from "@/widgets/auth-card";
 
 export function RegisterPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-8">
+    <main className="flex min-h-screen items-center justify-center bg-auth px-4 py-8">
       <RegisterCard />
     </main>
   );

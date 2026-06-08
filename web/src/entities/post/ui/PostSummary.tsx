@@ -27,8 +27,8 @@ export function PostSummary({
     .slice(0, 3);
 
   return (
-    <div className="border-t border-zinc-100 px-4 py-3">
-      <div className="flex min-h-5 items-center justify-between gap-3 text-xs text-zinc-500">
+    <div className="border-t border-soft px-4 py-3">
+      <div className="flex min-h-5 items-center justify-between gap-3 text-xs text-muted">
         <div className="flex min-w-0 items-center gap-1.5">
           {totalReactionCount > 0 ? (
             <>
@@ -41,7 +41,7 @@ export function PostSummary({
                     key={reaction.type}
                     title={reaction.label}
                     className={cn(
-                      "grid size-5 place-items-center rounded-full border border-white text-[11px] shadow-sm",
+                      "grid size-5 place-items-center rounded-pill border border-surface text-[11px] shadow-sm",
                       reaction.className,
                     )}
                   >
@@ -50,7 +50,7 @@ export function PostSummary({
                 ))}
               </div>
 
-              <span className="truncate font-medium text-zinc-600">
+              <span className="truncate font-medium text-secondary">
                 {totalReactionCount}
               </span>
             </>

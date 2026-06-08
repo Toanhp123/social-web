@@ -36,8 +36,8 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
       closeLabel="Đóng chia sẻ bài viết"
       contentClassName="!max-w-lg !overflow-hidden"
     >
-      <div className="border-b border-zinc-100 px-4 py-3 pr-14">
-        <h2 id="share-post-title" className="font-semibold text-zinc-950">
+      <div className="border-b border-soft px-4 py-3 pr-14">
+        <h2 id="share-post-title" className="font-semibold text-primary">
           Share post
         </h2>
       </div>
@@ -48,20 +48,20 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
           rows={4}
           maxLength={5000}
           placeholder="Say something about this..."
-          className="w-full resize-none rounded-2xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm text-zinc-900 outline-none focus:border-blue-300 focus:bg-white"
+          className="w-full resize-none rounded-card border border-subtle bg-surface-soft px-3 py-3 text-sm text-primary outline-none focus:border-brand focus:bg-surface"
         />
 
-        <div className="mt-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3">
-          <p className="text-sm font-semibold text-zinc-950">
+        <div className="mt-3 rounded-control border border-soft bg-surface-soft p-3">
+          <p className="text-sm font-semibold text-primary">
             {post.author.fullName}
           </p>
-          <p className="mt-1 line-clamp-3 text-sm leading-5 whitespace-pre-wrap text-zinc-600">
+          <p className="mt-1 line-clamp-3 text-sm leading-5 whitespace-pre-wrap text-secondary">
             {post.content || "Media post"}
           </p>
         </div>
 
         {sharePostMutation.error instanceof Error && (
-          <p className="mt-3 text-sm text-red-600">
+          <p className="mt-3 text-sm text-danger">
             {sharePostMutation.error.message}
           </p>
         )}
@@ -70,7 +70,7 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+            className="rounded-control px-4 py-2 text-sm font-medium text-secondary hover:bg-surface-muted"
           >
             Cancel
           </button>
@@ -78,7 +78,7 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
           <button
             type="submit"
             disabled={sharePostMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-control bg-brand px-4 py-2 text-sm font-medium text-inverse hover:bg-brand-hover disabled:opacity-60"
           >
             {sharePostMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />

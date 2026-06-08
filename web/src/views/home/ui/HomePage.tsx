@@ -58,10 +58,10 @@ function AuthenticatedActions() {
       <Link
         href={ROUTES.profile}
         className={[
-          "inline-flex h-10 items-center rounded-full",
-          "border border-zinc-200 bg-white px-3",
-          "text-sm font-medium text-zinc-600 shadow-sm",
-          "transition hover:text-blue-600",
+          "inline-flex h-10 items-center rounded-pill",
+          "border border-subtle bg-surface px-3",
+          "text-sm font-medium text-secondary shadow-sm",
+          "transition hover:text-brand",
         ].join(" ")}
       >
         Profile
@@ -78,10 +78,10 @@ function GuestActions() {
       <Link
         href={ROUTES.login}
         className={[
-          "inline-flex h-10 items-center gap-2 rounded-full",
-          "border border-zinc-200 bg-white px-3",
-          "text-sm font-medium text-zinc-600 shadow-sm",
-          "transition hover:text-blue-600",
+          "inline-flex h-10 items-center gap-2 rounded-pill",
+          "border border-subtle bg-surface px-3",
+          "text-sm font-medium text-secondary shadow-sm",
+          "transition hover:text-brand",
         ].join(" ")}
       >
         <LogIn className="size-4" />
@@ -91,9 +91,9 @@ function GuestActions() {
       <Link
         href={ROUTES.register}
         className={[
-          "hidden h-10 items-center gap-2 rounded-full",
-          "bg-blue-600 px-3 text-sm font-medium text-white shadow-sm",
-          "transition hover:bg-blue-500",
+          "hidden h-10 items-center gap-2 rounded-pill",
+          "bg-brand px-3 text-sm font-medium text-inverse shadow-sm",
+          "transition hover:bg-brand-hover",
           "sm:inline-flex",
         ].join(" ")}
       >
@@ -108,32 +108,32 @@ function ProfileShortcutCard({ email }: { email: string }) {
   return (
     <section
       className={[
-        "rounded-2xl border border-white bg-white p-4",
-        "shadow-sm shadow-zinc-200/70",
+        "rounded-card border border-surface bg-surface p-4",
+        "shadow-card",
       ].join(" ")}
     >
       <div className="flex items-center gap-3">
         <div
           className={[
-            "grid size-11 place-items-center rounded-full",
-            "bg-zinc-100 text-zinc-500",
+            "grid size-11 place-items-center rounded-pill",
+            "bg-surface-muted text-muted",
           ].join(" ")}
         >
           <UserRound className="size-5" />
         </div>
 
         <div className="min-w-0">
-          <h2 className="font-semibold text-zinc-950">Trang cá nhân</h2>
-          <p className="truncate text-sm text-zinc-500">{email}</p>
+          <h2 className="font-semibold text-primary">Trang cá nhân</h2>
+          <p className="truncate text-sm text-muted">{email}</p>
         </div>
       </div>
 
       <Link
         href={ROUTES.profile}
         className={[
-          "mt-4 inline-flex h-10 w-full items-center justify-center rounded-full",
-          "bg-blue-600 px-4 text-sm font-medium text-white",
-          "transition hover:bg-blue-500",
+          "mt-4 inline-flex h-10 w-full items-center justify-center rounded-pill",
+          "bg-brand px-4 text-sm font-medium text-inverse",
+          "transition hover:bg-brand-hover",
         ].join(" ")}
       >
         Xem profile

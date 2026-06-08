@@ -76,7 +76,7 @@ export function CommentReplies({
 
 function RepliesLoading() {
   return (
-    <div className="flex items-center gap-2 text-sm text-zinc-500">
+    <div className="flex items-center gap-2 text-sm text-muted">
       <Loader2 className="size-4 animate-spin" />
       Đang tải phản hồi
     </div>

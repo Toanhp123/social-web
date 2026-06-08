@@ -63,7 +63,7 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         className={[
-          "relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl",
+          "relative flex w-full max-w-2xl flex-col overflow-hidden rounded-card bg-surface shadow-popover",
           "max-h-[calc(100dvh-2.5rem)]",
           "sm:max-h-[min(86dvh,760px)]",
           contentClassName,
@@ -76,7 +76,7 @@ export function Dialog({
           type="button"
           aria-label={closeLabel}
           onClick={onClose}
-          className="absolute top-3 right-3 z-20 flex size-9 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+          className="absolute top-3 right-3 z-20 flex size-9 items-center justify-center rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted"
         >
           <X className="size-5" />
         </button>

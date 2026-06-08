@@ -151,9 +151,9 @@ function ReplyComposer({
   return (
     <div className="space-y-2">
       {showReplyTarget && (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           Đang trả lời{" "}
-          <span className="font-medium text-zinc-700">
+          <span className="font-medium text-secondary">
             {comment.author.fullName}
           </span>
         </p>

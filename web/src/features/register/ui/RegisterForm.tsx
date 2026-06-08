@@ -25,27 +25,27 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-zinc-300">Họ tên</label>
+        <label className="text-sm text-auth-label">Họ tên</label>
         <Input name="fullName" type="text" required minLength={5} />
       </div>
 
       <div>
-        <label className="text-sm text-zinc-300">Username</label>
+        <label className="text-sm text-auth-label">Username</label>
         <Input name="username" type="text" minLength={6} />
       </div>
 
       <div>
-        <label className="text-sm text-zinc-300">Email</label>
+        <label className="text-sm text-auth-label">Email</label>
         <Input name="email" type="email" required />
       </div>
 
       <div>
-        <label className="text-sm text-zinc-300">Mật khẩu</label>
+        <label className="text-sm text-auth-label">Mật khẩu</label>
         <Input name="password" type="password" required minLength={6} />
       </div>
 
       {errorMessage && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
           {errorMessage}
         </p>
       )}
@@ -54,14 +54,14 @@ export function RegisterForm() {
         {registerMutation.isPending ? "Đang đăng ký..." : "Đăng ký"}
       </Button>
 
-      <p className="text-center text-sm text-zinc-400">
+      <p className="text-center text-sm text-auth-muted">
         Đã có tài khoản?{" "}
         <Link
           href={getAuthRouteHref(
             ROUTES.login,
             searchParams?.get(CALLBACK_URL_SEARCH_PARAM),
           )}
-          className="font-medium text-blue-400 hover:text-blue-300"
+          className="font-medium text-auth-brand hover:text-auth-brand-hover"
         >
           Đăng nhập
         </Link>

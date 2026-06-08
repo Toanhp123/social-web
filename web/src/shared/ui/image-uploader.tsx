@@ -68,9 +68,9 @@ export function ImageUploader<TResult>({
     <div className="space-y-2">
       <label
         className={[
-          "inline-flex cursor-pointer items-center gap-2 rounded-xl",
-          "border border-zinc-200 bg-white px-4 py-2 shadow-sm",
-          "text-sm font-medium text-zinc-700 hover:border-blue-400 hover:text-blue-600",
+          "inline-flex cursor-pointer items-center gap-2 rounded-control",
+          "border border-subtle bg-surface px-4 py-2 shadow-sm",
+          "text-sm font-medium text-secondary hover:border-brand hover:text-brand",
           disabled || isUploading ? "pointer-events-none opacity-60" : "",
           className,
         ]
@@ -88,7 +88,7 @@ export function ImageUploader<TResult>({
         />
       </label>
 
-      {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
+      {errorMessage && <p className="text-xs text-danger">{errorMessage}</p>}
     </div>
   );
 }

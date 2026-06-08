@@ -30,7 +30,7 @@ export function ProfilePanel({
 
   return (
     <section className="w-full space-y-4">
-      <div className="w-full overflow-hidden rounded-2xl bg-white shadow-sm shadow-zinc-200/70">
+      <div className="w-full overflow-hidden rounded-card bg-surface shadow-card">
         <ProfileCover
           profile={profile}
           variant={variant}

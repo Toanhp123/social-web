@@ -22,11 +22,11 @@ export function PostAction({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition",
+        "flex w-full min-w-0 items-center justify-center gap-2 rounded-control px-3 py-2 text-sm font-medium transition",
         "disabled:cursor-not-allowed disabled:opacity-60",
         active
-          ? "text-blue-600 hover:bg-blue-50"
-          : "text-zinc-500 hover:bg-zinc-50 hover:text-blue-600",
+          ? "text-brand hover:bg-brand-soft"
+          : "text-muted hover:bg-surface-soft hover:text-brand",
       )}
     >
       {icon}

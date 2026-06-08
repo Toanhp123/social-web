@@ -20,7 +20,7 @@ export function ProfileCover({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden bg-zinc-100",
+        "relative w-full overflow-hidden bg-surface-muted",
         isSidebar ? "h-36" : "h-56 sm:h-72",
       )}
     >
@@ -34,7 +34,7 @@ export function ProfileCover({
           priority={!isSidebar}
         />
       ) : (
-        <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,#2563eb,#14b8a6_55%,#f59e0b)] text-sm font-semibold text-white">
+        <div className="flex size-full items-center justify-center bg-brand-gradient text-sm font-semibold text-inverse">
           Chưa có ảnh bìa
         </div>
       )}

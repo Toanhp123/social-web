@@ -155,7 +155,7 @@ export function Combobox({
       className={["relative", className].filter(Boolean).join(" ")}
     >
       {label && (
-        <p className="mb-2 text-sm font-medium text-zinc-700">{label}</p>
+        <p className="mb-2 text-sm font-medium text-secondary">{label}</p>
       )}
 
       <input type="hidden" name={name} value={selectedValue} />
@@ -175,8 +175,8 @@ export function Combobox({
           triggerMinWidthClass[size],
           isPill ? "w-fit max-w-full" : "w-full",
           isPill
-            ? "gap-1.5 rounded-full border border-transparent bg-zinc-100 text-xs font-semibold text-zinc-700 shadow-none hover:bg-zinc-200 focus:ring-2 focus:ring-blue-500/20"
-            : "gap-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-950 shadow-sm hover:border-blue-300 hover:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+            ? "gap-1.5 rounded-pill border border-transparent bg-surface-muted text-xs font-semibold text-secondary shadow-none hover:bg-surface-muted focus:ring-2 focus:ring-brand"
+            : "gap-3 rounded-control border border-subtle bg-surface-soft text-sm text-primary shadow-sm hover:border-brand hover:bg-surface focus:border-brand focus:ring-2 focus:ring-brand",
         ].join(" ")}
       >
         <span
@@ -188,7 +188,7 @@ export function Combobox({
           {selectedOption?.icon && !isPill && (
             <span
               className={[
-                "grid shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600",
+                "grid shrink-0 place-items-center rounded-lg bg-brand-soft text-brand",
                 iconSizeClass[size],
               ].join(" ")}
             >
@@ -214,7 +214,7 @@ export function Combobox({
             </span>
 
             {showDetails && selectedOption?.description && (
-              <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-zinc-500">
+              <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-muted">
                 {selectedOption.description}
               </span>
             )}
@@ -223,7 +223,7 @@ export function Combobox({
 
         <ChevronDown
           className={[
-            "shrink-0 text-zinc-500 transition-transform",
+            "shrink-0 text-muted transition-transform",
             isPill ? "size-3.5" : "size-4",
             isOpen ? "rotate-180" : "",
           ]
@@ -237,8 +237,8 @@ export function Combobox({
           id={listboxId}
           role="listbox"
           className={[
-            "absolute z-20 mt-2 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl",
-            "border border-zinc-200 bg-white p-1 shadow-2xl shadow-zinc-200",
+            "absolute z-20 mt-2 max-w-[calc(100vw-2rem)] overflow-hidden rounded-control",
+            "border border-subtle bg-surface p-1 shadow-popover",
             listboxWidthClass[size],
           ].join(" ")}
         >
@@ -254,9 +254,9 @@ export function Combobox({
                 onClick={() => selectValue(option.value)}
                 className={[
                   "flex w-full items-center gap-3 rounded-lg text-left",
-                  "text-sm transition hover:bg-zinc-50",
+                  "text-sm transition hover:bg-surface-soft",
                   optionSizeClass[size],
-                  isSelected ? "bg-blue-50 text-blue-700" : "text-zinc-700",
+                  isSelected ? "bg-brand-soft text-brand-strong" : "text-secondary",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -264,7 +264,7 @@ export function Combobox({
                 {option.icon && (
                   <span
                     className={[
-                      "grid shrink-0 place-items-center rounded-lg bg-zinc-100 text-blue-600",
+                      "grid shrink-0 place-items-center rounded-lg bg-surface-muted text-brand",
                       iconSizeClass[size],
                     ].join(" ")}
                   >
@@ -278,14 +278,14 @@ export function Combobox({
                   </span>
 
                   {showDetails && option.description && (
-                    <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-zinc-500">
+                    <span className="mt-0.5 block text-xs wrap-break-word whitespace-normal text-muted">
                       {option.description}
                     </span>
                   )}
                 </span>
 
                 {isSelected && (
-                  <Check className="size-4 shrink-0 text-blue-600" />
+                  <Check className="size-4 shrink-0 text-brand" />
                 )}
               </button>
             );

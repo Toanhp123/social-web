@@ -31,7 +31,7 @@ export function ProfileHeader({
   return (
     <div
       className={cn(
-        "border-b border-zinc-200",
+        "border-b border-subtle",
         isSidebar
           ? "pb-4"
           : "flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between",
@@ -45,7 +45,7 @@ export function ProfileHeader({
       >
         <div
           className={cn(
-            "relative grid shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white bg-zinc-100 shadow-md shadow-zinc-300/70",
+            "relative grid shrink-0 place-items-center overflow-hidden rounded-pill border-4 border-surface bg-surface-muted shadow-card",
             isSidebar ? "size-24" : "size-32 sm:size-40",
           )}
         >
@@ -60,7 +60,7 @@ export function ProfileHeader({
             />
           ) : (
             <UserRound
-              className={cn("text-zinc-400", isSidebar ? "size-11" : "size-16")}
+              className={cn("text-placeholder", isSidebar ? "size-11" : "size-16")}
             />
           )}
         </div>
@@ -68,19 +68,19 @@ export function ProfileHeader({
         <div className={cn("min-w-0", !isSidebar && "pb-5")}>
           <h2
             className={cn(
-              "truncate font-bold tracking-tight text-zinc-950",
+              "truncate font-bold tracking-tight text-primary",
               isSidebar ? "text-xl" : "text-3xl",
             )}
           >
             {displayName}
           </h2>
 
-          <p className="mt-1 truncate text-sm font-medium text-zinc-500">
+          <p className="mt-1 truncate text-sm font-medium text-muted">
             {usernameLabel}
           </p>
 
           {!isSidebar && (
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted">
               {metaItems.length > 0
                 ? `${metaItems.length} thông tin đã thêm`
                 : "Chưa cập nhật thông tin cá nhân"}
@@ -101,7 +101,7 @@ export function ProfileHeader({
           <>
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200"
+              className="inline-flex items-center gap-2 rounded-control bg-surface-muted px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-muted"
             >
               <Pencil className="size-4" />
               Chỉnh sửa
@@ -110,7 +110,7 @@ export function ProfileHeader({
             <button
               type="button"
               aria-label="Mở thêm tuỳ chọn"
-              className="grid size-10 place-items-center rounded-xl bg-zinc-100 text-zinc-700 transition hover:bg-zinc-200"
+              className="grid size-10 place-items-center rounded-control bg-surface-muted text-secondary transition hover:bg-surface-muted"
             >
               <MoreHorizontal className="size-5" />
             </button>
