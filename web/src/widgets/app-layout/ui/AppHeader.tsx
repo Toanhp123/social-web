@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppSettingsButton } from "@/features/app-settings";
+import { useRealtime } from "@/features/realtime";
 import { ROUTES } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
@@ -23,6 +24,8 @@ type AppHeaderProps = {
 };
 
 export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
+  const { unreadNotificationCount, clearUnreadNotifications } = useRealtime();
+
   return (
     <header className="border-soft bg-surface-elevated/95 sticky top-0 z-30 overflow-x-clip border-b px-2 py-2 backdrop-blur sm:px-6 lg:px-8">
       <div className="mx-auto flex h-12 max-w-7xl min-w-0 items-center gap-2 sm:h-14 sm:gap-3">
@@ -42,6 +45,8 @@ export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
           <HeaderIconButton
             icon={Bell}
             label={t.notifications}
+            badgeCount={unreadNotificationCount}
+            onClick={clearUnreadNotifications}
             className="hidden sm:grid"
           />
 
@@ -112,24 +117,36 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
 type HeaderIconButtonProps = {
   icon: LucideIcon;
   label: string;
+  badgeCount?: number;
+  onClick?: () => void;
   className?: string;
 };
 
 function HeaderIconButton({
   icon: Icon,
   label,
+  badgeCount = 0,
+  onClick,
   className,
 }: HeaderIconButtonProps) {
+  const visibleBadgeCount = Math.min(badgeCount, 99);
+
   return (
     <button
       type="button"
+      onClick={onClick}
       className={cn(
-        "rounded-pill border-subtle bg-surface text-secondary hover:text-brand size-10 place-items-center border shadow-sm transition",
+        "rounded-pill border-subtle bg-surface text-secondary hover:text-brand relative size-10 place-items-center border shadow-sm transition",
         className,
       )}
       aria-label={label}
     >
       <Icon className="size-4" />
+      {badgeCount > 0 && (
+        <span className="bg-danger text-inverse absolute -top-1 -right-1 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] leading-none font-semibold">
+          {visibleBadgeCount}
+        </span>
+      )}
     </button>
   );
 }
