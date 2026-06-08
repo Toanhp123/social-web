@@ -1,11 +1,6 @@
 import { authApiFetch } from "@/entities/session/server";
-import type { Post, PostVisibility } from "@/entities/post";
-
-type SharePostInput = {
-  postId: string;
-  content?: string;
-  visibility?: PostVisibility;
-};
+import type { Post } from "@/entities/post";
+import type { SharePostInput } from "../model/share-post.schema";
 
 export async function sharePostApi({
   postId,
