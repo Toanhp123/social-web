@@ -24,6 +24,7 @@ import { QueueModule } from '@/infrastructure/queue/queue.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { PostsModule } from '@/modules/posts/posts.module.js';
 import { CommentsModule } from '@/modules/comments/comments.module.js';
+import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CommentsModule } from '@/modules/comments/comments.module.js';
     UserModule,
     AuthModule,
     CoreHttpModule,
+    RealtimeModule,
     QueueModule,
     RateLimitingModule,
   ],

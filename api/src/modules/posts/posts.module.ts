@@ -8,7 +8,9 @@ import {
 import { QueueModule } from '@/infrastructure/queue/queue.module.js';
 import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { RedisModule } from '@/infrastructure/redis/redis.module.js';
+import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
+import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
@@ -27,6 +29,8 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     MediaModule,
     DatabaseModule,
     RedisModule,
+    RealtimeModule,
+    NotificationsModule,
     QueueModule,
     BullModule.registerQueue({ name: POST_FEED_QUEUE_NAME }),
   ],
