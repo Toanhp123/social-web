@@ -6,6 +6,10 @@ import {
   createPostCommentApi,
   listPostCommentsApi,
 } from "../api/comment-post-api.server";
+import {
+  createPostCommentSchema,
+  listPostCommentsSchema,
+} from "./comment-post.schema";
 
 export type ListPostCommentsActionResult =
   | { ok: true; page: CommentPage }
@@ -21,10 +25,20 @@ export async function listPostCommentsAction(input: {
   cursor?: string | null;
   limit?: number;
 }): Promise<ListPostCommentsActionResult> {
+  const parsedInput = listPostCommentsSchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return {
+      ok: false,
+      error:
+        parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
+    };
+  }
+
   try {
     return {
       ok: true,
-      page: await listPostCommentsApi(input),
+      page: await listPostCommentsApi(parsedInput.data),
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -40,10 +54,20 @@ export async function createPostCommentAction(input: {
   parentId?: string;
   content: string;
 }): Promise<CreatePostCommentActionResult> {
+  const parsedInput = createPostCommentSchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return {
+      ok: false,
+      error:
+        parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
+    };
+  }
+
   try {
     return {
       ok: true,
-      comment: await createPostCommentApi(input),
+      comment: await createPostCommentApi(parsedInput.data),
     };
   } catch (error) {
     if (error instanceof ApiError) {

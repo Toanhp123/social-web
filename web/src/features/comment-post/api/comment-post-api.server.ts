@@ -1,18 +1,9 @@
 import { authApiFetch, optionalAuthApiFetch } from "@/entities/session/server";
 import type { Comment, CommentPage } from "@/entities/comment";
-
-type ListPostCommentsInput = {
-  postId: string;
-  parentId?: string | null;
-  cursor?: string | null;
-  limit?: number;
-};
-
-type CreatePostCommentInput = {
-  postId: string;
-  parentId?: string;
-  content: string;
-};
+import type {
+  CreatePostCommentInput,
+  ListPostCommentsInput,
+} from "../model/comment-post.schema";
 
 export async function listPostCommentsApi({
   postId,
