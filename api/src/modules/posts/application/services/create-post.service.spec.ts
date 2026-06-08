@@ -122,4 +122,28 @@ describe('CreatePostService', () => {
       authorId: 'user-1',
     });
   });
+
+  it('creates a text-only post without uploading media', async () => {
+    await expect(
+      service.execute({
+        authorId: 'user-1',
+        content: ' Text only ',
+        files: [],
+      }),
+    ).resolves.toBe(post);
+
+    expect(fileStorage.upload).not.toHaveBeenCalled();
+    expect(postRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        authorId: 'user-1',
+        content: 'Text only',
+        visibility: PostVisibility.PUBLIC,
+        media: [],
+      }),
+    );
+    expect(postFeedJobQueue.enqueuePostCreated).toHaveBeenCalledWith({
+      postId: 'post-1',
+      authorId: 'user-1',
+    });
+  });
 });
