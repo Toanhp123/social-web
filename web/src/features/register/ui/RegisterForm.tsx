@@ -27,22 +27,22 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-auth-label">{t.fullName}</label>
+        <label className="text-sm text-secondary">{t.fullName}</label>
         <Input name="fullName" type="text" required minLength={5} />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">{t.username}</label>
+        <label className="text-sm text-secondary">{t.username}</label>
         <Input name="username" type="text" minLength={6} />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">{t.email}</label>
+        <label className="text-sm text-secondary">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">{t.password}</label>
+        <label className="text-sm text-secondary">{t.password}</label>
         <Input name="password" type="password" required minLength={6} />
       </div>
 
@@ -56,14 +56,14 @@ export function RegisterForm() {
         {registerMutation.isPending ? t.registering : t.register}
       </Button>
 
-      <p className="text-center text-sm text-auth-muted">
+      <p className="text-center text-sm text-muted">
         {t.alreadyHaveAccount}{" "}
         <Link
           href={getAuthRouteHref(
             ROUTES.login,
             searchParams?.get(CALLBACK_URL_SEARCH_PARAM),
           )}
-          className="font-medium text-auth-brand hover:text-auth-brand-hover"
+          className="font-medium text-brand hover:text-brand-hover"
         >
           {t.login}
         </Link>

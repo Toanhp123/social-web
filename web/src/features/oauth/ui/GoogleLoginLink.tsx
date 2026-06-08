@@ -27,7 +27,7 @@ export function GoogleLoginLink({ callbackUrl }: GoogleLoginLinkProps) {
       href={href}
       className={cn(
         "flex w-full items-center justify-center gap-3 rounded-control",
-        "border border-auth bg-surface px-4 py-3 shadow-card",
+        "border border-subtle bg-surface px-4 py-3 shadow-card",
         "font-medium text-primary transition hover:bg-surface-muted",
       )}
     >

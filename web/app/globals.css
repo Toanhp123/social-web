@@ -36,24 +36,14 @@
   --danger-border: #fecaca;
   --overlay: rgb(9 9 11 / 0.6);
 
-  --auth-bg: #09090b;
-  --auth-surface: #18181b;
-  --auth-border: #27272a;
-  --auth-divider: #27272a;
-  --auth-text: #ffffff;
-  --auth-muted: #a1a1aa;
-  --auth-label: #d4d4d8;
-  --auth-brand: #93c5fd;
-  --auth-brand-hover: #bfdbfe;
+  --app-radius-card: 1rem;
+  --app-radius-panel: 1.25rem;
+  --app-radius-control: 0.75rem;
+  --app-radius-pill: 9999px;
 
-  --radius-card: 1rem;
-  --radius-panel: 1.25rem;
-  --radius-control: 0.75rem;
-  --radius-pill: 9999px;
-
-  --shadow-card:
+  --app-shadow-card:
     0 1px 2px rgb(39 39 42 / 0.06), 0 10px 30px rgb(39 39 42 / 0.08);
-  --shadow-popover: 0 18px 50px rgb(39 39 42 / 0.16);
+  --app-shadow-popover: 0 18px 50px rgb(39 39 42 / 0.16);
 
   --comment-connector: #d4d4d8;
 }
@@ -90,192 +80,58 @@
   --danger-border: rgb(248 113 113 / 0.32);
   --overlay: rgb(0 0 0 / 0.68);
 
-  --auth-bg: #050816;
-  --auth-surface: #111827;
-  --auth-border: #263244;
-  --auth-divider: #263244;
-  --auth-text: #f8fafc;
-  --auth-muted: #9ca3af;
-  --auth-label: #d1d5db;
-  --auth-brand: #93c5fd;
-  --auth-brand-hover: #bfdbfe;
-
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
-  --shadow-popover: 0 20px 60px rgb(0 0 0 / 0.42);
+  --app-shadow-card:
+    0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
+  --app-shadow-popover: 0 20px 60px rgb(0 0 0 / 0.42);
 
   --comment-connector: #374151;
 }
 
+@theme inline {
+  --color-app: var(--app-bg);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-subtle: var(--border-subtle);
+  --color-soft: var(--border-soft);
+  --color-surface-border: var(--border-surface);
+
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-placeholder: var(--text-placeholder);
+  --color-inverse: var(--text-inverse);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-border: var(--brand-border);
+  --color-brand-ring: var(--brand-ring);
+  --color-brand-strong: var(--brand-strong);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-overlay: var(--overlay);
+
+  --radius-card: var(--app-radius-card);
+  --radius-panel: var(--app-radius-panel);
+  --radius-control: var(--app-radius-control);
+  --radius-pill: var(--app-radius-pill);
+
+  --shadow-card: var(--app-shadow-card);
+  --shadow-popover: var(--app-shadow-popover);
+}
+
 @layer utilities {
-  .bg-app {
-    background-color: var(--app-bg);
-  }
-
-  .bg-surface {
-    background-color: var(--surface);
-  }
-
-  .bg-surface-elevated {
-    background-color: var(--surface-elevated);
-  }
-
-  .bg-surface-soft {
-    background-color: var(--surface-soft);
-  }
-
-  .bg-surface-muted {
-    background-color: var(--surface-muted);
-  }
-
-  .bg-surface-inverse {
-    background-color: var(--surface-inverse);
-  }
-
-  .bg-brand {
-    background-color: var(--brand);
-  }
-
-  .bg-brand-hover {
-    background-color: var(--brand-hover);
-  }
-
-  .bg-brand-soft {
-    background-color: var(--brand-soft);
-  }
-
   .bg-brand-gradient {
     background-image: var(--brand-gradient);
   }
 
-  .bg-overlay {
-    background-color: var(--overlay);
-  }
-
-  .bg-auth {
-    background-color: var(--auth-bg);
-  }
-
-  .bg-auth-surface {
-    background-color: var(--auth-surface);
-  }
-
-  .bg-danger {
-    background-color: var(--danger);
-  }
-
-  .bg-danger-soft {
-    background-color: var(--danger-soft);
-  }
-
-  .border-subtle {
-    border-color: var(--border-subtle);
-  }
-
-  .border-soft {
-    border-color: var(--border-soft);
-  }
-
   .border-surface {
     border-color: var(--border-surface);
-  }
-
-  .border-brand {
-    border-color: var(--brand);
-  }
-
-  .border-brand-soft {
-    border-color: var(--brand-border);
-  }
-
-  .border-danger-soft {
-    border-color: var(--danger-border);
-  }
-
-  .border-auth {
-    border-color: var(--auth-border);
-  }
-
-  .bg-auth-divider {
-    background-color: var(--auth-divider);
-  }
-
-  .text-primary {
-    color: var(--text-primary);
-  }
-
-  .text-secondary {
-    color: var(--text-secondary);
-  }
-
-  .text-muted {
-    color: var(--text-muted);
-  }
-
-  .text-placeholder {
-    color: var(--text-placeholder);
-  }
-
-  .text-inverse {
-    color: var(--text-inverse);
-  }
-
-  .text-brand {
-    color: var(--brand);
-  }
-
-  .text-brand-strong {
-    color: var(--brand-strong);
-  }
-
-  .text-danger {
-    color: var(--danger);
-  }
-
-  .text-auth {
-    color: var(--auth-text);
-  }
-
-  .text-auth-muted {
-    color: var(--auth-muted);
-  }
-
-  .text-auth-label {
-    color: var(--auth-label);
-  }
-
-  .text-auth-brand {
-    color: var(--auth-brand);
-  }
-
-  .text-auth-brand-hover {
-    color: var(--auth-brand-hover);
-  }
-
-  .ring-brand {
-    --tw-ring-color: var(--brand-ring);
-  }
-
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-popover {
-    box-shadow: var(--shadow-popover);
-  }
-
-  .rounded-card {
-    border-radius: var(--radius-card);
-  }
-
-  .rounded-panel {
-    border-radius: var(--radius-panel);
-  }
-
-  .rounded-control {
-    border-radius: var(--radius-control);
-  }
-
-  .rounded-pill {
-    border-radius: var(--radius-pill);
   }
 }

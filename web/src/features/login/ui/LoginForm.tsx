@@ -29,23 +29,23 @@ export function LoginForm() {
         callbackUrl={searchParams?.get(CALLBACK_URL_SEARCH_PARAM)}
       />
 
-      <div className="flex items-center gap-3 text-xs uppercase text-auth-muted">
-        <span className="h-px flex-1 bg-auth-divider" />
+      <div className="flex items-center gap-3 text-xs uppercase text-muted">
+        <span className="h-px flex-1 bg-surface-muted" />
         <span>{t.email}</span>
-        <span className="h-px flex-1 bg-auth-divider" />
+        <span className="h-px flex-1 bg-surface-muted" />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">{t.email}</label>
+        <label className="text-sm text-secondary">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">{t.password}</label>
+        <label className="text-sm text-secondary">{t.password}</label>
         <Input name="password" type="password" required />
         <Link
           href={ROUTES.forgotPassword}
-          className="mt-2 block text-right text-sm text-auth-brand hover:text-auth-brand-hover"
+          className="mt-2 block text-right text-sm text-brand hover:text-brand-hover"
         >
           {t.forgotPassword}
         </Link>
@@ -61,14 +61,14 @@ export function LoginForm() {
         {loginMutation.isPending ? t.loggingIn : t.login}
       </Button>
 
-      <p className="text-center text-sm text-auth-muted">
+      <p className="text-center text-sm text-muted">
         {t.noAccount}{" "}
         <Link
           href={getAuthRouteHref(
             ROUTES.register,
             searchParams?.get(CALLBACK_URL_SEARCH_PARAM),
           )}
-          className="font-medium text-auth-brand hover:text-auth-brand-hover"
+          className="font-medium text-brand hover:text-brand-hover"
         >
           {t.register}
         </Link>

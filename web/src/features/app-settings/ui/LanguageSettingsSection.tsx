@@ -34,7 +34,7 @@ export function LanguageSettingsSection({
               className={cn(
                 "rounded-control flex min-h-14 items-center justify-center gap-2 border px-3 text-sm font-medium transition",
                 isSelected
-                  ? "border-brand-soft bg-brand-soft text-brand-strong"
+                  ? "border-brand-border bg-brand-soft text-brand-strong"
                   : "border-subtle bg-surface-soft text-secondary hover:border-brand hover:bg-surface",
               )}
               onClick={() => onLanguageChange(option.value)}

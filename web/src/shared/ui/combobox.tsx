@@ -175,8 +175,8 @@ export function Combobox({
           triggerMinWidthClass[size],
           isPill ? "w-fit max-w-full" : "w-full",
           isPill
-            ? "rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted focus:ring-brand gap-1.5 border border-transparent text-xs font-semibold shadow-none focus:ring-2"
-            : "rounded-control border-subtle bg-surface-soft text-primary hover:border-brand hover:bg-surface focus:border-brand focus:ring-brand gap-3 border text-sm shadow-sm focus:ring-2",
+            ? "rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted focus:ring-brand-ring gap-1.5 border border-transparent text-xs font-semibold shadow-none focus:ring-2"
+            : "rounded-control border-subtle bg-surface-soft text-primary hover:border-brand hover:bg-surface focus:border-brand focus:ring-brand-ring gap-3 border text-sm shadow-sm focus:ring-2",
         )}
       >
         <span
