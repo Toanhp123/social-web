@@ -24,7 +24,7 @@ export function FeedHeader({ isRefetching, onRefresh }: FeedHeaderProps) {
         type="button"
         onClick={onRefresh}
         disabled={isRefetching}
-        className="inline-flex items-center gap-2 rounded-pill border border-subtle bg-surface px-3 py-2 text-sm font-medium text-secondary shadow-sm hover:border-brand-soft hover:text-brand disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-pill border border-subtle bg-surface px-3 py-2 text-sm font-medium text-secondary shadow-sm hover:border-brand-border hover:text-brand disabled:opacity-60"
       >
         <RefreshCw
           className={["size-4", isRefetching ? "animate-spin" : ""]

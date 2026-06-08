@@ -34,7 +34,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       <input type="hidden" name="token" value={token} />
 
       <div>
-        <label className="text-sm text-auth-label">{t.newPassword}</label>
+        <label className="text-sm text-secondary">{t.newPassword}</label>
         <Input name="password" type="password" required minLength={6} />
       </div>
 

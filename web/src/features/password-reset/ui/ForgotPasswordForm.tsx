@@ -22,11 +22,11 @@ export function ForgotPasswordForm() {
   if (mutation.isSuccess) {
     return (
       <div className="space-y-5">
-        <p className="rounded-control bg-brand-soft px-3 py-2 text-sm text-auth-brand">
+        <p className="rounded-control bg-brand-soft px-3 py-2 text-sm text-brand">
           {t.resetEmailSent}
         </p>
         <Link
-          className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
+          className="block text-center text-sm text-brand hover:text-brand-hover"
           href={ROUTES.login}
         >
           {t.backToLogin}
@@ -38,7 +38,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-auth-label">{t.email}</label>
+        <label className="text-sm text-secondary">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
@@ -53,7 +53,7 @@ export function ForgotPasswordForm() {
       </Button>
 
       <Link
-        className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
+        className="block text-center text-sm text-brand hover:text-brand-hover"
         href={ROUTES.login}
       >
         {t.backToLogin}

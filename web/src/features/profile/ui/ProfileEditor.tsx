@@ -152,7 +152,7 @@ export function ProfileEditor({
             type="button"
             onClick={() => deleteMutation.mutate()}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-control border border-danger-soft px-4 py-3 font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-control border border-danger-border px-4 py-3 font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
           >
             <Trash2 className="size-4" />
             {deleteMutation.isPending ? t.deleting : t.deleteProfile}

@@ -14,11 +14,11 @@ export function AuthCardFrame({
   children,
 }: AuthCardFrameProps) {
   return (
-    <section className="w-full max-w-md rounded-panel bg-auth-surface p-8 shadow-popover">
-      {eyebrow && <p className="text-sm font-medium text-auth-brand">{eyebrow}</p>}
+    <section className="w-full max-w-md rounded-panel border border-surface bg-surface p-8 shadow-popover">
+      {eyebrow && <p className="text-sm font-medium text-brand">{eyebrow}</p>}
       <h1
         className={[
-          "text-2xl font-semibold text-auth",
+          "text-2xl font-semibold text-primary",
           eyebrow ? "mt-3" : "",
         ]
           .filter(Boolean)
@@ -27,7 +27,7 @@ export function AuthCardFrame({
         {title}
       </h1>
       {description && (
-        <p className="mt-2 text-sm text-auth-muted">{description}</p>
+        <p className="mt-2 text-sm text-muted">{description}</p>
       )}
 
       <div className="mt-8">{children}</div>
