@@ -63,8 +63,7 @@ export const enMessages = {
     resetPassword: "Reset password",
     updating: "Updating...",
     invalidResetLink: "The reset password link is invalid.",
-    resetEmailSent:
-      "If the email exists, a password reset link has been sent.",
+    resetEmailSent: "If the email exists, a password reset link has been sent.",
     google: "Continue with Google",
     emailVerification: "Email verification",
     emailVerified: "Email verified",
@@ -143,6 +142,8 @@ export const enMessages = {
     share: "Share",
     comments: "comments",
     shares: "shares",
+    showMore: "Show more",
+    showLess: "Show less",
   },
   comment: {
     loading: "Loading comments",
@@ -208,7 +209,8 @@ export const enMessages = {
     uploadImage: "Upload image",
     chooseMedia: "Choose photos/video",
     removeMedia: "Remove media",
-    mediaHelp: "Up to {maxFiles} files. Supports JPG, PNG, WEBP, MP4, WEBM, MOV.",
+    mediaHelp:
+      "Up to {maxFiles} files. Supports JPG, PNG, WEBP, MP4, WEBM, MOV.",
     uploading: "Uploading...",
     genericError: "Something went wrong.",
   },

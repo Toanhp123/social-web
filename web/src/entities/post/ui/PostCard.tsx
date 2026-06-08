@@ -6,7 +6,8 @@ import { cn } from "@/shared/lib/utils";
 import { PostHeader } from "./PostHeader";
 import { PostMediaGrid } from "./PostMediaGrid";
 import { PostReactionControls } from "./PostReactionControls";
-import { getReactionOption } from "./post-reaction-options";
+import { PostContent } from "./PostContent";
+import { getReactionOption } from "../lib/post-reaction-options";
 
 type PostCardProps = {
   post: Post;
@@ -41,7 +42,7 @@ export function PostCard({
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-card border border-surface bg-surface shadow-card",
+        "rounded-card border-surface bg-surface shadow-card overflow-hidden border",
         className,
       )}
     >
@@ -52,11 +53,7 @@ export function PostCard({
           metaLabel={metaLabel}
         />
 
-        {post.content && (
-          <p className="mt-4 text-sm leading-6 whitespace-pre-wrap text-secondary">
-            {post.content}
-          </p>
-        )}
+        {post.content && <PostContent content={post.content} />}
       </div>
 
       <PostMediaGrid media={post.media} onMediaClick={onMediaClick} />

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
 import type { Post, ReactionType } from "../model/types";
-import type { PostReactionOption } from "./post-reaction-options";
+import type { PostReactionOption } from "../lib/post-reaction-options";
 import { PostAction } from "./PostAction";
 import { PostSummary } from "./PostSummary";
 import { ReactionPicker } from "./ReactionPicker";
@@ -81,7 +81,7 @@ export function PostReactionControls({
     <>
       <PostSummary post={post} currentReaction={currentReaction} />
 
-      <div className="grid grid-cols-3 items-center border-t border-soft px-2 py-2">
+      <div className="border-soft grid grid-cols-3 items-center border-t px-2 py-2">
         <div
           className="relative"
           onMouseEnter={openReactionPickerWithDelay}
@@ -130,4 +130,3 @@ export function PostReactionControls({
     </>
   );
 }
-

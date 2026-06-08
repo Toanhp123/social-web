@@ -6,7 +6,7 @@ import type { Post } from "../model/types";
 import {
   REACTION_OPTIONS,
   type PostReactionOption,
-} from "./post-reaction-options";
+} from "../lib/post-reaction-options";
 
 type PostReactionSummaryProps = {
   post: Post;
@@ -31,8 +31,8 @@ export function PostSummary({
     .slice(0, 3);
 
   return (
-    <div className="border-t border-soft px-4 py-3">
-      <div className="flex min-h-5 items-center justify-between gap-3 text-xs text-muted">
+    <div className="border-soft border-t px-4 py-3">
+      <div className="text-muted flex min-h-5 items-center justify-between gap-3 text-xs">
         <div className="flex min-w-0 items-center gap-1.5">
           {totalReactionCount > 0 ? (
             <>
@@ -45,7 +45,7 @@ export function PostSummary({
                     key={reaction.type}
                     title={reaction.label}
                     className={cn(
-                      "grid size-5 place-items-center rounded-pill border border-surface text-[11px] shadow-sm",
+                      "rounded-pill border-surface grid size-5 place-items-center border text-[11px] shadow-sm",
                       reaction.className,
                     )}
                   >
@@ -54,7 +54,7 @@ export function PostSummary({
                 ))}
               </div>
 
-              <span className="truncate font-medium text-secondary">
+              <span className="text-secondary truncate font-medium">
                 {totalReactionCount}
               </span>
             </>
@@ -84,4 +84,3 @@ export function PostSummary({
     </div>
   );
 }
-
