@@ -29,7 +29,7 @@ const themeBootstrapScript = `
       var storedTheme = localStorage.getItem("social-web:theme") || "system";
       var cookieLanguageMatch = document.cookie.match(/(?:^|; )social-web-language=([^;]+)/);
       var cookieLanguage = cookieLanguageMatch ? decodeURIComponent(cookieLanguageMatch[1]) : "";
-      var storedLanguage = localStorage.getItem("social-web:language") || cookieLanguage || "vi";
+      var storedLanguage = cookieLanguage || localStorage.getItem("social-web:language") || "vi";
       var systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       var theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : systemTheme;
       var language = storedLanguage === "en" ? "en" : "vi";
@@ -64,7 +64,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <I18nProvider>
+        <I18nProvider initialLanguage={language}>
           <QueryProvider>{children}</QueryProvider>
         </I18nProvider>
       </body>
