@@ -5,6 +5,7 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/app/providers/query-provider";
 import { I18nProvider } from "@/shared/i18n";
 import { getServerLanguage } from "@/shared/i18n/server";
+import { getServerTheme } from "@/features/app-settings/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -27,6 +28,9 @@ const themeBootstrapScript = `
   (function () {
     try {
       var storedTheme = localStorage.getItem("social-web:theme") || "system";
+      var cookieThemeMatch = document.cookie.match(/(?:^|; )social-web-theme=([^;]+)/);
+      var cookieTheme = cookieThemeMatch ? decodeURIComponent(cookieThemeMatch[1]) : "";
+      storedTheme = cookieTheme || storedTheme;
       var storedFontSize = parseInt(localStorage.getItem("social-web:font-size") || "16", 10);
       var cookieLanguageMatch = document.cookie.match(/(?:^|; )social-web-language=([^;]+)/);
       var cookieLanguage = cookieLanguageMatch ? decodeURIComponent(cookieLanguageMatch[1]) : "";
@@ -37,8 +41,10 @@ const themeBootstrapScript = `
       var language = storedLanguage === "en" ? "en" : "vi";
       document.documentElement.lang = language;
       document.documentElement.dataset.theme = theme;
+      document.documentElement.classList.remove("light", "dark");
       document.documentElement.style.setProperty("--app-font-size", fontSize + "px");
       document.documentElement.classList.toggle("dark", theme === "dark");
+      localStorage.setItem("social-web:theme", storedTheme);
     } catch (_) {}
   })();
 `;
@@ -49,13 +55,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getServerLanguage();
+  const theme = await getServerTheme();
+  const initialThemeClass = theme === "dark" ? "dark" : "";
 
   return (
     <html
       lang={language}
+      data-theme={theme === "dark" || theme === "light" ? theme : undefined}
       suppressHydrationWarning
       className={cn(
         "h-full",
+        initialThemeClass,
         "antialiased",
         geistSans.variable,
         geistMono.variable,
