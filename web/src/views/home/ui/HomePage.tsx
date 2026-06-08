@@ -6,4 +6,3 @@ export async function HomePage() {
 
   return <HomePageContent currentUser={currentUser} />;
 }
-

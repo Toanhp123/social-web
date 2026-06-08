@@ -7,6 +7,7 @@ import { LogoutButton } from "@/features/logout";
 import type { CurrentSessionUser } from "@/entities/session";
 import { ROUTES } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 import { AppLayout } from "@/widgets/app-layout";
 import { PostFeed } from "@/widgets/post-feed";
 import { GuestComposerPrompt } from "./GuestComposerPrompt";
@@ -27,24 +28,22 @@ export function HomePageContent({ currentUser }: HomePageContentProps) {
       title={t.title}
       description={t.description}
       actions={
-        currentUser ? (
-          <AuthenticatedActions t={t} />
-        ) : (
-          <GuestActions t={t} />
-        )
+        currentUser ? <AuthenticatedActions t={t} /> : <GuestActions t={t} />
       }
+      showPageHeader={false}
     >
-      <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px] xl:items-start">
-        <aside className="hidden min-w-0 space-y-4 xl:sticky xl:top-24 xl:block">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[280px_minmax(0,1fr)_340px] xl:items-start">
+        <aside className="hidden min-w-0 xl:sticky xl:top-20 xl:block">
           <HomeRail currentUserEmail={currentUser?.email} t={t} />
         </aside>
 
         <main className="min-w-0 space-y-5">
           {currentUser ? <CreatePostComposer /> : <GuestComposerPrompt t={t} />}
+
           <PostFeed canInteract={Boolean(currentUser)} />
         </main>
 
-        <aside className="min-w-0 xl:sticky xl:top-24">
+        <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block">
           {currentUser ? (
             <ProfileShortcutCard email={currentUser.email} t={t} />
           ) : (
@@ -61,7 +60,10 @@ function AuthenticatedActions({ t }: { t: HomeMessages }) {
     <div className="flex items-center gap-2">
       <Link
         href={ROUTES.profile}
-        className="inline-flex h-10 items-center rounded-pill border border-subtle bg-surface px-3 text-sm font-medium text-secondary shadow-sm transition hover:text-brand"
+        className={cn(
+          "rounded-pill inline-flex h-10 items-center border px-3 text-sm font-medium shadow-sm transition",
+          "border-subtle bg-surface text-secondary hover:text-brand",
+        )}
       >
         {t.profile}
       </Link>
@@ -76,7 +78,10 @@ function GuestActions({ t }: { t: HomeMessages }) {
     <div className="flex items-center gap-2">
       <Link
         href={ROUTES.login}
-        className="inline-flex h-10 items-center gap-2 rounded-pill border border-subtle bg-surface px-3 text-sm font-medium text-secondary shadow-sm transition hover:text-brand"
+        className={cn(
+          "rounded-pill inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium shadow-sm transition",
+          "border-subtle bg-surface text-secondary hover:text-brand",
+        )}
       >
         <LogIn className="size-4" />
         {t.login}
@@ -84,7 +89,10 @@ function GuestActions({ t }: { t: HomeMessages }) {
 
       <Link
         href={ROUTES.register}
-        className="hidden h-10 items-center gap-2 rounded-pill bg-brand px-3 text-sm font-medium text-inverse shadow-sm transition hover:bg-brand-hover sm:inline-flex"
+        className={cn(
+          "rounded-pill hidden h-10 items-center gap-2 px-3 text-sm font-medium shadow-sm transition sm:inline-flex",
+          "bg-brand text-inverse hover:bg-brand-hover",
+        )}
       >
         <UserPlus className="size-4" />
         {t.register}
@@ -95,25 +103,27 @@ function GuestActions({ t }: { t: HomeMessages }) {
 
 function ProfileShortcutCard({ email, t }: { email: string; t: HomeMessages }) {
   return (
-    <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
+    <section className="rounded-card border-surface bg-surface shadow-card border p-4">
       <div className="flex items-center gap-3">
-        <div className="grid size-11 place-items-center rounded-pill bg-surface-muted text-muted">
+        <div className="rounded-pill bg-surface-muted text-muted grid size-11 place-items-center">
           <UserRound className="size-5" />
         </div>
 
         <div className="min-w-0">
-          <h2 className="font-semibold text-primary">{t.profileTitle}</h2>
-          <p className="truncate text-sm text-muted">{email}</p>
+          <h2 className="text-primary font-semibold">{t.profileTitle}</h2>
+          <p className="text-muted truncate text-sm">{email}</p>
         </div>
       </div>
 
       <Link
         href={ROUTES.profile}
-        className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-pill bg-brand px-4 text-sm font-medium text-inverse transition hover:bg-brand-hover"
+        className={cn(
+          "rounded-pill mt-4 inline-flex h-10 w-full items-center justify-center px-4 text-sm font-medium transition",
+          "bg-brand text-inverse hover:bg-brand-hover",
+        )}
       >
         {t.viewProfile}
       </Link>
     </section>
   );
 }
-

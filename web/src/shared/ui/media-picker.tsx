@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 
 export type PickedMediaFile = {
   id: string;
@@ -102,16 +103,13 @@ export function MediaPicker({
   return (
     <div className="space-y-3">
       <label
-        className={[
-          "inline-flex cursor-pointer items-center gap-2 rounded-control",
-          "border border-subtle bg-surface-soft px-4 py-2",
-          "text-sm font-medium text-secondary hover:border-brand hover:bg-surface",
-          disabled || items.length >= maxFiles
-            ? "pointer-events-none opacity-60"
-            : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        className={cn(
+          "rounded-control inline-flex cursor-pointer items-center gap-2",
+          "border-subtle bg-surface-soft border px-4 py-2",
+          "text-secondary hover:border-brand hover:bg-surface text-sm font-medium",
+          (disabled || items.length >= maxFiles) &&
+            "pointer-events-none opacity-60",
+        )}
       >
         <ImagePlus className="size-4" />
         {label}
@@ -132,7 +130,7 @@ export function MediaPicker({
           {items.map((item) => (
             <div
               key={item.id}
-              className="group relative aspect-square overflow-hidden rounded-control border border-subtle bg-surface-muted"
+              className="group rounded-control border-subtle bg-surface-muted relative aspect-square overflow-hidden border"
             >
               {item.type === "video" ? (
                 <video
@@ -152,7 +150,7 @@ export function MediaPicker({
               <button
                 type="button"
                 onClick={() => removeItem(item.id)}
-                className="absolute top-2 right-2 grid size-8 place-items-center rounded-pill bg-overlay text-inverse opacity-100 hover:bg-danger"
+                className="rounded-pill bg-overlay text-inverse hover:bg-danger absolute top-2 right-2 grid size-8 place-items-center opacity-100"
                 aria-label={t.removeMedia}
               >
                 <X className="size-4" />
@@ -162,7 +160,7 @@ export function MediaPicker({
         </div>
       )}
 
-      <p className="text-xs text-muted">
+      <p className="text-muted text-xs">
         {t.mediaHelp.replace("{maxFiles}", String(maxFiles))}
       </p>
     </div>

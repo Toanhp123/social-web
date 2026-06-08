@@ -22,6 +22,10 @@ export const enMessages = {
       vi: "Vietnamese",
       en: "English",
     },
+    fontSize: "Text size",
+    fontSizeMin: "Small",
+    fontSizeDefault: "Default",
+    fontSizeMax: "Large",
     notifications: "Notifications",
     notificationsDescription:
       "Stored locally for now, ready to connect to notification APIs.",

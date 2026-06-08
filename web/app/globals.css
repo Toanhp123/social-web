@@ -3,6 +3,9 @@
 @import "shadcn/tailwind.css";
 
 :root {
+  --app-font-size: 16px;
+  font-size: var(--app-font-size);
+
   --app-bg: #f4f7fb;
   --surface: #ffffff;
   --surface-elevated: rgb(255 255 255 / 0.9);
@@ -48,8 +51,11 @@
   --radius-control: 0.75rem;
   --radius-pill: 9999px;
 
-  --shadow-card: 0 1px 2px rgb(39 39 42 / 0.06), 0 10px 30px rgb(39 39 42 / 0.08);
+  --shadow-card:
+    0 1px 2px rgb(39 39 42 / 0.06), 0 10px 30px rgb(39 39 42 / 0.08);
   --shadow-popover: 0 18px 50px rgb(39 39 42 / 0.16);
+
+  --comment-connector: #d4d4d8;
 }
 
 .dark,
@@ -96,6 +102,8 @@
 
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
   --shadow-popover: 0 20px 60px rgb(0 0 0 / 0.42);
+
+  --comment-connector: #374151;
 }
 
 @layer utilities {
