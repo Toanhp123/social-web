@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 import type { Post, ReactionType } from "../model/types";
 import type { PostReactionOption } from "./post-reaction-options";
 import { PostAction } from "./PostAction";
@@ -27,6 +28,7 @@ export function PostReactionControls({
   onCommentClick,
   onShareClick,
 }: PostReactionControlsProps) {
+  const t = useTranslations().post;
   const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -106,7 +108,7 @@ export function PostReactionControls({
 
           <PostAction
             icon={<Heart className="size-4" />}
-            label={currentReaction ? currentReaction.label : "Like"}
+            label={currentReaction ? currentReaction.label : t.like}
             active={Boolean(currentReaction)}
             disabled={isReacting}
             onClick={handleLikeClick}
@@ -115,16 +117,17 @@ export function PostReactionControls({
 
         <PostAction
           icon={<MessageCircle className="size-4" />}
-          label="Bình luận"
+          label={t.comment}
           onClick={onCommentClick}
         />
 
         <PostAction
           icon={<Send className="size-4" />}
-          label="Chia sẻ"
+          label={t.share}
           onClick={onShareClick}
         />
       </div>
     </>
   );
 }
+

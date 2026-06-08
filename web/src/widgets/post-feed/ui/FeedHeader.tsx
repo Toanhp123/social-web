@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
 
 type FeedHeaderProps = {
   isRefetching: boolean;
@@ -6,14 +7,16 @@ type FeedHeaderProps = {
 };
 
 export function FeedHeader({ isRefetching, onRefresh }: FeedHeaderProps) {
+  const t = useTranslations().feed;
+
   return (
     <div className="flex items-center justify-between gap-3 rounded-card border border-surface bg-surface px-4 py-3 shadow-card">
       <div>
         <h2 id="feed-title" className="text-lg font-semibold text-primary">
-          Moi nhat
+          {t.latest}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Bai viet moi tu cong dong se xuat hien tai day.
+          {t.latestDescription}
         </p>
       </div>
 
@@ -28,7 +31,7 @@ export function FeedHeader({ isRefetching, onRefresh }: FeedHeaderProps) {
             .filter(Boolean)
             .join(" ")}
         />
-        Lam moi
+        {t.refresh}
       </button>
     </div>
   );

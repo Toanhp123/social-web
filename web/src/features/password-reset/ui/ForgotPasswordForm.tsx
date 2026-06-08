@@ -3,11 +3,13 @@
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { ROUTES } from "@/shared/config/routes";
+import { useTranslations } from "@/shared/i18n";
 import { Button, Input } from "@/shared/ui";
 import { useRequestPasswordResetMutation } from "../model/use-password-reset-mutation";
 
 export function ForgotPasswordForm() {
   const mutation = useRequestPasswordResetMutation();
+  const t = useTranslations().auth;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,13 +23,13 @@ export function ForgotPasswordForm() {
     return (
       <div className="space-y-5">
         <p className="rounded-control bg-brand-soft px-3 py-2 text-sm text-auth-brand">
-          Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi.
+          {t.resetEmailSent}
         </p>
         <Link
           className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
           href={ROUTES.login}
         >
-          Quay lại đăng nhập
+          {t.backToLogin}
         </Link>
       </div>
     );
@@ -36,7 +38,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="text-sm text-auth-label">Email</label>
+        <label className="text-sm text-auth-label">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
@@ -47,15 +49,16 @@ export function ForgotPasswordForm() {
       )}
 
       <Button type="submit" disabled={mutation.isPending}>
-        {mutation.isPending ? "Đang gửi..." : "Gửi liên kết đặt lại"}
+        {mutation.isPending ? t.sending : t.sendResetLink}
       </Button>
 
       <Link
         className="block text-center text-sm text-auth-brand hover:text-auth-brand-hover"
         href={ROUTES.login}
       >
-        Quay lại đăng nhập
+        {t.backToLogin}
       </Link>
     </form>
   );
 }
+

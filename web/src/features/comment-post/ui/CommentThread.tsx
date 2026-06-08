@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { CommentItem, type Comment } from "@/entities/comment";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { useFirstReplyConnectorPosition } from "../lib/use-first-reply-connector-position";
@@ -26,6 +27,7 @@ export function CommentThread({
   depth = 0,
   replyToAuthor = null,
 }: CommentThreadProps) {
+  const t = useTranslations().comment;
   const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
 
@@ -100,7 +102,7 @@ export function CommentThread({
             fullWidth={false}
             onClick={() => setShowReplies(true)}
           >
-            Xem {replyCountLabel} phản hồi
+            {`Xem ${replyCountLabel} ${t.replies}`}
           </Button>
         )}
 
@@ -148,11 +150,13 @@ function ReplyComposer({
   onRequireAuth,
   onCreated,
 }: ReplyComposerProps) {
+  const t = useTranslations().comment;
+
   return (
     <div className="space-y-2">
       {showReplyTarget && (
         <p className="text-xs text-muted">
-          Đang trả lời{" "}
+          {t.replyingTo}{" "}
           <span className="font-medium text-secondary">
             {comment.author.fullName}
           </span>
@@ -179,3 +183,4 @@ function formatCommentDate(value: string) {
     minute: "2-digit",
   }).format(new Date(value));
 }
+

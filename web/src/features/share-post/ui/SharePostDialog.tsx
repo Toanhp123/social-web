@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { Loader2, Send } from "lucide-react";
 import type { Post } from "@/entities/post";
+import { useTranslations } from "@/shared/i18n";
 import { Dialog } from "@/shared/ui";
 import { useSharePostMutation } from "../model/use-share-post-mutation";
 
@@ -13,6 +14,7 @@ type SharePostDialogProps = {
 };
 
 export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
+  const t = useTranslations().sharePost;
   const sharePostMutation = useSharePostMutation();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -33,12 +35,12 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
     <Dialog
       open={open}
       onClose={onClose}
-      closeLabel="Đóng chia sẻ bài viết"
+      closeLabel={t.title}
       contentClassName="!max-w-lg !overflow-hidden"
     >
       <div className="border-b border-soft px-4 py-3 pr-14">
         <h2 id="share-post-title" className="font-semibold text-primary">
-          Share post
+          {t.title}
         </h2>
       </div>
 
@@ -47,7 +49,7 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
           name="content"
           rows={4}
           maxLength={5000}
-          placeholder="Say something about this..."
+          placeholder={t.placeholder}
           className="w-full resize-none rounded-card border border-subtle bg-surface-soft px-3 py-3 text-sm text-primary outline-none focus:border-brand focus:bg-surface"
         />
 
@@ -72,7 +74,7 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
             onClick={onClose}
             className="rounded-control px-4 py-2 text-sm font-medium text-secondary hover:bg-surface-muted"
           >
-            Cancel
+            {t.cancel}
           </button>
 
           <button
@@ -85,10 +87,11 @@ export function SharePostDialog({ post, open, onClose }: SharePostDialogProps) {
             ) : (
               <Send className="size-4" />
             )}
-            Share
+            {sharePostMutation.isPending ? t.sharing : t.submit}
           </button>
         </div>
       </form>
     </Dialog>
   );
 }
+

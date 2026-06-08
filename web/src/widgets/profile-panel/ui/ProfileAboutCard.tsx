@@ -1,4 +1,7 @@
+"use client";
+
 import type { UserProfile } from "@/entities/user";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { ProfileMetaItem } from "../model/types";
 
@@ -11,9 +14,11 @@ export function ProfileAboutCard({
   profile,
   metaItems,
 }: ProfileAboutCardProps) {
+  const t = useTranslations().profile;
+
   return (
     <div className="rounded-card bg-surface p-4 shadow-card">
-      <h3 className="text-lg font-bold text-primary">Giới thiệu</h3>
+      <h3 className="text-lg font-bold text-primary">{t.about}</h3>
 
       <p
         className={cn(
@@ -21,7 +26,7 @@ export function ProfileAboutCard({
           profile?.bio ? "text-secondary" : "text-placeholder",
         )}
       >
-        {profile?.bio ?? "Chưa có giới thiệu cá nhân."}
+        {profile?.bio ?? t.noBio}
       </p>
 
       {metaItems.length > 0 && (
@@ -58,10 +63,9 @@ export function ProfileAboutCard({
       )}
 
       {metaItems.length === 0 && (
-        <p className="mt-3 text-sm text-placeholder">
-          Chưa thêm vị trí, website hoặc ngày sinh.
-        </p>
+        <p className="mt-3 text-sm text-placeholder">{t.emptyAbout}</p>
       )}
     </div>
   );
 }
+

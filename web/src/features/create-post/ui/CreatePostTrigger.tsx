@@ -1,9 +1,15 @@
+"use client";
+
+import { useTranslations } from "@/shared/i18n";
+
 type CreatePostTriggerProps = {
   isOpen: boolean;
   onOpen: () => void;
 };
 
 export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
+  const t = useTranslations().createPost;
+
   return (
     <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
       <div className="flex items-center gap-3">
@@ -18,9 +24,10 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
           aria-expanded={isOpen}
           className="min-h-11 flex-1 rounded-pill bg-surface-muted px-4 text-left text-sm text-muted transition hover:bg-surface-muted"
         >
-          Ban dang nghi gi?
+          {t.trigger}
         </button>
       </div>
     </section>
   );
 }
+

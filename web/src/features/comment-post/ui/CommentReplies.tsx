@@ -3,6 +3,7 @@
 import { type ReactNode, type RefObject } from "react";
 import { Loader2 } from "lucide-react";
 import type { Comment } from "@/entities/comment";
+import { useTranslations } from "@/shared/i18n";
 import { Button } from "@/shared/ui";
 import { CommentReplyConnector } from "./CommentReplyConnector";
 
@@ -35,6 +36,7 @@ export function CommentReplies({
   onCollapse,
   renderReply,
 }: CommentRepliesProps) {
+  const t = useTranslations().comment;
   const shouldShowCollapseButton = depth === 0 && !isLoading;
   const shouldShowMoreRepliesButton = !isLoading && hasNextPage;
   const shouldShowControls =
@@ -43,7 +45,7 @@ export function CommentReplies({
   return (
     <div className="space-y-3">
       {isLoading ? (
-        <RepliesLoading />
+        <RepliesLoading label={t.loadingReplies} />
       ) : (
         <div ref={repliesListRef} className="space-y-3">
           {replies.map((reply, index) => (
@@ -68,17 +70,20 @@ export function CommentReplies({
           isFetchingNextPage={isFetchingNextPage}
           onLoadMore={onLoadMore}
           onCollapse={onCollapse}
+          loadMoreLabel={t.loadMoreReplies}
+          loadingLabel={t.loadingReplies}
+          collapseLabel={t.collapseReplies}
         />
       )}
     </div>
   );
 }
 
-function RepliesLoading() {
+function RepliesLoading({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 text-sm text-muted">
       <Loader2 className="size-4 animate-spin" />
-      Đang tải phản hồi
+      {label}
     </div>
   );
 }
@@ -89,6 +94,9 @@ type ReplyControlsProps = {
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
   onCollapse: () => void;
+  loadMoreLabel: string;
+  loadingLabel: string;
+  collapseLabel: string;
 };
 
 function ReplyControls({
@@ -97,6 +105,9 @@ function ReplyControls({
   isFetchingNextPage,
   onLoadMore,
   onCollapse,
+  loadMoreLabel,
+  loadingLabel,
+  collapseLabel,
 }: ReplyControlsProps) {
   return (
     <div className="flex items-center gap-3">
@@ -110,7 +121,7 @@ function ReplyControls({
           className="inline-flex items-center gap-2"
         >
           {isFetchingNextPage && <Loader2 className="size-4 animate-spin" />}
-          {isFetchingNextPage ? "Đang tải..." : "Xem thêm phản hồi"}
+          {isFetchingNextPage ? loadingLabel : loadMoreLabel}
         </Button>
       )}
 
@@ -121,9 +132,10 @@ function ReplyControls({
           fullWidth={false}
           onClick={onCollapse}
         >
-          Ẩn phản hồi
+          {collapseLabel}
         </Button>
       )}
     </div>
   );
 }
+

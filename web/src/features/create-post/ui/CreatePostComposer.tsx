@@ -3,11 +3,13 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { PostCard, type Post } from "@/entities/post";
+import { useTranslations } from "@/shared/i18n";
 import { useCreatePostMutation } from "../model/use-create-post-mutation";
 import { CreatePostTrigger } from "./CreatePostTrigger";
 import { CreatePostDialog } from "./CreatePostDialog";
 
 export function CreatePostComposer() {
+  const t = useTranslations().createPost;
   const [isOpen, setIsOpen] = useState(false);
   const [createdPost, setCreatedPost] = useState<Post | null>(null);
   const [formKey, setFormKey] = useState(0);
@@ -50,7 +52,7 @@ export function CreatePostComposer() {
       <CreatePostTrigger isOpen={isOpen} onOpen={handleOpen} />
 
       {createdPost && (
-        <PostCard post={createdPost} className="mt-4" metaLabel="Vua dang" />
+        <PostCard post={createdPost} className="mt-4" metaLabel={t.justPosted} />
       )}
 
       <CreatePostDialog

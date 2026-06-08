@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { Save, Trash2 } from "lucide-react";
 import type { UserProfile } from "@/entities/user";
+import { useTranslations } from "@/shared/i18n";
 import { Button, Input, Textarea } from "@/shared/ui";
 import {
   useDeleteProfileMutation,
@@ -18,6 +19,7 @@ export function ProfileEditor({
   profile,
   onProfileChange,
 }: ProfileEditorProps) {
+  const t = useTranslations().profile;
   const hasPersistedProfile = Boolean(profile?.createdAt);
   const saveMutation = useSaveProfileMutation({ onProfileChange });
   const deleteMutation = useDeleteProfileMutation({ onProfileChange });
@@ -53,7 +55,7 @@ export function ProfileEditor({
 
         <div className="space-y-5">
           <label className="block text-sm font-medium text-secondary">
-            Website
+            {t.website}
             <Input
               name="website"
               type="url"
@@ -64,7 +66,7 @@ export function ProfileEditor({
           </label>
 
           <label className="block text-sm font-medium text-secondary">
-            Dia diem
+            {t.location}
             <Input
               name="locationName"
               defaultValue={profile?.locationName ?? ""}
@@ -76,7 +78,7 @@ export function ProfileEditor({
 
       <div className="grid gap-5 md:grid-cols-3">
         <label className="block text-sm font-medium text-secondary">
-          Gioi tinh
+          {t.gender}
           <Input
             name="gender"
             defaultValue={profile?.gender ?? ""}
@@ -85,7 +87,7 @@ export function ProfileEditor({
         </label>
 
         <label className="block text-sm font-medium text-secondary">
-          Tinh trang
+          {t.relationship}
           <Input
             name="relationshipStatus"
             defaultValue={profile?.relationshipStatus ?? ""}
@@ -94,7 +96,7 @@ export function ProfileEditor({
         </label>
 
         <label className="block text-sm font-medium text-secondary">
-          Sinh nhat
+          {t.birthday}
           <Input
             name="birthday"
             type="date"
@@ -111,7 +113,7 @@ export function ProfileEditor({
             defaultChecked={profile?.isBirthdayPublic ?? false}
             className="size-4 accent-blue-500"
           />
-          Cong khai sinh nhat
+          {t.publicBirthday}
         </label>
 
         <label className="flex items-center gap-3 rounded-control border border-subtle bg-surface-soft px-4 py-3">
@@ -121,7 +123,7 @@ export function ProfileEditor({
             defaultChecked={profile?.isFriendListPublic ?? true}
             className="size-4 accent-blue-500"
           />
-          Cong khai danh sach ban be
+          {t.publicFriends}
         </label>
       </div>
 
@@ -139,10 +141,10 @@ export function ProfileEditor({
         >
           <Save className="size-4" />
           {saveMutation.isPending
-            ? "Dang luu..."
+            ? t.saving
             : hasPersistedProfile
-              ? "Luu profile"
-              : "Tao profile"}
+              ? t.saveProfile
+              : t.createProfile}
         </Button>
 
         {hasPersistedProfile && (
@@ -153,7 +155,7 @@ export function ProfileEditor({
             className="inline-flex items-center justify-center gap-2 rounded-control border border-danger-soft px-4 py-3 font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
           >
             <Trash2 className="size-4" />
-            {deleteMutation.isPending ? "Dang xoa..." : "Xoa profile"}
+            {deleteMutation.isPending ? t.deleting : t.deleteProfile}
           </button>
         )}
       </div>
@@ -168,3 +170,4 @@ function toDateInputValue(value: string | null | undefined) {
 
   return value.slice(0, 10);
 }
+

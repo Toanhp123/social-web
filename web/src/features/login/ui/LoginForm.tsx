@@ -3,15 +3,17 @@
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Button, Input } from "@/shared/ui";
-import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
-import { getAuthRouteHref } from "@/shared/lib/auth-redirect";
 import { GoogleLoginLink } from "@/features/oauth";
+import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
+import { useTranslations } from "@/shared/i18n";
+import { getAuthRouteHref } from "@/shared/lib/auth-redirect";
+import { Button, Input } from "@/shared/ui";
 import { useLoginMutation } from "../model/use-login-mutation";
 
 export function LoginForm() {
   const loginMutation = useLoginMutation();
   const searchParams = useSearchParams();
+  const t = useTranslations().auth;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,23 +31,23 @@ export function LoginForm() {
 
       <div className="flex items-center gap-3 text-xs uppercase text-auth-muted">
         <span className="h-px flex-1 bg-auth-divider" />
-        <span>Email</span>
+        <span>{t.email}</span>
         <span className="h-px flex-1 bg-auth-divider" />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">Email</label>
+        <label className="text-sm text-auth-label">{t.email}</label>
         <Input name="email" type="email" required />
       </div>
 
       <div>
-        <label className="text-sm text-auth-label">Mật khẩu</label>
+        <label className="text-sm text-auth-label">{t.password}</label>
         <Input name="password" type="password" required />
         <Link
           href={ROUTES.forgotPassword}
           className="mt-2 block text-right text-sm text-auth-brand hover:text-auth-brand-hover"
         >
-          Quên mật khẩu?
+          {t.forgotPassword}
         </Link>
       </div>
 
@@ -56,11 +58,11 @@ export function LoginForm() {
       )}
 
       <Button type="submit" disabled={loginMutation.isPending}>
-        {loginMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+        {loginMutation.isPending ? t.loggingIn : t.login}
       </Button>
 
       <p className="text-center text-sm text-auth-muted">
-        Chưa có tài khoản?{" "}
+        {t.noAccount}{" "}
         <Link
           href={getAuthRouteHref(
             ROUTES.register,
@@ -68,9 +70,10 @@ export function LoginForm() {
           )}
           className="font-medium text-auth-brand hover:text-auth-brand-hover"
         >
-          Đăng ký
+          {t.register}
         </Link>
       </p>
     </form>
   );
 }
+
