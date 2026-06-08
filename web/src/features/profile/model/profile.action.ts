@@ -7,9 +7,9 @@ import {
   getUserProfileApi,
   updateMyProfileApi,
   uploadMyProfileImageApi,
-  type UserProfileInput,
 } from "../api/profile-api.server";
 import type { UserProfile } from "@/entities/user";
+import { saveProfileSchema, uploadProfileImageSchema } from "./profile.schema";
 
 export type ProfileActionResult =
   | { ok: true; profile: UserProfile }
@@ -35,16 +35,35 @@ export async function getUserProfileAction(
 export async function saveMyProfileAction(
   formData: FormData,
 ): Promise<ProfileActionResult> {
-  const input = toProfileInput(formData);
-  const mode = formData.get("mode") === "create" ? "create" : "update";
+  const parsedInput = saveProfileSchema.safeParse({
+    mode: formData.get("mode"),
+    profile: {
+      bio: formData.get("bio"),
+      website: formData.get("website"),
+      gender: formData.get("gender"),
+      relationshipStatus: formData.get("relationshipStatus"),
+      birthday: formData.get("birthday"),
+      isBirthdayPublic: formData.get("isBirthdayPublic"),
+      isFriendListPublic: formData.get("isFriendListPublic"),
+      locationName: formData.get("locationName"),
+    },
+  });
+
+  if (!parsedInput.success) {
+    return {
+      ok: false,
+      error:
+        parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
+    };
+  }
 
   try {
     return {
       ok: true,
       profile:
-        mode === "create"
-          ? await createMyProfileApi(input)
-          : await updateMyProfileApi(input),
+        parsedInput.data.mode === "create"
+          ? await createMyProfileApi(parsedInput.data.profile)
+          : await updateMyProfileApi(parsedInput.data.profile),
     };
   } catch (error) {
     return toProfileActionError(error);
@@ -68,45 +87,30 @@ export async function deleteMyProfileAction(): Promise<DeleteProfileActionResult
 export async function uploadMyProfileImageAction(
   formData: FormData,
 ): Promise<ProfileActionResult> {
-  const kind = formData.get("kind") === "cover" ? "cover" : "avatar";
-  const file = formData.get("file");
+  const parsedInput = uploadProfileImageSchema.safeParse({
+    kind: formData.get("kind"),
+    file: formData.get("file"),
+  });
 
-  if (!(file instanceof File) || file.size === 0) {
+  if (!parsedInput.success) {
     return {
       ok: false,
-      error: "Vui long chon anh de tai len.",
+      error:
+        parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
     };
   }
 
   try {
     return {
       ok: true,
-      profile: await uploadMyProfileImageApi(kind, file),
+      profile: await uploadMyProfileImageApi(
+        parsedInput.data.kind,
+        parsedInput.data.file,
+      ),
     };
   } catch (error) {
     return toProfileActionError(error);
   }
-}
-
-function toProfileInput(formData: FormData): UserProfileInput {
-  return {
-    bio: nullableString(formData.get("bio")),
-    website: nullableString(formData.get("website")),
-    gender: nullableString(formData.get("gender")),
-    relationshipStatus: nullableString(formData.get("relationshipStatus")),
-    birthday: nullableString(formData.get("birthday")),
-    isBirthdayPublic: formData.get("isBirthdayPublic") === "on",
-    isFriendListPublic: formData.get("isFriendListPublic") === "on",
-    locationName: nullableString(formData.get("locationName")),
-  };
-}
-
-function nullableString(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  return value.trim() || null;
 }
 
 function toProfileActionError(error: unknown): ProfileActionResult {
