@@ -13,6 +13,7 @@ import { io, type Socket } from "socket.io-client";
 import { postQueryKeys } from "@/entities/post";
 import type {
   RealtimeEventPayload,
+  RealtimeNotification,
   RealtimeSession,
 } from "../model/realtime-event";
 
@@ -20,6 +21,7 @@ type RealtimeContextValue = {
   isConnected: boolean;
   lastEvent: RealtimeEventPayload | null;
   socket: Socket | null;
+  notifications: RealtimeNotification[];
   unreadNotificationCount: number;
   clearUnreadNotifications: () => void;
 };
@@ -36,6 +38,9 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [lastEvent, setLastEvent] = useState<RealtimeEventPayload | null>(null);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState<RealtimeNotification[]>(
+    [],
+  );
 
   useEffect(() => {
     let isDisposed = false;
@@ -60,7 +65,12 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
       nextSocket.on("realtime:event", (event: RealtimeEventPayload) => {
         setLastEvent(event);
         if (event.type === "notification.created") {
-          setUnreadNotificationCount((count) => count + 1);
+          const notification = toRealtimeNotification(event.data);
+
+          if (notification) {
+            setNotifications((items) => [notification, ...items]);
+            setUnreadNotificationCount((count) => count + 1);
+          }
         }
         handleRealtimeEvent(event, queryClient);
       });
@@ -83,10 +93,11 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
       isConnected,
       lastEvent,
       socket,
+      notifications,
       unreadNotificationCount,
       clearUnreadNotifications: () => setUnreadNotificationCount(0),
     }),
-    [isConnected, lastEvent, socket, unreadNotificationCount],
+    [isConnected, lastEvent, socket, unreadNotificationCount, notifications],
   );
 
   return (
@@ -165,4 +176,28 @@ function getEventPostId(data: unknown): string | null {
   const postId = data.postId;
 
   return typeof postId === "string" && postId ? postId : null;
+}
+
+function toRealtimeNotification(data: unknown): RealtimeNotification | null {
+  if (!data || typeof data !== "object") return null;
+
+  const n = data as Record<string, unknown>;
+
+  if (typeof n.id !== "string") return null;
+  if (typeof n.userId !== "string") return null;
+  if (typeof n.actorId !== "string") return null;
+  if (typeof n.notificationType !== "string") return null;
+  if (typeof n.refId !== "string") return null;
+
+  return {
+    id: n.id,
+    userId: n.userId,
+    actorId: n.actorId,
+    type: n.notificationType as RealtimeNotification["type"],
+    refId: n.refId,
+    count: typeof n.count === "number" ? n.count : 1,
+    readAt: typeof n.readAt === "string" ? n.readAt : null,
+    createdAt:
+      typeof n.createdAt === "string" ? n.createdAt : new Date().toISOString(),
+  };
 }

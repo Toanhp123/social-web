@@ -83,3 +83,14 @@ export type RealtimeSession = {
   socketUrl: string;
   token: string | null;
 };
+
+export type RealtimeNotification = {
+  id: string;
+  userId: string;
+  actorId: string;
+  type: "POST_REACTION" | "POST_COMMENT" | "POST_SHARE";
+  refId: string;
+  count: number;
+  readAt: string | null;
+  createdAt: string;
+};

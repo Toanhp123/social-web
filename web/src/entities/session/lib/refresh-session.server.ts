@@ -33,7 +33,7 @@ export async function refreshAuthSession() {
       throw new ApiError(
         400,
         "DEVICE_ID_MISSING",
-        "Khong doc duoc thiet bi hien tai.",
+        "Không đọc được thiết bị hiện tại.",
       );
     }
 

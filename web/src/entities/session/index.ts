@@ -4,3 +4,10 @@ export {
   REFRESH_TOKEN_COOKIE_NAME,
 } from "./model/cookie-names";
 export type { CurrentSessionUser } from "./model/current-session-user";
+
+export {
+  CurrentSessionProvider,
+  useCurrentSession,
+} from "./model/session-context";
+
+export { getCurrentSessionUser } from "./lib/current-session-user.server";

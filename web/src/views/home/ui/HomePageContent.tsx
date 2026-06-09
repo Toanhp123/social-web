@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, UserPlus, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { CreatePostComposer } from "@/features/create-post";
-import { LogoutButton } from "@/features/logout";
-import type { CurrentSessionUser } from "@/entities/session";
+import { useCurrentSession } from "@/entities/session";
 import { ROUTES } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
@@ -14,22 +13,16 @@ import { GuestComposerPrompt } from "./GuestComposerPrompt";
 import { GuestProfilePrompt } from "./GuestProfilePrompt";
 import { HomeRail } from "./HomeRail";
 
-type HomePageContentProps = {
-  currentUser: CurrentSessionUser | null;
-};
-
 type HomeMessages = ReturnType<typeof useTranslations>["home"];
 
-export function HomePageContent({ currentUser }: HomePageContentProps) {
+export function HomePageContent() {
+  const { currentUser } = useCurrentSession();
   const t = useTranslations().home;
 
   return (
     <AppLayout
       title={t.title}
       description={t.description}
-      actions={
-        currentUser ? <AuthenticatedActions t={t} /> : <GuestActions t={t} />
-      }
       showPageHeader={false}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[280px_minmax(0,1fr)_340px] xl:items-start">
@@ -52,52 +45,6 @@ export function HomePageContent({ currentUser }: HomePageContentProps) {
         </aside>
       </div>
     </AppLayout>
-  );
-}
-
-function AuthenticatedActions({ t }: { t: HomeMessages }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Link
-        href={ROUTES.profile}
-        className={cn(
-          "rounded-pill inline-flex h-10 items-center border px-3 text-sm font-medium shadow-sm transition",
-          "border-subtle bg-surface text-secondary hover:text-brand",
-        )}
-      >
-        {t.profile}
-      </Link>
-
-      <LogoutButton />
-    </div>
-  );
-}
-
-function GuestActions({ t }: { t: HomeMessages }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Link
-        href={ROUTES.login}
-        className={cn(
-          "rounded-pill inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium shadow-sm transition",
-          "border-subtle bg-surface text-secondary hover:text-brand",
-        )}
-      >
-        <LogIn className="size-4" />
-        {t.login}
-      </Link>
-
-      <Link
-        href={ROUTES.register}
-        className={cn(
-          "rounded-pill hidden h-10 items-center gap-2 px-3 text-sm font-medium shadow-sm transition sm:inline-flex",
-          "bg-brand text-inverse hover:bg-brand-hover",
-        )}
-      >
-        <UserPlus className="size-4" />
-        {t.register}
-      </Link>
-    </div>
   );
 }
 

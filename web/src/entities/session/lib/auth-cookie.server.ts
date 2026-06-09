@@ -43,6 +43,7 @@ export async function clearAuthCookies() {
 
   cookieStore.delete(ACCESS_TOKEN_COOKIE_NAME);
   cookieStore.delete(REFRESH_TOKEN_COOKIE_NAME);
+  cookieStore.delete(DEVICE_ID_COOKIE_NAME);
 }
 
 export async function getAccessToken() {

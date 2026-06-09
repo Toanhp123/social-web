@@ -7,6 +7,10 @@ import { I18nProvider } from "@/shared/i18n";
 import { getServerLanguage } from "@/shared/i18n/server";
 import { getServerTheme } from "@/features/app-settings/server";
 import { RealtimeProvider } from "@/features/realtime";
+import {
+  CurrentSessionProvider,
+  getCurrentSessionUser,
+} from "@/entities/session";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -58,6 +62,7 @@ export default async function RootLayout({
   const language = await getServerLanguage();
   const theme = await getServerTheme();
   const initialThemeClass = theme === "dark" ? "dark" : "";
+  const currentUser = await getCurrentSessionUser();
 
   return (
     <html
@@ -79,9 +84,11 @@ export default async function RootLayout({
       </head>
       <body className="flex min-h-full flex-col">
         <I18nProvider initialLanguage={language}>
-          <QueryProvider>
-            <RealtimeProvider>{children}</RealtimeProvider>
-          </QueryProvider>
+          <CurrentSessionProvider currentUser={currentUser}>
+            <QueryProvider>
+              <RealtimeProvider>{children}</RealtimeProvider>
+            </QueryProvider>
+          </CurrentSessionProvider>
         </I18nProvider>
       </body>
     </html>
