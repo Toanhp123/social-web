@@ -2,20 +2,24 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  Bell,
   Home,
+  LogIn,
   MessageCircle,
   Search,
+  UserPlus,
   UserRound,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { AppSettingsButton } from "@/features/app-settings";
-import { useRealtime } from "@/features/realtime";
+import { NotificationPopover } from "@/features/notification";
 import { ROUTES } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
+import { LogoutButton } from "@/features/logout";
+import { useCurrentSession } from "@/entities/session";
 
 type AppHeaderProps = {
   actions?: ReactNode;
@@ -24,7 +28,7 @@ type AppHeaderProps = {
 };
 
 export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
-  const { unreadNotificationCount, clearUnreadNotifications } = useRealtime();
+  const { currentUser } = useCurrentSession();
 
   return (
     <header className="border-soft bg-surface-elevated/95 sticky top-0 z-30 overflow-x-clip border-b px-2 py-2 backdrop-blur sm:px-6 lg:px-8">
@@ -42,15 +46,18 @@ export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
             className="hidden sm:grid"
           />
 
-          <HeaderIconButton
-            icon={Bell}
+          <NotificationPopover
             label={t.notifications}
-            badgeCount={unreadNotificationCount}
-            onClick={clearUnreadNotifications}
-            className="hidden sm:grid"
+            className="hidden sm:block"
           />
 
           <AppSettingsButton />
+
+          {currentUser ? (
+            <AuthenticatedHeaderActions t={t} />
+          ) : (
+            <GuestHeaderActions t={t} />
+          )}
 
           {mobileActions && (
             <div className="flex min-w-0 shrink-0 items-center sm:hidden">
@@ -96,20 +103,38 @@ function AppSearch({ t }: { t: AppMessages["app"] }) {
 }
 
 function AppNavigation({ t }: { t: AppMessages["app"] }) {
+  const pathname = usePathname() ?? "";
+
+  const isHome = pathname === ROUTES.home;
+  const isFriends = pathname.startsWith(ROUTES.friends);
+
   return (
     <nav className="rounded-pill border-subtle bg-surface-muted ml-auto hidden items-center gap-1 border p-1 lg:flex">
       <Link
         href={ROUTES.home}
-        className="rounded-pill bg-surface text-primary inline-flex items-center gap-2 px-3 py-2 text-sm font-medium shadow-sm"
+        className={cn(
+          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
+          isHome
+            ? "bg-surface text-primary shadow-sm"
+            : "text-muted hover:text-primary",
+        )}
       >
-        <Home className="text-brand size-4" />
+        <Home className={cn("size-4", isHome && "text-brand")} />
         {t.feed}
       </Link>
 
-      <span className="rounded-pill text-muted inline-flex items-center gap-2 px-3 py-2 text-sm">
-        <Users className="size-4" />
+      <Link
+        href={ROUTES.friends}
+        className={cn(
+          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
+          isFriends
+            ? "bg-surface text-primary shadow-sm"
+            : "text-muted hover:text-primary",
+        )}
+      >
+        <Users className={cn("size-4", isFriends && "text-brand")} />
         {t.friends}
-      </span>
+      </Link>
     </nav>
   );
 }
@@ -117,24 +142,17 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
 type HeaderIconButtonProps = {
   icon: LucideIcon;
   label: string;
-  badgeCount?: number;
-  onClick?: () => void;
   className?: string;
 };
 
 function HeaderIconButton({
   icon: Icon,
   label,
-  badgeCount = 0,
-  onClick,
   className,
 }: HeaderIconButtonProps) {
-  const visibleBadgeCount = Math.min(badgeCount, 99);
-
   return (
     <button
       type="button"
-      onClick={onClick}
       className={cn(
         "rounded-pill border-subtle bg-surface text-secondary hover:text-brand relative size-10 place-items-center border shadow-sm transition",
         className,
@@ -142,11 +160,52 @@ function HeaderIconButton({
       aria-label={label}
     >
       <Icon className="size-4" />
-      {badgeCount > 0 && (
-        <span className="bg-danger text-inverse absolute -top-1 -right-1 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] leading-none font-semibold">
-          {visibleBadgeCount}
-        </span>
-      )}
     </button>
+  );
+}
+
+function AuthenticatedHeaderActions({ t }: { t: AppMessages["app"] }) {
+  return (
+    <div className="hidden items-center gap-2 sm:flex">
+      <Link
+        href={ROUTES.profile}
+        className={cn(
+          "rounded-pill inline-flex h-10 items-center border px-3 text-sm font-medium shadow-sm transition",
+          "border-subtle bg-surface text-secondary hover:text-brand",
+        )}
+      >
+        {t.profile}
+      </Link>
+
+      <LogoutButton />
+    </div>
+  );
+}
+
+function GuestHeaderActions({ t }: { t: AppMessages["app"] }) {
+  return (
+    <div className="hidden items-center gap-2 sm:flex">
+      <Link
+        href={ROUTES.login}
+        className={cn(
+          "rounded-pill inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium shadow-sm transition",
+          "border-subtle bg-surface text-secondary hover:text-brand",
+        )}
+      >
+        <LogIn className="size-4" />
+        {t.login}
+      </Link>
+
+      <Link
+        href={ROUTES.register}
+        className={cn(
+          "rounded-pill inline-flex h-10 items-center gap-2 px-3 text-sm font-medium shadow-sm transition",
+          "bg-brand text-inverse hover:bg-brand-hover",
+        )}
+      >
+        <UserPlus className="size-4" />
+        {t.register}
+      </Link>
+    </div>
   );
 }

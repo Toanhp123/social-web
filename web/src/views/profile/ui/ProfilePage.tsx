@@ -13,5 +13,5 @@ export async function ProfilePage() {
 
   const profile = await getCurrentProfileOrNull(currentUser.id);
 
-  return <ProfilePageContent currentUser={currentUser} profile={profile} />;
+  return <ProfilePageContent profile={profile} currentUser={currentUser} />;
 }

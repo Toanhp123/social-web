@@ -28,7 +28,7 @@ export function AppLayout({
 
   return (
     <div className="bg-app text-primary min-h-dvh">
-      <AppHeader actions={actions} mobileActions={mobileActions} t={t} />
+      <AppHeader t={t} actions={actions} mobileActions={mobileActions} />
 
       <main className="px-3 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-5">

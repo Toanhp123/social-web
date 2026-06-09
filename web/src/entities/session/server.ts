@@ -9,7 +9,6 @@ export {
   authApiFetch,
   optionalAuthApiFetch,
 } from "./lib/auth-api-fetch.server";
-export { getCurrentSessionUser } from "./lib/current-session-user.server";
 export { refreshAuthSession } from "./lib/refresh-session.server";
 export {
   clearAuthResponseCookies,

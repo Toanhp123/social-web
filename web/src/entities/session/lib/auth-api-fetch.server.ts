@@ -5,8 +5,13 @@ import { refreshAuthSession } from "./refresh-session.server";
 
 export async function authApiFetch<T>(endpoint: string, init?: RequestInit) {
   const accessToken = await getAccessToken();
+  const refreshToken = await getRefreshToken();
 
-  if (!accessToken && (await getRefreshToken())) {
+  if (!accessToken) {
+    if (!refreshToken) {
+      throw new ApiError(401, "AUTH_REQUIRED", "Bạn cần đăng nhập.");
+    }
+
     const refreshedSession = await refreshAuthSession();
 
     return apiFetch<T>(
