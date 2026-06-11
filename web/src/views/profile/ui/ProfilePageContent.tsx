@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { User, UserProfile } from "@/entities/user";
-import { LogoutButton } from "@/features/logout";
 import { useTranslations } from "@/shared/i18n";
 import { AppLayout } from "@/widgets/app-layout";
 import { ProfilePanel } from "@/widgets/profile-panel";
@@ -15,7 +14,6 @@ type ProfilePageContentProps = {
   canEdit?: boolean;
   headerActions?: ReactNode;
   profileStats?: ReactNode;
-  showLogout?: boolean;
 };
 
 export function ProfilePageContent({
@@ -25,16 +23,11 @@ export function ProfilePageContent({
   canEdit = true,
   headerActions,
   profileStats,
-  showLogout = true,
 }: ProfilePageContentProps) {
   const t = useTranslations().home;
 
   return (
-    <AppLayout
-      title={t.profileTitle}
-      description={t.profilePageDescription}
-      actions={showLogout ? <LogoutButton /> : undefined}
-    >
+    <AppLayout title={t.profileTitle} description={t.profilePageDescription}>
       <ProfilePanel
         currentUser={currentUser}
         initialProfile={profile}
