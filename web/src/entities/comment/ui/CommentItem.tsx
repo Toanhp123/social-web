@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
@@ -45,9 +47,12 @@ export function CommentItem({
 
       <div className="min-w-0 flex-1">
         <div className="rounded-card bg-surface-muted inline-block max-w-full px-3 py-2">
-          <p className="text-primary truncate text-sm font-semibold">
+          <Link
+            href={getProfileRoute(comment.author.id)}
+            className="text-primary hover:text-brand block truncate text-sm font-semibold transition"
+          >
             {comment.author.fullName}
-          </p>
+          </Link>
 
           <p
             className={cn(
@@ -58,9 +63,12 @@ export function CommentItem({
             )}
           >
             {replyToAuthor && (
-              <span className="text-brand mr-1 font-semibold">
+              <Link
+                href={getProfileRoute(replyToAuthor.id)}
+                className="text-brand hover:text-brand-hover mr-1 font-semibold transition"
+              >
                 @{replyToAuthor.fullName}
-              </span>
+              </Link>
             )}
 
             <span>{comment.content}</span>

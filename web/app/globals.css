@@ -31,10 +31,28 @@
   --brand-gradient: linear-gradient(135deg, #2563eb, #10b981 58%, #f59e0b);
   --brand-strong: #1d4ed8;
 
+  --success: #047857;
+  --success-soft: #ecfdf5;
+
   --danger: #dc2626;
   --danger-soft: #fef2f2;
   --danger-border: #fecaca;
   --overlay: rgb(9 9 11 / 0.6);
+  --cover-overlay: linear-gradient(
+    to top,
+    rgb(9 9 11 / 0.35),
+    rgb(9 9 11 / 0.05),
+    transparent
+  );
+
+  --reaction-love: #e11d48;
+  --reaction-love-soft: #fff1f2;
+  --reaction-haha: #d97706;
+  --reaction-haha-soft: #fffbeb;
+  --reaction-wow: #7c3aed;
+  --reaction-wow-soft: #f5f3ff;
+  --reaction-sad: #0369a1;
+  --reaction-sad-soft: #f0f9ff;
 
   --app-radius-card: 1rem;
   --app-radius-panel: 1.25rem;
@@ -43,6 +61,7 @@
 
   --app-shadow-card:
     0 1px 2px rgb(39 39 42 / 0.06), 0 10px 30px rgb(39 39 42 / 0.08);
+  --app-shadow-control: 0 1px 2px rgb(39 39 42 / 0.08);
   --app-shadow-popover: 0 18px 50px rgb(39 39 42 / 0.16);
 
   --comment-connector: #d4d4d8;
@@ -75,13 +94,31 @@
   --brand-gradient: linear-gradient(135deg, #3b82f6, #14b8a6 58%, #fbbf24);
   --brand-strong: #bfdbfe;
 
+  --success: #34d399;
+  --success-soft: rgb(5 150 105 / 0.16);
+
   --danger: #f87171;
   --danger-soft: rgb(220 38 38 / 0.16);
   --danger-border: rgb(248 113 113 / 0.32);
   --overlay: rgb(0 0 0 / 0.68);
+  --cover-overlay: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.42),
+    rgb(0 0 0 / 0.06),
+    transparent
+  );
 
-  --app-shadow-card:
-    0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
+  --reaction-love: #fb7185;
+  --reaction-love-soft: rgb(225 29 72 / 0.16);
+  --reaction-haha: #fbbf24;
+  --reaction-haha-soft: rgb(217 119 6 / 0.16);
+  --reaction-wow: #c4b5fd;
+  --reaction-wow-soft: rgb(124 58 237 / 0.16);
+  --reaction-sad: #7dd3fc;
+  --reaction-sad-soft: rgb(3 105 161 / 0.16);
+
+  --app-shadow-card: 0 1px 2px rgb(0 0 0 / 0.32), 0 16px 40px rgb(0 0 0 / 0.28);
+  --app-shadow-control: 0 1px 2px rgb(0 0 0 / 0.3);
   --app-shadow-popover: 0 20px 60px rgb(0 0 0 / 0.42);
 
   --comment-connector: #374151;
@@ -112,10 +149,21 @@
   --color-brand-ring: var(--brand-ring);
   --color-brand-strong: var(--brand-strong);
 
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-border: var(--danger-border);
   --color-overlay: var(--overlay);
+  --color-reaction-love: var(--reaction-love);
+  --color-reaction-love-soft: var(--reaction-love-soft);
+  --color-reaction-haha: var(--reaction-haha);
+  --color-reaction-haha-soft: var(--reaction-haha-soft);
+  --color-reaction-wow: var(--reaction-wow);
+  --color-reaction-wow-soft: var(--reaction-wow-soft);
+  --color-reaction-sad: var(--reaction-sad);
+  --color-reaction-sad-soft: var(--reaction-sad-soft);
 
   --radius-card: var(--app-radius-card);
   --radius-panel: var(--app-radius-panel);
@@ -123,15 +171,12 @@
   --radius-pill: var(--app-radius-pill);
 
   --shadow-card: var(--app-shadow-card);
+  --shadow-control: var(--app-shadow-control);
   --shadow-popover: var(--app-shadow-popover);
 }
 
 @layer utilities {
   .bg-brand-gradient {
     background-image: var(--brand-gradient);
-  }
-
-  .border-surface {
-    border-color: var(--border-surface);
   }
 }

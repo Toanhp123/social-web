@@ -17,3 +17,7 @@ export const AUTH_ROUTES = [
 ] as const;
 
 export const CALLBACK_URL_SEARCH_PARAM = "callbackUrl";
+
+export function getProfileRoute(userId: string): string {
+  return `${ROUTES.profile}/${userId}`;
+}

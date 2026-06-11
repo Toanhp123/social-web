@@ -36,8 +36,6 @@ export function CommentThread({
 
   const shouldIndentReplies = depth < MAX_COMMENT_VISUAL_DEPTH;
   const shouldShowComposerReplyTarget = depth >= MAX_COMMENT_VISUAL_DEPTH;
-  const inlineReplyToAuthor =
-    depth > MAX_COMMENT_VISUAL_DEPTH ? replyToAuthor : null;
 
   const nextDepth = depth + 1;
 
@@ -76,7 +74,7 @@ export function CommentThread({
         <CommentItem
           comment={comment}
           metaLabel={formatCommentDate(comment.createdAt)}
-          replyToAuthor={inlineReplyToAuthor}
+          replyToAuthor={replyToAuthor}
           onReplyClick={handleReplyClick}
         />
       </div>
@@ -155,9 +153,9 @@ function ReplyComposer({
   return (
     <div className="space-y-2">
       {showReplyTarget && (
-        <p className="text-xs text-muted">
+        <p className="text-muted text-xs">
           {t.replyingTo}{" "}
-          <span className="font-medium text-secondary">
+          <span className="text-secondary font-medium">
             {comment.author.fullName}
           </span>
         </p>
@@ -183,4 +181,3 @@ function formatCommentDate(value: string) {
     minute: "2-digit",
   }).format(new Date(value));
 }
-

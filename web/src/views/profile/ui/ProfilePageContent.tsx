@@ -1,7 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { CurrentSessionUser } from "@/entities/session/server";
-import type { UserProfile } from "@/entities/user";
+import type { User, UserProfile } from "@/entities/user";
 import { LogoutButton } from "@/features/logout";
 import { useTranslations } from "@/shared/i18n";
 import { AppLayout } from "@/widgets/app-layout";
@@ -10,11 +11,19 @@ import { ProfilePanel } from "@/widgets/profile-panel";
 type ProfilePageContentProps = {
   currentUser: CurrentSessionUser;
   profile: UserProfile | null;
+  profileOwner?: Pick<User, "email" | "fullName" | "username">;
+  canEdit?: boolean;
+  headerActions?: ReactNode;
+  showLogout?: boolean;
 };
 
 export function ProfilePageContent({
   currentUser,
   profile,
+  profileOwner,
+  canEdit = true,
+  headerActions,
+  showLogout = true,
 }: ProfilePageContentProps) {
   const t = useTranslations().home;
 
@@ -22,9 +31,15 @@ export function ProfilePageContent({
     <AppLayout
       title={t.profileTitle}
       description={t.profilePageDescription}
-      actions={<LogoutButton />}
+      actions={showLogout ? <LogoutButton /> : undefined}
     >
-      <ProfilePanel currentUser={currentUser} initialProfile={profile} />
+      <ProfilePanel
+        currentUser={currentUser}
+        initialProfile={profile}
+        profileOwner={profileOwner}
+        canEdit={canEdit}
+        headerActions={headerActions}
+      />
     </AppLayout>
   );
 }

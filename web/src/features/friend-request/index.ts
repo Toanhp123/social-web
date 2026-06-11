@@ -10,3 +10,4 @@ export { useCancelFriendRequestMutation } from "./model/use-cancel-friend-reques
 export { IncomingFriendRequestList } from "./ui/IncomingFriendRequestList";
 export { OutgoingFriendRequestList } from "./ui/OutgoingFriendRequestList";
 export { FriendCandidateList } from "./ui/FriendCandidateList";
+export { ProfileFriendRequestButton } from "./ui/ProfileFriendRequestButton";
