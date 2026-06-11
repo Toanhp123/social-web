@@ -228,13 +228,26 @@ export const enMessages = {
   },
   friends: {
     title: "Friends",
-    description: "Manage your friends and friend requests.",
+    description: "Manage your friends list and friend requests.",
+
+    listTitle: "Friends list",
+    listDescription: "People you are connected with.",
+
+    incomingTitle: "Incoming requests",
+    incomingDescription: "Review people who want to connect with you.",
+
+    outgoingTitle: "Sent requests",
+    outgoingDescription: "Requests you have sent and are waiting for approval.",
+
+    discoverTitle: "Find friends",
+    discoverDescription: "Search people and send a friend request.",
+
     loading: "Loading friends...",
     loadError: "Failed to load friends.",
     emptyTitle: "No friends yet",
     emptyDescription: "Your friends will appear here.",
     avatarAlt: "Avatar of",
-    remove: "Remove",
+    remove: "Remove friend",
     removing: "Removing...",
   },
   friendRequests: {
@@ -242,7 +255,15 @@ export const enMessages = {
     loadingOutgoing: "Loading outgoing requests...",
     loadError: "Failed to load friend requests.",
     emptyIncoming: "No incoming friend requests.",
+    emptyIncomingHint: "Friend requests you receive will appear here.",
     emptyOutgoing: "No outgoing friend requests.",
+    searchPlaceholder: "Search by name or username",
+    loadingCandidates: "Loading people...",
+    loadCandidatesError: "Failed to load people.",
+    emptyCandidates: "No people found",
+    emptyCandidatesHint: "Try another name or username.",
+    addFriend: "Add friend",
+    sending: "Sending...",
     accept: "Accept",
     accepting: "Accepting...",
     decline: "Decline",

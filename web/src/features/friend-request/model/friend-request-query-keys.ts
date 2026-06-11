@@ -4,4 +4,7 @@ export const friendRequestQueryKeys = {
   incoming: () => [...friendRequestQueryKeys.all, "incoming"] as const,
 
   outgoing: () => [...friendRequestQueryKeys.all, "outgoing"] as const,
+
+  candidates: (query: string) =>
+    [...friendRequestQueryKeys.all, "candidates", query] as const,
 };

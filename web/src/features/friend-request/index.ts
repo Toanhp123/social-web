@@ -1,5 +1,6 @@
 export { useIncomingFriendRequestsQuery } from "./model/use-incoming-friend-requests-query";
 export { useOutgoingFriendRequestsQuery } from "./model/use-outgoing-friend-requests-query";
+export { useFriendCandidatesQuery } from "./model/use-friend-candidates-query";
 
 export { useSendFriendRequestMutation } from "./model/use-send-friend-request-mutation";
 export { useAcceptFriendRequestMutation } from "./model/use-accept-friend-request-mutation";
@@ -8,3 +9,4 @@ export { useCancelFriendRequestMutation } from "./model/use-cancel-friend-reques
 
 export { IncomingFriendRequestList } from "./ui/IncomingFriendRequestList";
 export { OutgoingFriendRequestList } from "./ui/OutgoingFriendRequestList";
+export { FriendCandidateList } from "./ui/FriendCandidateList";
