@@ -8,7 +8,7 @@ export function ProfileTabs() {
   const tabs = [t.posts, t.aboutTab, t.friendsTab, t.photos];
 
   return (
-    <nav className="flex gap-1 overflow-x-auto py-1 text-sm font-semibold text-secondary">
+    <nav className="text-secondary flex gap-1 overflow-x-auto py-1 text-sm font-semibold">
       {tabs.map((item, index) => {
         const isActive = index === 0;
 
@@ -17,14 +17,14 @@ export function ProfileTabs() {
             key={item}
             type="button"
             className={cn(
-              "relative rounded-lg px-4 py-3 transition hover:bg-surface-muted",
+              "rounded-control hover:bg-surface-muted relative px-4 py-3 transition",
               isActive && "text-brand",
             )}
           >
             {item}
 
             {isActive && (
-              <span className="absolute inset-x-3 bottom-0 h-1 rounded-pill bg-brand" />
+              <span className="rounded-pill bg-brand absolute inset-x-3 bottom-0 h-1" />
             )}
           </button>
         );
@@ -32,4 +32,3 @@ export function ProfileTabs() {
     </nav>
   );
 }
-

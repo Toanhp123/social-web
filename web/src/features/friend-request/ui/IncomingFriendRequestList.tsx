@@ -7,10 +7,9 @@ import { useIncomingFriendRequestsQuery } from "../model/use-incoming-friend-req
 export function IncomingFriendRequestList() {
   const t = useTranslations().friendRequests;
   const incomingRequestsQuery = useIncomingFriendRequestsQuery();
-
   if (incomingRequestsQuery.isLoading) {
     return (
-      <div className="border-soft bg-surface text-muted rounded-card border p-4 text-sm shadow-sm">
+      <div className="border-soft bg-surface text-muted rounded-card border p-4 text-sm">
         {t.loadingIncoming}
       </div>
     );
@@ -18,7 +17,7 @@ export function IncomingFriendRequestList() {
 
   if (incomingRequestsQuery.isError) {
     return (
-      <div className="border-danger-border bg-danger-soft text-danger rounded-card border p-4 text-sm shadow-sm">
+      <div className="border-danger-border bg-danger-soft text-danger rounded-card border p-4 text-sm">
         {t.loadError}
       </div>
     );
@@ -28,8 +27,9 @@ export function IncomingFriendRequestList() {
 
   if (requests.length === 0) {
     return (
-      <div className="border-soft bg-surface rounded-card border p-6 text-center shadow-sm">
+      <div className="border-soft bg-surface rounded-panel shadow-card border p-6 text-center">
         <p className="text-primary font-semibold">{t.emptyIncoming}</p>
+
         <p className="text-muted mt-1 text-sm">{t.emptyIncomingHint}</p>
       </div>
     );

@@ -39,7 +39,7 @@ export function PostCard({
   return (
     <article
       className={cn(
-        "rounded-card border-surface bg-surface shadow-card overflow-hidden border",
+        "rounded-card border-surface-border bg-surface shadow-card overflow-hidden border",
         className,
       )}
     >

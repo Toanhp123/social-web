@@ -29,7 +29,7 @@ export function HomeRail({ currentUserEmail, t }: HomeRailProps) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-card border-surface bg-surface shadow-card border p-4">
+      <section className="rounded-card border-surface-border bg-surface shadow-card border p-4">
         <p className="text-brand text-xs font-semibold tracking-wide uppercase">
           {currentUserEmail ? t.hello : "Social Web"}
         </p>
@@ -43,7 +43,7 @@ export function HomeRail({ currentUserEmail, t }: HomeRailProps) {
         </p>
       </section>
 
-      <section className="rounded-card border-surface bg-surface shadow-card border p-3">
+      <section className="rounded-card border-surface-border bg-surface shadow-card border p-3">
         <div className="space-y-1">
           {items.map((item) => {
             const Icon = item.icon;

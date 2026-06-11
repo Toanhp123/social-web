@@ -11,9 +11,9 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
   const t = useTranslations().createPost;
 
   return (
-    <section className="rounded-card border border-surface bg-surface p-4 shadow-card">
+    <section className="rounded-card border-surface-border bg-surface shadow-card border p-4">
       <div className="flex items-center gap-3">
-        <div className="grid size-11 shrink-0 place-items-center rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
+        <div className="rounded-pill bg-brand-gradient text-inverse grid size-11 shrink-0 place-items-center text-sm font-semibold">
           SW
         </div>
 
@@ -22,7 +22,7 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
           onClick={onOpen}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
-          className="min-h-11 flex-1 rounded-pill bg-surface-muted px-4 text-left text-sm text-muted transition hover:bg-surface-muted"
+          className="rounded-pill bg-surface-muted text-muted hover:bg-surface-muted min-h-11 flex-1 px-4 text-left text-sm transition"
         >
           {t.trigger}
         </button>
@@ -30,4 +30,3 @@ export function CreatePostTrigger({ isOpen, onOpen }: CreatePostTriggerProps) {
     </section>
   );
 }
-

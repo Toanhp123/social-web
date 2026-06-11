@@ -115,7 +115,7 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
         className={cn(
           "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
           isHome
-            ? "bg-surface text-primary shadow-sm"
+            ? "bg-surface text-primary shadow-control"
             : "text-muted hover:text-primary",
         )}
       >
@@ -128,7 +128,7 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
         className={cn(
           "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
           isFriends
-            ? "bg-surface text-primary shadow-sm"
+            ? "bg-surface text-primary shadow-control"
             : "text-muted hover:text-primary",
         )}
       >
@@ -154,7 +154,7 @@ function HeaderIconButton({
     <button
       type="button"
       className={cn(
-        "rounded-pill border-subtle bg-surface text-secondary hover:text-brand relative size-10 place-items-center border shadow-sm transition",
+        "rounded-pill border-subtle bg-surface text-secondary hover:text-brand shadow-control relative size-10 place-items-center border transition",
         className,
       )}
       aria-label={label}
@@ -170,7 +170,7 @@ function AuthenticatedHeaderActions({ t }: { t: AppMessages["app"] }) {
       <Link
         href={ROUTES.profile}
         className={cn(
-          "rounded-pill inline-flex h-10 items-center border px-3 text-sm font-medium shadow-sm transition",
+          "rounded-pill shadow-control inline-flex h-10 items-center border px-3 text-sm font-medium transition",
           "border-subtle bg-surface text-secondary hover:text-brand",
         )}
       >
@@ -188,7 +188,7 @@ function GuestHeaderActions({ t }: { t: AppMessages["app"] }) {
       <Link
         href={ROUTES.login}
         className={cn(
-          "rounded-pill inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium shadow-sm transition",
+          "rounded-pill shadow-control inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium transition",
           "border-subtle bg-surface text-secondary hover:text-brand",
         )}
       >
@@ -199,7 +199,7 @@ function GuestHeaderActions({ t }: { t: AppMessages["app"] }) {
       <Link
         href={ROUTES.register}
         className={cn(
-          "rounded-pill inline-flex h-10 items-center gap-2 px-3 text-sm font-medium shadow-sm transition",
+          "rounded-pill shadow-control inline-flex h-10 items-center gap-2 px-3 text-sm font-medium transition",
           "bg-brand text-inverse hover:bg-brand-hover",
         )}
       >

@@ -10,21 +10,19 @@ export function FeedHeader({ isRefetching, onRefresh }: FeedHeaderProps) {
   const t = useTranslations().feed;
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-card border border-surface bg-surface px-4 py-3 shadow-card">
+    <div className="rounded-card border-surface-border bg-surface shadow-card flex items-center justify-between gap-3 border px-4 py-3">
       <div>
-        <h2 id="feed-title" className="text-lg font-semibold text-primary">
+        <h2 id="feed-title" className="text-primary text-lg font-semibold">
           {t.latest}
         </h2>
-        <p className="mt-1 text-sm text-muted">
-          {t.latestDescription}
-        </p>
+        <p className="text-muted mt-1 text-sm">{t.latestDescription}</p>
       </div>
 
       <button
         type="button"
         onClick={onRefresh}
         disabled={isRefetching}
-        className="inline-flex items-center gap-2 rounded-pill border border-subtle bg-surface px-3 py-2 text-sm font-medium text-secondary shadow-sm hover:border-brand-border hover:text-brand disabled:opacity-60"
+        className="rounded-pill border-subtle bg-surface text-secondary shadow-control hover:border-brand-border hover:text-brand inline-flex items-center gap-2 border px-3 py-2 text-sm font-medium disabled:opacity-60"
       >
         <RefreshCw
           className={["size-4", isRefetching ? "animate-spin" : ""]

@@ -1,24 +1,26 @@
 "use client";
 
+import { useTranslations } from "@/shared/i18n";
 import { OutgoingFriendRequestItem } from "./OutgoingFriendRequestItem";
 import { useOutgoingFriendRequestsQuery } from "../model/use-outgoing-friend-requests-query";
 
 export function OutgoingFriendRequestList() {
+  const t = useTranslations().friendRequests;
   const outgoingRequestsQuery = useOutgoingFriendRequestsQuery();
 
   if (outgoingRequestsQuery.isLoading) {
     return (
-      <p className="text-muted-foreground text-sm">
-        Loading outgoing friend requests...
-      </p>
+      <div className="border-soft bg-surface text-muted rounded-card border p-4 text-sm">
+        {t.loadingOutgoing}
+      </div>
     );
   }
 
   if (outgoingRequestsQuery.isError) {
     return (
-      <p className="text-destructive text-sm">
-        Failed to load outgoing friend requests.
-      </p>
+      <div className="border-danger-border bg-danger-soft text-danger rounded-card border p-4 text-sm">
+        {t.loadError}
+      </div>
     );
   }
 
@@ -26,11 +28,10 @@ export function OutgoingFriendRequestList() {
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border p-6 text-center">
-        <p className="font-medium">No outgoing requests</p>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Friend requests you send will appear here.
-        </p>
+      <div className="border-soft bg-surface rounded-panel shadow-card border p-6 text-center">
+        <p className="text-primary font-semibold">{t.emptyOutgoing}</p>
+
+        <p className="text-muted mt-1 text-sm">{t.emptyOutgoingHint}</p>
       </div>
     );
   }

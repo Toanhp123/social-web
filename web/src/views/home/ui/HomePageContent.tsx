@@ -50,7 +50,7 @@ export function HomePageContent() {
 
 function ProfileShortcutCard({ email, t }: { email: string; t: HomeMessages }) {
   return (
-    <section className="rounded-card border-surface bg-surface shadow-card border p-4">
+    <section className="rounded-card border-surface-border bg-surface shadow-card border p-4">
       <div className="flex items-center gap-3">
         <div className="rounded-pill bg-surface-muted text-muted grid size-11 place-items-center">
           <UserRound className="size-5" />

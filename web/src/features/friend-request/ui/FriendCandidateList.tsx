@@ -16,23 +16,28 @@ export function FriendCandidateList() {
 
   return (
     <div className="space-y-3">
-      <label className="border-subtle bg-surface-muted text-muted rounded-control flex items-center gap-2 border px-3 py-2 text-sm">
+      <label className="border-soft bg-surface-soft text-muted focus-within:border-brand-border focus-within:ring-brand-ring rounded-control flex items-center gap-2 border px-3 py-2 text-sm transition focus-within:ring-4">
         <Search className="size-4 shrink-0" />
+
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.searchPlaceholder}
-          className="placeholder:text-muted min-w-0 flex-1 bg-transparent text-primary outline-none"
+          className="placeholder:text-placeholder text-primary min-w-0 flex-1 bg-transparent outline-none"
         />
       </label>
 
       {candidatesQuery.isLoading ? (
-        <p className="text-muted text-sm">{t.loadingCandidates}</p>
+        <div className="border-soft bg-surface text-muted rounded-card border p-4 text-sm">
+          {t.loadingCandidates}
+        </div>
       ) : candidatesQuery.isError ? (
-        <p className="text-danger text-sm">{t.loadCandidatesError}</p>
+        <div className="border-danger-border bg-danger-soft text-danger rounded-card border p-4 text-sm">
+          {t.loadCandidatesError}
+        </div>
       ) : candidates.length === 0 ? (
-        <div className="border-subtle rounded-card border p-5 text-center">
-          <p className="text-primary font-medium">{t.emptyCandidates}</p>
+        <div className="border-soft bg-surface rounded-panel shadow-card border p-5 text-center">
+          <p className="text-primary font-semibold">{t.emptyCandidates}</p>
           <p className="text-muted mt-1 text-sm">{t.emptyCandidatesHint}</p>
         </div>
       ) : (
@@ -59,9 +64,9 @@ export function FriendCandidateList() {
                       })
                     }
                     disabled={sendFriendRequestMutation.isPending}
-                    className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                    className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control inline-flex shrink-0 items-center gap-2 px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                   >
-                    <UserPlus className="size-4" />
+                    <UserPlus className="size-4 shrink-0" />
                     {isSending ? t.sending : t.addFriend}
                   </button>
                 }
