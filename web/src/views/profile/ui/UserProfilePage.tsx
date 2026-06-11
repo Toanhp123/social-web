@@ -41,7 +41,6 @@ export async function UserProfilePage({ params }: UserProfilePageProps) {
       profileOwner={profileOwner}
       profileStats={<ProfileFollowStats userId={userId} />}
       canEdit={false}
-      showLogout={false}
       headerActions={
         <>
           <ProfileFollowButton userId={userId} />
