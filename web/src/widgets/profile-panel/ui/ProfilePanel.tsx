@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import type { CurrentSessionUser } from "@/entities/session/server";
-import type { UserProfile } from "@/entities/user";
+import type { User, UserProfile } from "@/entities/user";
 import { cn } from "@/shared/lib/utils";
 import { buildProfileMetaItems } from "../lib/build-profile-meta-items";
 import type { ProfilePanelVariant } from "../model/types";
@@ -15,13 +16,19 @@ import { ProfileTabs } from "./ProfileTabs";
 type ProfilePanelProps = {
   currentUser: CurrentSessionUser;
   initialProfile: UserProfile | null;
+  profileOwner?: Pick<User, "email" | "fullName" | "username">;
   variant?: ProfilePanelVariant;
+  canEdit?: boolean;
+  headerActions?: ReactNode;
 };
 
 export function ProfilePanel({
   currentUser,
   initialProfile,
+  profileOwner,
   variant = "default",
+  canEdit = true,
+  headerActions,
 }: ProfilePanelProps) {
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
 
@@ -35,15 +42,19 @@ export function ProfilePanel({
           profile={profile}
           variant={variant}
           onProfileChange={setProfile}
+          canEdit={canEdit}
         />
 
         <div className={isSidebar ? "px-4" : "px-6"}>
           <ProfileHeader
             profile={profile}
             currentUser={currentUser}
+            profileOwner={profileOwner}
             variant={variant}
             metaItems={metaItems}
             onProfileChange={setProfile}
+            canEdit={canEdit}
+            actions={headerActions}
           />
 
           {!isSidebar && <ProfileTabs />}
@@ -53,14 +64,18 @@ export function ProfilePanel({
       <div
         className={cn(
           "grid w-full gap-4",
-          isSidebar ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-[380px_1fr]",
+          isSidebar || !canEdit
+            ? "grid-cols-1"
+            : "grid-cols-1 lg:grid-cols-[380px_1fr]",
         )}
       >
         <div className="space-y-4">
           <ProfileAboutCard profile={profile} metaItems={metaItems} />
         </div>
 
-        <ProfileEditorCard profile={profile} onProfileChange={setProfile} />
+        {canEdit && (
+          <ProfileEditorCard profile={profile} onProfileChange={setProfile} />
+        )}
       </div>
     </section>
   );

@@ -7,9 +7,9 @@ export const enMessages = {
     messages: "Messages",
     notifications: "Notifications",
     footer: "Profile, feed, and community tools.",
-    profile: "Hồ sơ",
-    login: "Đăng nhập",
-    register: "Đăng ký",
+    profile: "Profile",
+    login: "Log in",
+    register: "Register",
   },
   settings: {
     settings: "Settings",
@@ -183,6 +183,7 @@ export const enMessages = {
     changeAvatar: "Change avatar",
     changeCover: "Change cover",
     avatarAlt: "Avatar of",
+    memberFallback: "Member",
     addedInfo: "added details",
     noProfileInfo: "No personal information updated yet",
     posts: "Posts",
@@ -254,22 +255,33 @@ export const enMessages = {
     loadingIncoming: "Loading incoming requests...",
     loadingOutgoing: "Loading outgoing requests...",
     loadError: "Failed to load friend requests.",
+
     emptyIncoming: "No incoming friend requests.",
     emptyIncomingHint: "Friend requests you receive will appear here.",
+
     emptyOutgoing: "No outgoing friend requests.",
+    emptyOutgoingHint: "Friend requests you send will appear here.",
+
     searchPlaceholder: "Search by name or username",
+
     loadingCandidates: "Loading people...",
     loadCandidatesError: "Failed to load people.",
     emptyCandidates: "No people found",
     emptyCandidatesHint: "Try another name or username.",
+
     addFriend: "Add friend",
     sending: "Sending...",
+    sent: "Request sent",
+
     accept: "Accept",
     accepting: "Accepting...",
+
     decline: "Decline",
     declining: "Declining...",
+
     cancel: "Cancel",
     canceling: "Canceling...",
+
     avatarAlt: "Avatar of",
   },
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Globe2,
   Lock,
@@ -7,6 +8,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Avatar } from "@/shared/ui/Avatar";
@@ -32,7 +34,7 @@ const VISIBILITY_CONFIGS = {
   FRIENDS_ONLY: {
     icon: Users,
     labelKey: "friends",
-    className: "bg-emerald-50 text-emerald-700",
+    className: "bg-success-soft text-success",
   },
   PRIVATE: {
     icon: Lock,
@@ -55,9 +57,12 @@ export function PostHeader({ post, metaLabel }: PostHeaderProps) {
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="text-primary truncate text-sm font-semibold">
+          <Link
+            href={getProfileRoute(post.author.id)}
+            className="text-primary hover:text-brand truncate text-sm font-semibold transition"
+          >
             {post.author.fullName}
-          </p>
+          </Link>
 
           <VisibilityBadge visibility={post.visibility} />
         </div>

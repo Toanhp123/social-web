@@ -181,6 +181,7 @@ export const viMessages = {
     changeAvatar: "Đổi ảnh đại diện",
     changeCover: "Đổi ảnh bìa",
     avatarAlt: "Ảnh đại diện của",
+    memberFallback: "Thành viên",
     addedInfo: "thông tin đã thêm",
     noProfileInfo: "Chưa cập nhật thông tin cá nhân",
     posts: "Bài viết",
@@ -251,22 +252,33 @@ export const viMessages = {
     loadingIncoming: "Đang tải lời mời kết bạn...",
     loadingOutgoing: "Đang tải lời mời đã gửi...",
     loadError: "Không tải được lời mời kết bạn.",
+
     emptyIncoming: "Không có lời mời kết bạn nào.",
     emptyIncomingHint: "Những lời mời kết bạn bạn nhận được sẽ hiển thị ở đây.",
+
     emptyOutgoing: "Bạn chưa gửi lời mời kết bạn nào.",
+    emptyOutgoingHint: "Những lời mời kết bạn bạn gửi sẽ hiển thị ở đây.",
+
     searchPlaceholder: "Tìm theo tên hoặc username",
+
     loadingCandidates: "Đang tải người dùng...",
     loadCandidatesError: "Không tải được danh sách người dùng.",
     emptyCandidates: "Không tìm thấy người dùng",
     emptyCandidatesHint: "Thử tên hoặc username khác.",
+
     addFriend: "Kết bạn",
     sending: "Đang gửi...",
+    sent: "Đã gửi lời mời",
+
     accept: "Chấp nhận",
     accepting: "Đang chấp nhận...",
+
     decline: "Từ chối",
     declining: "Đang từ chối...",
+
     cancel: "Hủy",
     canceling: "Đang hủy...",
+
     avatarAlt: "Ảnh đại diện của",
   },
 } as const;
