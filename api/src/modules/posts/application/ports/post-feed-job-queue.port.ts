@@ -1,8 +1,9 @@
-export type PostCreatedFeedJobInput = {
+export type FanOutPostFeedPageJobInput = {
   postId: string;
   authorId: string;
+  cursor?: string;
 };
 
 export abstract class PostFeedJobQueue {
-  abstract enqueuePostCreated(input: PostCreatedFeedJobInput): Promise<void>;
+  abstract enqueueFanOutPage(input: FanOutPostFeedPageJobInput): Promise<void>;
 }

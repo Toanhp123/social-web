@@ -2,6 +2,7 @@ import type { PostVisibility, ReactionType } from "@/entities/post";
 
 export type RealtimeEventPayload =
   | RealtimeConnectedEvent
+  | FeedUpdatedEvent
   | PostCreatedEvent
   | PostReactionUpdatedEvent
   | PostCommentCreatedEvent
@@ -12,6 +13,14 @@ export type RealtimeConnectedEvent = {
   type: "realtime.connected";
   data?: {
     authenticated?: boolean;
+  };
+  occurredAt: string;
+};
+
+export type FeedUpdatedEvent = {
+  type: "feed.updated";
+  data?: {
+    scope?: "post-feed";
   };
   occurredAt: string;
 };

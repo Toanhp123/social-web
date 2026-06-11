@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  POST_FEED_CACHE,
+  POST_FEED_JOB_QUEUE,
   POST_REPOSITORY,
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
+import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { SharePostInput } from '@/modules/posts/domain/types/share-post-input.type.js';
@@ -20,8 +20,8 @@ export class SharePostService {
     @Inject(UNIT_OF_WORK)
     private readonly unitOfWork: UnitOfWork,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    @Inject(POST_FEED_JOB_QUEUE)
+    private readonly postFeedJobQueue: PostFeedJobQueue,
   ) {}
 
   async execute(input: SharePostInput): Promise<Post> {
@@ -31,14 +31,17 @@ export class SharePostService {
       this.postRepository.share(draft.toShareInput()),
     );
 
-    await this.invalidateFeedCache();
+    await this.enqueuePostFeedFanOut(post.id, input.authorId);
 
     return post;
   }
 
-  private async invalidateFeedCache(): Promise<void> {
+  private async enqueuePostFeedFanOut(
+    postId: string,
+    authorId: string,
+  ): Promise<void> {
     try {
-      await this.postFeedCache.invalidateAll();
+      await this.postFeedJobQueue.enqueueFanOutPage({ postId, authorId });
     } catch {
       return;
     }

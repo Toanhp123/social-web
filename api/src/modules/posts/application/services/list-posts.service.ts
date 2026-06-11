@@ -1,11 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   POST_FEED_CACHE,
+  POST_FEED_REPOSITORY,
   POST_REPOSITORY,
 } from '@/common/constants/provider-token.constant.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
+import { PostFeedRepository } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
+import { ListPostsCursor } from '@/modules/posts/domain/types/list-posts-query.type.js';
 import { PostListQuery } from '@/modules/posts/domain/value-objects/post-list-query.value-object.js';
 
 export type ListPostsInput = {
@@ -26,6 +29,9 @@ export class ListPostsService {
     @Inject(POST_REPOSITORY)
     private readonly postRepository: PostRepository,
 
+    @Inject(POST_FEED_REPOSITORY)
+    private readonly postFeedRepository: PostFeedRepository,
+
     @Inject(POST_FEED_CACHE)
     private readonly postFeedCache: PostFeedCache,
   ) {}
@@ -44,7 +50,7 @@ export class ListPostsService {
       return cached;
     }
 
-    const page = await this.postRepository.findPage({
+    const page = await this.findPage({
       viewerId: query.viewerId,
       authorId: query.authorId,
       limit: query.limit,
@@ -61,6 +67,29 @@ export class ListPostsService {
     await this.cacheResult(cacheKey, result);
 
     return result;
+  }
+
+  private async findPage(input: {
+    viewerId?: string;
+    authorId?: string;
+    limit: number;
+    cursor?: ListPostsCursor;
+  }) {
+    if (input.authorId || !input.viewerId) {
+      return this.postRepository.findPage(input);
+    }
+
+    const feedPage = await this.postFeedRepository.findPage({
+      viewerId: input.viewerId,
+      limit: input.limit,
+      cursor: input.cursor,
+    });
+
+    if (feedPage.items.length > 0 || input.cursor) {
+      return feedPage;
+    }
+
+    return this.postRepository.findPage(input);
   }
 
   private async getCachedResult(input: {

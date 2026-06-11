@@ -64,26 +64,13 @@ export class CreatePostService {
 
     const post = await this.postRepository.create(draft.toCreateInput());
 
-    await this.enqueuePostCreatedFeedJob(post.id, input.authorId);
+    await this.enqueuePostFeedFanOut(post.id, input.authorId);
     this.publishPostCreated(post);
 
     return post;
   }
 
   private publishPostCreated(post: Post): void {
-    if (post.visibility === 'PUBLIC') {
-      this.realtimePublisher.publishToPublicFeed({
-        type: 'post.created',
-        data: {
-          postId: post.id,
-          authorId: post.author.id,
-          visibility: post.visibility,
-        },
-      });
-
-      return;
-    }
-
     this.realtimePublisher.publishToUser(post.author.id, {
       type: 'post.created',
       data: {
@@ -94,12 +81,12 @@ export class CreatePostService {
     });
   }
 
-  private async enqueuePostCreatedFeedJob(
+  private async enqueuePostFeedFanOut(
     postId: string,
     authorId: string,
   ): Promise<void> {
     try {
-      await this.postFeedJobQueue.enqueuePostCreated({ postId, authorId });
+      await this.postFeedJobQueue.enqueueFanOutPage({ postId, authorId });
     } catch {
       return;
     }

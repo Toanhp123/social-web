@@ -12,6 +12,7 @@ import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
+import { FanOutPostFeedService } from '@/modules/posts/application/services/fan-out-post-feed.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
 import { SharePostService } from '@/modules/posts/application/services/share-post.service.js';
@@ -37,6 +38,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
   controllers: [PostController],
   providers: [
     CreatePostService,
+    FanOutPostFeedService,
     ListPostsService,
     ReactToPostService,
     SharePostService,
