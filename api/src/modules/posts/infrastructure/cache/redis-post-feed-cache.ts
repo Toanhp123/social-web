@@ -116,6 +116,7 @@ export class RedisPostFeedCache implements PostFeedCache {
     const encoded = Buffer.from(
       JSON.stringify({
         viewerId: key.viewerId,
+        authorId: key.authorId ?? null,
         limit: key.limit,
         cursor: key.cursor ?? null,
       }),

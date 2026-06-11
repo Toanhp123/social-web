@@ -52,6 +52,7 @@ export class PostController {
   ): Promise<PostPageResponseDto> {
     const page = await this.listPostsService.execute({
       viewerId: currentUser?.userId,
+      authorId: query.authorId,
       limit: query.limit,
       cursor: query.cursor,
     });

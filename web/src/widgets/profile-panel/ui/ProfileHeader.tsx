@@ -13,12 +13,13 @@ import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
 type ProfileHeaderProps = {
   profile: UserProfile | null;
   currentUser: CurrentSessionUser;
-  profileOwner?: Pick<User, "email" | "fullName" | "username">;
+  profileOwner?: Pick<User, "id" | "email" | "fullName" | "username">;
   variant: ProfilePanelVariant;
   metaItems: ProfileMetaItem[];
   onProfileChange: (profile: UserProfile | null) => void;
   canEdit?: boolean;
   actions?: ReactNode;
+  stats?: ReactNode;
 };
 
 export function ProfileHeader({
@@ -30,6 +31,7 @@ export function ProfileHeader({
   onProfileChange,
   canEdit = true,
   actions,
+  stats,
 }: ProfileHeaderProps) {
   const t = useTranslations().profile;
   const isSidebar = variant === "sidebar";
@@ -88,11 +90,13 @@ export function ProfileHeader({
             {usernameLabel}
           </p>
 
-          {!isSidebar && (
-            <p className="text-muted mt-1 text-sm">
-              {metaItems.length > 0
-                ? `${metaItems.length} ${t.addedInfo}`
-                : t.noProfileInfo}
+          {!isSidebar && (stats || metaItems.length > 0) && (
+            <p className="text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              {stats}
+
+              {metaItems.length > 0 ? (
+                <span>{`${metaItems.length} ${t.addedInfo}`}</span>
+              ) : null}
             </p>
           )}
         </div>
@@ -128,7 +132,9 @@ export function ProfileHeader({
           </>
         )}
 
-        {actions}
+        {actions && (
+          <div className="flex flex-wrap items-center gap-2">{actions}</div>
+        )}
       </div>
     </div>
   );

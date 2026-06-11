@@ -12,4 +12,8 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsString()
   cursor?: string;
+
+  @IsOptional()
+  @IsString()
+  authorId?: string;
 }

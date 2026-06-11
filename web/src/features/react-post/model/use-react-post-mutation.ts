@@ -3,12 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";
 import {
-  postQueryKeys,
   type PostReactionStats,
   type Post,
   type PostPage,
   type ReactionType,
 } from "@/entities/post";
+import { postFeedQueryKeys } from "@/features/post-feed";
 import {
   removePostReactionAction,
   setPostReactionAction,
@@ -48,33 +48,35 @@ export function useReactPostMutation() {
 
     onMutate: async (input) => {
       await queryClient.cancelQueries({
-        queryKey: postQueryKeys.feed(),
+        queryKey: postFeedQueryKeys.all,
       });
 
-      const previousFeed = queryClient.getQueryData<InfiniteData<PostPage>>(
-        postQueryKeys.feed(),
-      );
+      const previousFeeds = queryClient.getQueriesData<InfiniteData<PostPage>>({
+        queryKey: postFeedQueryKeys.all,
+      });
 
-      queryClient.setQueryData<InfiniteData<PostPage>>(
-        postQueryKeys.feed(),
+      queryClient.setQueriesData<InfiniteData<PostPage>>(
+        { queryKey: postFeedQueryKeys.all },
         (current) =>
           updatePostInFeed(current, input.postId, (post) =>
             applyOptimisticReaction(post, input.type),
           ),
       );
 
-      return { previousFeed };
+      return { previousFeeds };
     },
 
     onError: (_error, _input, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(postQueryKeys.feed(), context.previousFeed);
+      if (context?.previousFeeds) {
+        for (const [queryKey, data] of context.previousFeeds) {
+          queryClient.setQueryData(queryKey, data);
+        }
       }
     },
 
     onSuccess: (post) => {
-      queryClient.setQueryData<InfiniteData<PostPage>>(
-        postQueryKeys.feed(),
+      queryClient.setQueriesData<InfiniteData<PostPage>>(
+        { queryKey: postFeedQueryKeys.all },
         (current) => replacePostInFeed(current, post),
       );
     },

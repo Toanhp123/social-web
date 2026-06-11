@@ -10,7 +10,8 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
-import { postQueryKeys } from "@/entities/post";
+import { commentPostQueryKeys } from "@/features/comment-post";
+import { postFeedQueryKeys } from "@/features/post-feed";
 import type {
   RealtimeEventPayload,
   RealtimeNotification,
@@ -146,23 +147,23 @@ function handleRealtimeEvent(
   queryClient: ReturnType<typeof useQueryClient>,
 ) {
   if (event.type === "post.created") {
-    void queryClient.invalidateQueries({ queryKey: postQueryKeys.feed() });
+    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     return;
   }
 
   if (event.type === "post.reaction.updated") {
-    void queryClient.invalidateQueries({ queryKey: postQueryKeys.feed() });
+    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     return;
   }
 
   if (event.type === "post.comment.created") {
     const postId = getEventPostId(event.data);
 
-    void queryClient.invalidateQueries({ queryKey: postQueryKeys.feed() });
+    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
 
     if (postId) {
       void queryClient.invalidateQueries({
-        queryKey: postQueryKeys.postComments(postId),
+        queryKey: commentPostQueryKeys.postComments(postId),
       });
     }
   }

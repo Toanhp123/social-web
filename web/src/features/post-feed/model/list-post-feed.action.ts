@@ -12,14 +12,14 @@ export type ListPostFeedActionResult =
 export async function listPostFeedAction(input: {
   cursor?: string | null;
   limit?: number;
+  authorId?: string | null;
 }): Promise<ListPostFeedActionResult> {
   const parsedInput = listPostFeedSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return {
       ok: false,
-      error:
-        parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
+      error: parsedInput.error.issues[0]?.message ?? "Du lieu khong hop le.",
     };
   }
 

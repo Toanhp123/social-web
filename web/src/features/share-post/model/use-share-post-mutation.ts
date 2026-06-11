@@ -2,7 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";
-import { postQueryKeys, type Post, type PostPage } from "@/entities/post";
+import type { Post, PostPage } from "@/entities/post";
+import { postFeedQueryKeys } from "@/features/post-feed";
 import { sharePostAction } from "./share-post.action";
 
 type SharePostMutationInput = {
@@ -28,8 +29,8 @@ export function useSharePostMutation() {
     },
 
     onSuccess: (sharedPost, input) => {
-      queryClient.setQueryData<InfiniteData<PostPage>>(
-        postQueryKeys.feed(),
+      queryClient.setQueriesData<InfiniteData<PostPage>>(
+        { queryKey: postFeedQueryKeys.all },
         (current) => addSharedPostToFeed(current, sharedPost, input.postId),
       );
     },
