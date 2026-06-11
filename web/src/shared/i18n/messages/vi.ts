@@ -281,4 +281,10 @@ export const viMessages = {
 
     avatarAlt: "Ảnh đại diện của",
   },
+  follows: {
+    follow: "Theo dõi",
+    following: "Đang theo dõi",
+    loading: "Đang tải...",
+    followerCount: "{count} người theo dõi",
+  },
 } as const;
