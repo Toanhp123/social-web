@@ -284,4 +284,10 @@ export const enMessages = {
 
     avatarAlt: "Avatar of",
   },
+  follows: {
+    follow: "Follow",
+    following: "Following",
+    loading: "Loading...",
+    followerCount: "{count} followers",
+  },
 };

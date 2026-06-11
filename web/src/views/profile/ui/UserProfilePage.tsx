@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getCurrentSessionUser } from "@/entities/session/lib/current-session-user.server";
 import { ProfileFriendRequestButton } from "@/features/friend-request";
+import { ProfileFollowButton } from "@/features/follow";
 import { ROUTES } from "@/shared/config/routes";
 import { getCurrentProfileOrNull, getUserOrNull } from "../server/server";
 import { ProfilePageContent } from "./ProfilePageContent";
@@ -40,7 +41,12 @@ export async function UserProfilePage({ params }: UserProfilePageProps) {
       profileOwner={profileOwner}
       canEdit={false}
       showLogout={false}
-      headerActions={<ProfileFriendRequestButton receiverId={userId} />}
+      headerActions={
+        <>
+          <ProfileFollowButton userId={userId} />
+          <ProfileFriendRequestButton receiverId={userId} />
+        </>
+      }
     />
   );
 }
