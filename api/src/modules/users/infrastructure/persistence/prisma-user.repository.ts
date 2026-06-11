@@ -9,6 +9,8 @@ import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js
 import type { Prisma } from '@/generated/prisma/client.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import { UserProfile } from '@/modules/users/domain/entities/user-profile.entity.js';
+import { UserSummary } from '@/modules/users/domain/entities/user-summary.entity.js';
+import { ListUserDiscoveryQuery } from '@/modules/users/domain/types/list-user-discovery-query.type.js';
 import { UserProfileInput } from '@/modules/users/domain/types/user-profile-input.type.js';
 import { DatabaseError } from '@/core/exceptions/database.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
@@ -48,6 +50,85 @@ export class PrismaUserRepository implements UserRepository {
       });
 
       return user ? UserMapper.toDomain(user) : null;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findDiscoveryCandidates(
+    query: ListUserDiscoveryQuery,
+  ): Promise<UserSummary[]> {
+    const client = this.getClient();
+    const limit = query.limit ?? 12;
+    const searchQuery = query.query?.trim();
+
+    try {
+      const friendships = await client.friendship.findMany({
+        where: {
+          OR: [{ user1Id: query.viewerId }, { user2Id: query.viewerId }],
+        },
+        select: {
+          user1Id: true,
+          user2Id: true,
+        },
+      });
+      const pendingRequests = await client.friendRequest.findMany({
+        where: {
+          status: 'PENDING',
+          OR: [{ requesterId: query.viewerId }, { receiverId: query.viewerId }],
+        },
+        select: {
+          requesterId: true,
+          receiverId: true,
+        },
+      });
+      const excludedUserIds = new Set<string>([query.viewerId]);
+
+      friendships.forEach((friendship) => {
+        excludedUserIds.add(
+          friendship.user1Id === query.viewerId
+            ? friendship.user2Id
+            : friendship.user1Id,
+        );
+      });
+      pendingRequests.forEach((request) => {
+        excludedUserIds.add(
+          request.requesterId === query.viewerId
+            ? request.receiverId
+            : request.requesterId,
+        );
+      });
+
+      const users = await client.user.findMany({
+        where: {
+          id: {
+            notIn: [...excludedUserIds],
+          },
+          ...(searchQuery
+            ? {
+                OR: [
+                  {
+                    fullName: {
+                      contains: searchQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    username: {
+                      contains: searchQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              }
+            : {}),
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: limit,
+        select: UserMapper.summarySelect,
+      });
+
+      return users.map((user) => UserMapper.toSummaryDomain(user));
     } catch (error) {
       throw mapPrismaError(error);
     }

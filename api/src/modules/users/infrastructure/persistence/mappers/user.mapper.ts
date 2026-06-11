@@ -1,6 +1,7 @@
 import { Prisma } from '@/generated/prisma/client.js';
 import { UserRole } from '@/core/security/enums/user-role.enum.js';
 import { User } from '@/modules/users/domain/entities/user.entity.js';
+import { UserSummary } from '@/modules/users/domain/entities/user-summary.entity.js';
 import { CreateUserInput } from '@/modules/users/domain/types/create-user-input.type.js';
 
 export const USER_SELECT = {
@@ -19,8 +20,20 @@ type UserPayload = Prisma.UserGetPayload<{
   select: typeof USER_SELECT;
 }>;
 
+export const USER_SUMMARY_SELECT = {
+  id: true,
+  username: true,
+  fullName: true,
+  avatarUrl: true,
+} as const;
+
+type UserSummaryPayload = Prisma.UserGetPayload<{
+  select: typeof USER_SUMMARY_SELECT;
+}>;
+
 export class UserMapper {
   static select = USER_SELECT;
+  static summarySelect = USER_SUMMARY_SELECT;
 
   static toPersistence(
     input: CreateUserInput,
@@ -35,6 +48,15 @@ export class UserMapper {
       prismaUser.authAccount.email,
       prismaUser.authAccount.role as UserRole,
       prismaUser.username,
+    );
+  }
+
+  static toSummaryDomain(prismaUser: UserSummaryPayload): UserSummary {
+    return new UserSummary(
+      prismaUser.id,
+      prismaUser.fullName,
+      prismaUser.username,
+      prismaUser.avatarUrl,
     );
   }
 }
