@@ -8,10 +8,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
+import type { PostPage, PostReactionStats } from "@/entities/post";
 import { commentPostQueryKeys } from "@/features/comment-post";
 import { postFeedQueryKeys } from "@/features/post-feed";
+import { fetchPostReactionStats } from "@/features/post-reaction-stats";
 import type {
   RealtimeEventPayload,
   RealtimeNotification,
@@ -73,7 +75,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
             setUnreadNotificationCount((count) => count + 1);
           }
         }
-        handleRealtimeEvent(event, queryClient);
+        void handleRealtimeEvent(event, queryClient);
       });
 
       setSocket(nextSocket);
@@ -142,22 +144,32 @@ async function getRealtimeSession(): Promise<RealtimeSession | null> {
   };
 }
 
-function handleRealtimeEvent(
+async function handleRealtimeEvent(
   event: RealtimeEventPayload,
   queryClient: ReturnType<typeof useQueryClient>,
-) {
+): Promise<void> {
   if (event.type === "feed.updated" || event.type === "post.created") {
     void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     return;
   }
 
   if (event.type === "post.reaction.updated") {
+    const postId = getEventPostId(event.data);
+
+    if (postId) {
+      await refreshPostReactionStats(queryClient, postId);
+    }
+
     void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     return;
   }
 
   if (event.type === "post.comment.created") {
     const postId = getEventPostId(event.data);
+
+    if (postId) {
+      await refreshPostReactionStats(queryClient, postId);
+    }
 
     void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
 
@@ -167,6 +179,49 @@ function handleRealtimeEvent(
       });
     }
   }
+}
+
+async function refreshPostReactionStats(
+  queryClient: ReturnType<typeof useQueryClient>,
+  postId: string,
+): Promise<void> {
+  try {
+    const reactionStats = await fetchPostReactionStats(postId);
+
+    if (!reactionStats) {
+      return;
+    }
+
+    queryClient.setQueriesData<InfiniteData<PostPage>>(
+      { queryKey: postFeedQueryKeys.all },
+      (current) => replacePostReactionStats(current, postId, reactionStats),
+    );
+  } catch {
+    return;
+  }
+}
+
+function replacePostReactionStats(
+  current: InfiniteData<PostPage> | undefined,
+  postId: string,
+  reactionStats: PostReactionStats,
+): InfiniteData<PostPage> | undefined {
+  if (!current) return current;
+
+  return {
+    ...current,
+    pages: current.pages.map((page) => ({
+      ...page,
+      items: page.items.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              reactionStats,
+            }
+          : post,
+      ),
+    })),
+  };
 }
 
 function getEventPostId(data: unknown): string | null {

@@ -7,6 +7,7 @@ import { PostCard, type Post, type ReactionType } from "@/entities/post";
 import { CommentForm, PostCommentsList } from "@/features/comment-post";
 import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
+import { useRealtimePostSubscription } from "@/features/realtime";
 import { SharePostDialog } from "@/features/share-post";
 import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
@@ -42,6 +43,10 @@ export function PostFeed({
     () => posts.find((post) => post.id === selectedPostId) ?? null,
     [posts, selectedPostId],
   );
+  useRealtimePostSubscription({
+    postId: selectedPost?.id ?? null,
+    enabled: Boolean(selectedPost),
+  });
   const errorMessage =
     feedQuery.error instanceof Error ? feedQuery.error.message : "";
 
