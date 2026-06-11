@@ -146,7 +146,7 @@ function handleRealtimeEvent(
   event: RealtimeEventPayload,
   queryClient: ReturnType<typeof useQueryClient>,
 ) {
-  if (event.type === "post.created") {
+  if (event.type === "feed.updated" || event.type === "post.created") {
     void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     return;
   }
