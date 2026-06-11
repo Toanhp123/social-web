@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
 import { CurrentUser } from '@/core/security/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
 import { GetUserProfileService } from '@/modules/users/application/services/get-user-profile.service.js';
+import { UserProfileAccessPolicy } from '@/modules/users/domain/policies/user-profile-access.policy.js';
 import { CreateUserProfileService } from '@/modules/users/application/services/create-user-profile.service.js';
 import { UpdateUserProfileService } from '@/modules/users/application/services/update-user-profile.service.js';
 import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
@@ -68,8 +69,17 @@ export class UserController {
     @Param('id') id: string,
     @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<UserResponseDto> {
-    const user = await this.getUserService.execute(id, currentUser);
-    return UserResponseDto.fromDomain(user);
+    const user = await this.getUserService.execute(id);
+    const canViewPrivateFields =
+      UserProfileAccessPolicy.canViewPrivateProfileFields({
+        requesterId: currentUser.userId,
+        requesterRole: currentUser.role,
+        targetUserId: id,
+      });
+
+    return UserResponseDto.fromDomain(user, {
+      includePrivateFields: canViewPrivateFields,
+    });
   }
 
   @UseGuards(JwtAuthGuard)
