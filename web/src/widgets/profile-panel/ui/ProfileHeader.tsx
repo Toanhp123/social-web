@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { MoreHorizontal, Pencil, UserRound } from "lucide-react";
+import { MoreHorizontal, Pencil } from "lucide-react";
 import { ProfileImageUploader } from "@/features/profile";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { UserProfile } from "@/entities/user";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
+import { Avatar } from "@/shared/ui/Avatar";
 import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
 
 type ProfileHeaderProps = {
@@ -35,7 +35,7 @@ export function ProfileHeader({
   return (
     <div
       className={cn(
-        "border-b border-subtle",
+        "border-subtle border-b",
         isSidebar
           ? "pb-4"
           : "flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between",
@@ -47,47 +47,33 @@ export function ProfileHeader({
           isSidebar ? "-mt-10 flex-col" : "-mt-9 items-end",
         )}
       >
-        <div
+        <Avatar
+          src={profile?.avatarUrl}
+          alt={`${t.avatarAlt} ${displayName}`}
+          name={displayName}
+          size={isSidebar ? 96 : 160}
           className={cn(
-            "relative grid shrink-0 place-items-center overflow-hidden rounded-pill border-4 border-surface bg-surface-muted shadow-card",
-            isSidebar ? "size-24" : "size-32 sm:size-40",
+            "border-surface shadow-card border-4",
+            isSidebar ? "size-24 text-3xl" : "size-32 text-5xl sm:size-40",
           )}
-        >
-          {profile?.avatarUrl ? (
-            <Image
-              src={profile.avatarUrl}
-              alt={`${t.avatarAlt} ${displayName}`}
-              width={isSidebar ? 96 : 160}
-              height={isSidebar ? 96 : 160}
-              sizes={isSidebar ? "96px" : "160px"}
-              className="size-full object-cover"
-            />
-          ) : (
-            <UserRound
-              className={cn(
-                "text-placeholder",
-                isSidebar ? "size-11" : "size-16",
-              )}
-            />
-          )}
-        </div>
+        />
 
         <div className={cn("min-w-0", !isSidebar && "pb-5")}>
           <h2
             className={cn(
-              "truncate font-bold tracking-tight text-primary",
+              "text-primary truncate font-bold tracking-tight",
               isSidebar ? "text-xl" : "text-3xl",
             )}
           >
             {displayName}
           </h2>
 
-          <p className="mt-1 truncate text-sm font-medium text-muted">
+          <p className="text-muted mt-1 truncate text-sm font-medium">
             {usernameLabel}
           </p>
 
           {!isSidebar && (
-            <p className="mt-1 text-sm text-muted">
+            <p className="text-muted mt-1 text-sm">
               {metaItems.length > 0
                 ? `${metaItems.length} ${t.addedInfo}`
                 : t.noProfileInfo}
@@ -108,7 +94,7 @@ export function ProfileHeader({
           <>
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-control bg-surface-muted px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-muted"
+              className="rounded-control bg-surface-muted text-primary hover:bg-surface-muted inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold transition"
             >
               <Pencil className="size-4" />
               {t.editProfile}
@@ -117,7 +103,7 @@ export function ProfileHeader({
             <button
               type="button"
               aria-label={t.moreOptions}
-              className="grid size-10 place-items-center rounded-control bg-surface-muted text-secondary transition hover:bg-surface-muted"
+              className="rounded-control bg-surface-muted text-secondary hover:bg-surface-muted grid size-10 place-items-center transition"
             >
               <MoreHorizontal className="size-5" />
             </button>
@@ -127,4 +113,3 @@ export function ProfileHeader({
     </div>
   );
 }
-
