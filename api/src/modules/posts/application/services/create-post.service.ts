@@ -65,20 +65,13 @@ export class CreatePostService {
     const post = await this.postRepository.create(draft.toCreateInput());
 
     await this.enqueuePostFeedFanOut(post.id, input.authorId);
-    this.publishPostCreated(post);
+    this.realtimePublisher.publishPostCreatedForAuthor({
+      postId: post.id,
+      authorId: post.author.id,
+      visibility: post.visibility,
+    });
 
     return post;
-  }
-
-  private publishPostCreated(post: Post): void {
-    this.realtimePublisher.publishToUser(post.author.id, {
-      type: 'post.created',
-      data: {
-        postId: post.id,
-        authorId: post.author.id,
-        visibility: post.visibility,
-      },
-    });
   }
 
   private async enqueuePostFeedFanOut(

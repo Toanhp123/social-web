@@ -21,18 +21,15 @@ export class CreateNotificationService {
 
     const notification = await this.notificationRepository.upsert(input);
 
-    this.realtimePublisher.publishToUser(notification.userId, {
-      type: 'notification.created',
-      data: {
-        id: notification.id,
-        userId: notification.userId,
-        actorId: notification.actorId,
-        notificationType: notification.type,
-        refId: notification.refId,
-        count: notification.count,
-        readAt: notification.readAt?.toISOString() ?? null,
-        createdAt: notification.createdAt.toISOString(),
-      },
+    this.realtimePublisher.publishNotificationCreated({
+      id: notification.id,
+      userId: notification.userId,
+      actorId: notification.actorId,
+      notificationType: notification.type,
+      refId: notification.refId,
+      count: notification.count,
+      readAt: notification.readAt?.toISOString() ?? null,
+      createdAt: notification.createdAt.toISOString(),
     });
 
     return notification;

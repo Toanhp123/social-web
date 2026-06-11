@@ -38,7 +38,11 @@ export class ReactToPostService {
     );
 
     await this.invalidateFeedCache();
-    this.publishReactionUpdated(post, input);
+    this.realtimePublisher.publishPostReactionUpdated({
+      postId: post.id,
+      actorId: input.userId,
+      reactionType: input.type,
+    });
     await this.notifyPostAuthor(post, input);
 
     return post;
@@ -50,25 +54,13 @@ export class ReactToPostService {
     );
 
     await this.invalidateFeedCache();
-    this.publishReactionUpdated(post, { ...input, type: null });
+    this.realtimePublisher.publishPostReactionUpdated({
+      postId: post.id,
+      actorId: input.userId,
+      reactionType: null,
+    });
 
     return post;
-  }
-
-  private publishReactionUpdated(
-    post: Post,
-    input: (SetPostReactionInput | RemovePostReactionInput) & {
-      type: SetPostReactionInput['type'] | null;
-    },
-  ): void {
-    this.realtimePublisher.publishToPublicFeed({
-      type: 'post.reaction.updated',
-      data: {
-        postId: post.id,
-        actorId: input.userId,
-        reactionType: input.type,
-      },
-    });
   }
 
   private async notifyPostAuthor(

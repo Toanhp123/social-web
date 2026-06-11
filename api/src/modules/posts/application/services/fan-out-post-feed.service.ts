@@ -52,15 +52,6 @@ export class FanOutPostFeedService {
     }
 
     await this.postFeedCache.invalidateAll();
-    this.publishFeedUpdated();
-  }
-
-  private publishFeedUpdated(): void {
-    this.realtimePublisher.publishToPublicFeed({
-      type: 'feed.updated',
-      data: {
-        scope: 'post-feed',
-      },
-    });
+    this.realtimePublisher.publishFeedUpdated();
   }
 }

@@ -15,12 +15,15 @@ import { AUTH_ACCOUNT_REPOSITORY } from '@/common/constants/provider-token.const
 import { AuthAccountRepository } from '@/modules/auth/domain/repositories/auth-account.repository.interface.js';
 import type { JwtPayload } from '@/modules/auth/domain/value-objects/jwt-payload.js';
 import type { RealtimeEventPayload } from '@/core/realtime/realtime-event.type.js';
+import { PostAccessService } from '@/core/realtime/post-access.service.js';
 
 const PUBLIC_FEED_ROOM = 'feed:public';
+const POST_TOPIC = 'post';
 
 type ClientToServerEvents = {
   'realtime:ping': () => void;
   'realtime:subscribe': (topic: unknown) => void;
+  'realtime:unsubscribe': (topic: unknown) => void;
 };
 
 type ServerToClientEvents = {
@@ -68,6 +71,8 @@ export class RealtimeGateway
 
     @Inject(AUTH_ACCOUNT_REPOSITORY)
     private readonly authAccountRepository: AuthAccountRepository,
+
+    private readonly postAccessService: PostAccessService,
   ) {}
 
   async handleConnection(client: RealtimeSocket): Promise<void> {
@@ -111,6 +116,10 @@ export class RealtimeGateway
     this.server.to(PUBLIC_FEED_ROOM).emit('realtime:event', event);
   }
 
+  emitToPost(postId: string, event: RealtimeEventPayload): void {
+    this.server.to(this.getPostRoom(postId)).emit('realtime:event', event);
+  }
+
   @SubscribeMessage('realtime:ping')
   handlePing(@ConnectedSocket() client: RealtimeSocket): RealtimeEventPayload {
     return {
@@ -123,20 +132,61 @@ export class RealtimeGateway
   }
 
   @SubscribeMessage('realtime:subscribe')
-  handleSubscribe(
+  async handleSubscribe(
     @ConnectedSocket() client: RealtimeSocket,
-    @MessageBody() topic: unknown,
-  ): RealtimeEventPayload {
-    const normalizedTopic = typeof topic === 'string' ? topic.trim() : '';
+    @MessageBody() input: unknown,
+  ): Promise<RealtimeEventPayload> {
+    const subscription = this.parsePostSubscription(input);
 
-    return {
-      type: 'realtime.subscribed',
-      data: {
-        socketId: client.id,
-        topic: normalizedTopic,
-      },
-      occurredAt: new Date().toISOString(),
-    };
+    if (!subscription) {
+      return this.createSubscriptionEvent('realtime.subscribe.denied', client, {
+        reason: 'Unsupported topic',
+      });
+    }
+
+    const canViewPost = await this.postAccessService.canViewPost({
+      postId: subscription.postId,
+      viewerId: client.data.userId,
+    });
+
+    if (!canViewPost) {
+      return this.createSubscriptionEvent('realtime.subscribe.denied', client, {
+        postId: subscription.postId,
+        topic: POST_TOPIC,
+      });
+    }
+
+    await client.join(this.getPostRoom(subscription.postId));
+
+    return this.createSubscriptionEvent('realtime.subscribed', client, {
+      postId: subscription.postId,
+      topic: POST_TOPIC,
+    });
+  }
+
+  @SubscribeMessage('realtime:unsubscribe')
+  async handleUnsubscribe(
+    @ConnectedSocket() client: RealtimeSocket,
+    @MessageBody() input: unknown,
+  ): Promise<RealtimeEventPayload> {
+    const subscription = this.parsePostSubscription(input);
+
+    if (!subscription) {
+      return this.createSubscriptionEvent(
+        'realtime.unsubscribe.denied',
+        client,
+        {
+          reason: 'Unsupported topic',
+        },
+      );
+    }
+
+    await client.leave(this.getPostRoom(subscription.postId));
+
+    return this.createSubscriptionEvent('realtime.unsubscribed', client, {
+      postId: subscription.postId,
+      topic: POST_TOPIC,
+    });
   }
 
   private async authenticateOptional(
@@ -193,5 +243,44 @@ export class RealtimeGateway
 
   private getUserRoom(userId: string): string {
     return `user:${userId}`;
+  }
+
+  private getPostRoom(postId: string): string {
+    return `post:${postId}`;
+  }
+
+  private parsePostSubscription(input: unknown): { postId: string } | null {
+    if (!input || typeof input !== 'object') {
+      return null;
+    }
+
+    const payload = input as Record<string, unknown>;
+
+    if (payload.topic !== POST_TOPIC) {
+      return null;
+    }
+
+    const postId = payload.postId;
+
+    if (typeof postId !== 'string' || !postId.trim()) {
+      return null;
+    }
+
+    return { postId: postId.trim() };
+  }
+
+  private createSubscriptionEvent(
+    type: string,
+    client: RealtimeSocket,
+    data: Record<string, unknown>,
+  ): RealtimeEventPayload {
+    return {
+      type,
+      data: {
+        socketId: client.id,
+        ...data,
+      },
+      occurredAt: new Date().toISOString(),
+    };
   }
 }
