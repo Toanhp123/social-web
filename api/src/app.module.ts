@@ -26,6 +26,7 @@ import { PostsModule } from '@/modules/posts/posts.module.js';
 import { CommentsModule } from '@/modules/comments/comments.module.js';
 import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 import { FriendsModule } from '@/modules/friends/friends.module.js';
+import { FollowsModule } from '@/modules/follows/follows.module.js';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { FriendsModule } from '@/modules/friends/friends.module.js';
     PostsModule,
     CommentsModule,
     FriendsModule,
+    FollowsModule,
     UserModule,
     AuthModule,
     CoreHttpModule,
