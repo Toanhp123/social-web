@@ -24,7 +24,7 @@ describe('FanOutPostFeedService', () => {
       enqueueFanOutPage: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedJobQueue;
     const realtimePublisher = {
-      publishToPublicFeed: jest.fn(),
+      publishFeedUpdated: jest.fn(),
     } as unknown as RealtimePublisher;
     const service = new FanOutPostFeedService(
       postFeedRepository,
@@ -54,7 +54,7 @@ describe('FanOutPostFeedService', () => {
       cursor: 'followers:viewer-2',
     });
     expect(postFeedCache.invalidateAll).not.toHaveBeenCalled();
-    expect(realtimePublisher.publishToPublicFeed).not.toHaveBeenCalled();
+    expect(realtimePublisher.publishFeedUpdated).not.toHaveBeenCalled();
   });
 
   it('invalidates cached feeds and publishes feed.updated when the last recipient page is written', async () => {
@@ -72,7 +72,7 @@ describe('FanOutPostFeedService', () => {
       enqueueFanOutPage: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedJobQueue;
     const realtimePublisher = {
-      publishToPublicFeed: jest.fn(),
+      publishFeedUpdated: jest.fn(),
     } as unknown as RealtimePublisher;
     const service = new FanOutPostFeedService(
       postFeedRepository,
@@ -85,11 +85,6 @@ describe('FanOutPostFeedService', () => {
 
     expect(postFeedJobQueue.enqueueFanOutPage).not.toHaveBeenCalled();
     expect(postFeedCache.invalidateAll).toHaveBeenCalledTimes(1);
-    expect(realtimePublisher.publishToPublicFeed).toHaveBeenCalledWith({
-      type: 'feed.updated',
-      data: {
-        scope: 'post-feed',
-      },
-    });
+    expect(realtimePublisher.publishFeedUpdated).toHaveBeenCalledTimes(1);
   });
 });

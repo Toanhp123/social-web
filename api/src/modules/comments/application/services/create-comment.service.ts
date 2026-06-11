@@ -56,14 +56,11 @@ export class CreateCommentService {
   }
 
   private publishCommentCreated(comment: Comment): void {
-    this.realtimePublisher.publishToPublicFeed({
-      type: 'post.comment.created',
-      data: {
-        postId: comment.postId,
-        commentId: comment.id,
-        parentId: comment.parentId,
-        authorId: comment.author.id,
-      },
+    this.realtimePublisher.publishPostCommentCreated({
+      postId: comment.postId,
+      commentId: comment.id,
+      parentId: comment.parentId,
+      authorId: comment.author.id,
     });
   }
 
