@@ -7,6 +7,7 @@ export type ListPostsCursor = {
 
 export type ListPostsQuery = {
   viewerId?: string;
+  authorId?: string;
   limit: number;
   cursor?: ListPostsCursor;
 };

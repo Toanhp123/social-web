@@ -3,8 +3,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { CommentPage } from "@/entities/comment";
-import { postQueryKeys, type PostPage } from "@/entities/post";
+import type { PostPage } from "@/entities/post";
+import { postFeedQueryKeys } from "@/features/post-feed";
 import { createPostCommentAction } from "./comment-post.action";
+import { commentPostQueryKeys } from "./comment-post-query-keys";
 
 type CreateCommentMutationInput = {
   postId: string;
@@ -28,7 +30,7 @@ export function useCreateCommentMutation() {
 
     onSuccess: (comment, input) => {
       queryClient.setQueryData<InfiniteData<CommentPage>>(
-        postQueryKeys.comments(input.postId, input.parentId),
+        commentPostQueryKeys.comments(input.postId, input.parentId),
         (current) => appendComment(current, comment),
       );
 
@@ -36,13 +38,13 @@ export function useCreateCommentMutation() {
 
       if (parentId) {
         queryClient.setQueryData<InfiniteData<CommentPage>>(
-          postQueryKeys.comments(input.postId, null),
+          commentPostQueryKeys.comments(input.postId, null),
           (current) => incrementReplyCount(current, parentId),
         );
       }
 
-      queryClient.setQueryData<InfiniteData<PostPage>>(
-        postQueryKeys.feed(),
+      queryClient.setQueriesData<InfiniteData<PostPage>>(
+        { queryKey: postFeedQueryKeys.all },
         (current) => incrementPostCommentCount(current, input.postId),
       );
     },

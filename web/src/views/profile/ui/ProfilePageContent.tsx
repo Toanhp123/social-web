@@ -11,9 +11,10 @@ import { ProfilePanel } from "@/widgets/profile-panel";
 type ProfilePageContentProps = {
   currentUser: CurrentSessionUser;
   profile: UserProfile | null;
-  profileOwner?: Pick<User, "email" | "fullName" | "username">;
+  profileOwner?: Pick<User, "id" | "email" | "fullName" | "username">;
   canEdit?: boolean;
   headerActions?: ReactNode;
+  profileStats?: ReactNode;
   showLogout?: boolean;
 };
 
@@ -23,6 +24,7 @@ export function ProfilePageContent({
   profileOwner,
   canEdit = true,
   headerActions,
+  profileStats,
   showLogout = true,
 }: ProfilePageContentProps) {
   const t = useTranslations().home;
@@ -39,6 +41,7 @@ export function ProfilePageContent({
         profileOwner={profileOwner}
         canEdit={canEdit}
         headerActions={headerActions}
+        profileStats={profileStats}
       />
     </AppLayout>
   );

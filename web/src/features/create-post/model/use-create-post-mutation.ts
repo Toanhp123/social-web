@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postQueryKeys, type Post } from "@/entities/post";
+import type { Post } from "@/entities/post";
+import { postFeedQueryKeys } from "@/features/post-feed";
 import { createPostAction } from "./create-post.action";
 
 type UseCreatePostMutationOptions = {
@@ -23,7 +24,7 @@ export function useCreatePostMutation(options?: UseCreatePostMutationOptions) {
     },
     onSuccess: (post) => {
       options?.onCreated?.(post);
-      void queryClient.invalidateQueries({ queryKey: postQueryKeys.feed() });
+      void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
     },
   });
 }

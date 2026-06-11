@@ -17,16 +17,22 @@ import { PostSkeleton } from "./PostSkeleton";
 
 type PostFeedProps = {
   canInteract?: boolean;
+  authorId?: string;
+  showHeader?: boolean;
 };
 
-export function PostFeed({ canInteract = true }: PostFeedProps) {
+export function PostFeed({
+  canInteract = true,
+  authorId,
+  showHeader = true,
+}: PostFeedProps) {
   const t = useTranslations().feed;
   const router = useRouter();
   const pathname = usePathname();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [sharingPost, setSharingPost] = useState<Post | null>(null);
-  const feedQuery = usePostFeedQuery();
+  const feedQuery = usePostFeedQuery({ authorId });
   const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
     () => feedQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -100,11 +106,16 @@ export function PostFeed({ canInteract = true }: PostFeedProps) {
   }, [feedQuery]);
 
   return (
-    <section className="space-y-4" aria-labelledby="feed-title">
-      <FeedHeader
-        isRefetching={feedQuery.isRefetching}
-        onRefresh={() => void feedQuery.refetch()}
-      />
+    <section
+      className="space-y-4"
+      aria-labelledby={showHeader ? "feed-title" : undefined}
+    >
+      {showHeader && (
+        <FeedHeader
+          isRefetching={feedQuery.isRefetching}
+          onRefresh={() => void feedQuery.refetch()}
+        />
+      )}
 
       {feedQuery.isLoading ? (
         <div className="space-y-4" aria-label={t.loadingFeed}>

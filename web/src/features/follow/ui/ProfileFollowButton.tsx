@@ -40,7 +40,7 @@ export function ProfileFollowButton({ userId }: ProfileFollowButtonProps) {
   const Icon = isPending ? Loader2 : isFollowing ? Check : UserPlus;
 
   return (
-    <div className="min-w-36">
+    <div>
       <Button
         type="button"
         fullWidth={false}
@@ -50,18 +50,8 @@ export function ProfileFollowButton({ userId }: ProfileFollowButtonProps) {
         className="inline-flex items-center gap-2"
       >
         <Icon className={isPending ? "size-4 animate-spin" : "size-4"} />
-        {isPending
-          ? t.loading
-          : isFollowing
-            ? t.following
-            : t.follow}
+        {isPending ? t.loading : isFollowing ? t.following : t.follow}
       </Button>
-
-      {status && (
-        <p className="text-muted mt-1 text-xs">
-          {t.followerCount.replace("{count}", String(status.followerCount))}
-        </p>
-      )}
 
       {error && <p className="text-danger mt-1 text-xs">{error.message}</p>}
     </div>

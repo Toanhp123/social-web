@@ -1,19 +1,24 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { postQueryKeys } from "@/entities/post";
 import { listPostFeedAction } from "./list-post-feed.action";
+import { postFeedQueryKeys } from "./post-feed-query-keys";
 
 const POST_FEED_PAGE_SIZE = 10;
 
-export function usePostFeedQuery() {
+type UsePostFeedQueryInput = {
+  authorId?: string;
+};
+
+export function usePostFeedQuery(input: UsePostFeedQueryInput = {}) {
   return useInfiniteQuery({
-    queryKey: postQueryKeys.feed(),
+    queryKey: postFeedQueryKeys.feed(input),
     initialPageParam: null as string | null,
     queryFn: async ({ pageParam }) => {
       const result = await listPostFeedAction({
         cursor: pageParam,
         limit: POST_FEED_PAGE_SIZE,
+        authorId: input.authorId,
       });
 
       if (!result.ok) {

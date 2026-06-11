@@ -1,8 +1,8 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { postQueryKeys } from "@/entities/post";
 import { listPostCommentsAction } from "./comment-post.action";
+import { commentPostQueryKeys } from "./comment-post-query-keys";
 
 const COMMENT_PAGE_SIZE = 10;
 
@@ -12,7 +12,7 @@ export function usePostCommentsQuery(input: {
   enabled?: boolean;
 }) {
   return useInfiniteQuery({
-    queryKey: postQueryKeys.comments(input.postId, input.parentId),
+    queryKey: commentPostQueryKeys.comments(input.postId, input.parentId),
     initialPageParam: null as string | null,
     enabled: input.enabled ?? true,
     queryFn: async ({ pageParam }) => {

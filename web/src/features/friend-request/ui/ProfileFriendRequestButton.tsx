@@ -30,7 +30,7 @@ export function ProfileFriendRequestButton({
   const Icon = isSent ? Check : UserPlus;
 
   return (
-    <div className="min-w-40">
+    <div>
       <Button
         type="button"
         fullWidth={false}

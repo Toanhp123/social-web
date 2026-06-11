@@ -90,6 +90,7 @@ export class PrismaPostRepository implements PostRepository {
         where: {
           deletedAt: null,
           isHidden: false,
+          ...(query.authorId ? { authorId: query.authorId } : {}),
           AND: [
             this.getVisibilityWhere(query.viewerId),
             ...(query.cursor
