@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   Globe2,
   Lock,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
+import { Avatar } from "@/shared/ui/Avatar";
 import type { Post } from "../model/types";
 
 type VisibilityConfig = {
@@ -20,7 +20,6 @@ type VisibilityConfig = {
 
 type PostHeaderProps = {
   post: Post;
-  authorInitial: string;
   metaLabel?: string;
 };
 
@@ -42,39 +41,28 @@ const VISIBILITY_CONFIGS = {
   },
 } satisfies Record<Post["visibility"], VisibilityConfig>;
 
-export function PostHeader({
-  post,
-  authorInitial,
-  metaLabel,
-}: PostHeaderProps) {
+export function PostHeader({ post, metaLabel }: PostHeaderProps) {
   const t = useTranslations().post;
 
   return (
     <div className="flex items-start gap-3">
-      <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-pill bg-brand-gradient text-sm font-semibold text-inverse">
-        {post.author.avatarUrl ? (
-          <Image
-            src={post.author.avatarUrl}
-            alt=""
-            width={44}
-            height={44}
-            className="size-full object-cover"
-          />
-        ) : (
-          authorInitial
-        )}
-      </div>
+      <Avatar
+        src={post.author.avatarUrl}
+        alt={`${post.author.fullName} avatar`}
+        name={post.author.fullName}
+        size={44}
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-semibold text-primary">
+          <p className="text-primary truncate text-sm font-semibold">
             {post.author.fullName}
           </p>
 
           <VisibilityBadge visibility={post.visibility} />
         </div>
 
-        <p className="truncate text-xs text-muted">
+        <p className="text-muted truncate text-xs">
           {post.author.username ? `@${post.author.username}` : "Member"}
           {metaLabel ? ` · ${metaLabel}` : ""}
         </p>
@@ -82,7 +70,7 @@ export function PostHeader({
 
       <button
         type="button"
-        className="grid size-9 shrink-0 place-items-center rounded-pill text-placeholder transition hover:bg-surface-muted hover:text-secondary"
+        className="rounded-pill text-placeholder hover:bg-surface-muted hover:text-secondary grid size-9 shrink-0 place-items-center transition"
         aria-label={t.menu}
       >
         <MoreHorizontal className="size-5" />
@@ -99,7 +87,7 @@ function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 rounded-pill px-2 py-0.5 text-[11px] font-medium",
+        "rounded-pill inline-flex shrink-0 items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
         config.className,
       )}
     >
@@ -108,4 +96,3 @@ function VisibilityBadge({ visibility }: { visibility: Post["visibility"] }) {
     </span>
   );
 }
-

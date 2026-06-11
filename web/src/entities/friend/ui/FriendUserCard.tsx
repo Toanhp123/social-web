@@ -18,7 +18,11 @@ export function FriendUserCard({
   return (
     <article className="border-subtle bg-surface hover:bg-surface-soft rounded-card flex items-center justify-between gap-4 border p-4 transition">
       <div className="flex min-w-0 items-center gap-3">
-        <Avatar src={avatarUrl} alt={`${avatarAlt} ${fullName}`} />
+        <Avatar
+          src={avatarUrl}
+          alt={`${avatarAlt} ${fullName}`}
+          name={fullName}
+        />
 
         <div className="min-w-0">
           <p className="text-primary truncate font-medium">{fullName}</p>

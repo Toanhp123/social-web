@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
+import { Avatar } from "@/shared/ui/Avatar";
 import type { Comment } from "../model/types";
 
 type CommentItemProps = {
@@ -26,9 +26,6 @@ export function CommentItem({
   const t = useTranslations().comment;
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const authorInitial =
-    comment.author.fullName.trim().slice(0, 1).toUpperCase() || "?";
-
   const lineCount = comment.content.split(/\r\n|\r|\n/).length;
   const shouldCollapse =
     comment.content.length > COMMENT_PREVIEW_LENGTH ||
@@ -36,40 +33,32 @@ export function CommentItem({
 
   return (
     <article className="flex min-w-0 gap-3">
-      {comment.author.avatarUrl ? (
-        <Image
-          data-comment-avatar
+      <span data-comment-avatar className="block size-8 shrink-0">
+        <Avatar
           src={comment.author.avatarUrl}
-          alt=""
-          width={32}
-          height={32}
-          className="size-8 shrink-0 rounded-pill object-cover"
+          alt={`${comment.author.fullName} avatar`}
+          name={comment.author.fullName}
+          size={32}
+          className="text-xs"
         />
-      ) : (
-        <div
-          data-comment-avatar
-          className="grid size-8 shrink-0 place-items-center rounded-pill bg-surface-muted text-xs font-semibold text-secondary"
-        >
-          {authorInitial}
-        </div>
-      )}
+      </span>
 
       <div className="min-w-0 flex-1">
-        <div className="inline-block max-w-full rounded-card bg-surface-muted px-3 py-2">
-          <p className="truncate text-sm font-semibold text-primary">
+        <div className="rounded-card bg-surface-muted inline-block max-w-full px-3 py-2">
+          <p className="text-primary truncate text-sm font-semibold">
             {comment.author.fullName}
           </p>
 
           <p
             className={cn(
-              "mt-1 max-w-full text-sm leading-5 wrap-break-word whitespace-pre-wrap text-secondary",
+              "text-secondary mt-1 max-w-full text-sm leading-5 wrap-break-word whitespace-pre-wrap",
               shouldCollapse &&
                 !isExpanded &&
                 "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]",
             )}
           >
             {replyToAuthor && (
-              <span className="mr-1 font-semibold text-brand">
+              <span className="text-brand mr-1 font-semibold">
                 @{replyToAuthor.fullName}
               </span>
             )}
@@ -84,14 +73,14 @@ export function CommentItem({
               fullWidth={false}
               onClick={() => setIsExpanded((current) => !current)}
               aria-expanded={isExpanded}
-              className="mt-1 text-xs font-semibold text-muted hover:text-brand"
+              className="text-muted hover:text-brand mt-1 text-xs font-semibold"
             >
               {isExpanded ? t.hide : t.showMore}
             </Button>
           )}
         </div>
 
-        <div className="mt-1 flex items-center gap-3 px-2 text-xs font-medium text-muted">
+        <div className="text-muted mt-1 flex items-center gap-3 px-2 text-xs font-medium">
           {metaLabel && <span>{metaLabel}</span>}
 
           {onReplyClick && (
@@ -100,7 +89,7 @@ export function CommentItem({
               variant="link"
               fullWidth={false}
               onClick={() => onReplyClick(comment)}
-              className="text-xs font-semibold text-muted hover:text-brand"
+              className="text-muted hover:text-brand text-xs font-semibold"
             >
               {t.reply}
             </Button>
@@ -110,4 +99,3 @@ export function CommentItem({
     </article>
   );
 }
-

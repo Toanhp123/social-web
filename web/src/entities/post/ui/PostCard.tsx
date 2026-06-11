@@ -36,9 +36,6 @@ export function PostCard({
     ? getReactionOption(post.currentReaction)
     : null;
 
-  const authorInitial =
-    post.author.fullName?.trim().slice(0, 1).toUpperCase() || "?";
-
   return (
     <article
       className={cn(
@@ -47,11 +44,7 @@ export function PostCard({
       )}
     >
       <div className="p-4 pb-3">
-        <PostHeader
-          post={post}
-          authorInitial={authorInitial}
-          metaLabel={metaLabel}
-        />
+        <PostHeader post={post} metaLabel={metaLabel} />
 
         {post.content && <PostContent content={post.content} />}
       </div>
