@@ -9,6 +9,7 @@ import { CreateUserProfileService } from '@/modules/users/application/services/c
 import { UpdateUserProfileService } from '@/modules/users/application/services/update-user-profile.service.js';
 import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
 import { UploadUserProfileImageService } from '@/modules/users/application/services/upload-user-profile-image.service.js';
+import { ListUserDiscoveryService } from '@/modules/users/application/services/list-user-discovery.service.js';
 
 @Module({
   imports: [UserPersistenceModule, SecurityModule, MediaModule],
@@ -20,6 +21,7 @@ import { UploadUserProfileImageService } from '@/modules/users/application/servi
     UpdateUserProfileService,
     DeleteUserProfileService,
     UploadUserProfileImageService,
+    ListUserDiscoveryService,
   ],
   exports: [UserPersistenceModule],
 })
