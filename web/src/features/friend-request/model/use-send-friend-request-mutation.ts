@@ -6,6 +6,7 @@ import { sendFriendRequestAction } from "../server/send-friend-request.action";
 
 type SendFriendRequestVariables = {
   receiverId: string;
+  query?: string;
 };
 
 export function useSendFriendRequestMutation() {
@@ -27,6 +28,9 @@ export function useSendFriendRequestMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: friendRequestQueryKeys.outgoing(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: friendRequestQueryKeys.all,
       });
     },
   });

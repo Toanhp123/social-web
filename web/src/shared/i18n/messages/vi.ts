@@ -226,6 +226,19 @@ export const viMessages = {
   friends: {
     title: "Bạn bè",
     description: "Quản lý danh sách bạn bè và lời mời kết bạn.",
+
+    listTitle: "Danh sách bạn bè",
+    listDescription: "Những người bạn đã kết nối.",
+
+    incomingTitle: "Lời mời đến",
+    incomingDescription: "Xem những người muốn kết bạn với bạn.",
+
+    outgoingTitle: "Đã gửi",
+    outgoingDescription: "Những lời mời đang chờ được chấp nhận.",
+
+    discoverTitle: "Tìm bạn bè",
+    discoverDescription: "Tìm người dùng và gửi lời mời kết bạn.",
+
     loading: "Đang tải bạn bè...",
     loadError: "Không tải được danh sách bạn bè.",
     emptyTitle: "Chưa có bạn bè",
@@ -239,7 +252,15 @@ export const viMessages = {
     loadingOutgoing: "Đang tải lời mời đã gửi...",
     loadError: "Không tải được lời mời kết bạn.",
     emptyIncoming: "Không có lời mời kết bạn nào.",
+    emptyIncomingHint: "Những lời mời kết bạn bạn nhận được sẽ hiển thị ở đây.",
     emptyOutgoing: "Bạn chưa gửi lời mời kết bạn nào.",
+    searchPlaceholder: "Tìm theo tên hoặc username",
+    loadingCandidates: "Đang tải người dùng...",
+    loadCandidatesError: "Không tải được danh sách người dùng.",
+    emptyCandidates: "Không tìm thấy người dùng",
+    emptyCandidatesHint: "Thử tên hoặc username khác.",
+    addFriend: "Kết bạn",
+    sending: "Đang gửi...",
     accept: "Chấp nhận",
     accepting: "Đang chấp nhận...",
     decline: "Từ chối",
