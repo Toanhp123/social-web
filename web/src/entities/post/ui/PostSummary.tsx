@@ -45,7 +45,7 @@ export function PostSummary({
                     key={reaction.type}
                     title={reaction.label}
                     className={cn(
-                      "rounded-pill border-surface grid size-5 place-items-center border text-[11px] shadow-sm",
+                      "rounded-pill border-surface-border shadow-control grid size-5 place-items-center border text-[11px]",
                       reaction.className,
                     )}
                   >

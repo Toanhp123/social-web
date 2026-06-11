@@ -35,7 +35,7 @@ export function IncomingFriendRequestItem({
               })
             }
             disabled={isPending}
-            className="bg-brand text-inverse hover:bg-brand-hover rounded-control px-3 py-1.5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
+            className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {acceptMutation.isPending ? t.accepting : t.accept}
           </button>
@@ -48,7 +48,7 @@ export function IncomingFriendRequestItem({
               })
             }
             disabled={isPending}
-            className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger rounded-control border px-3 py-1.5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
+            className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control border px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {rejectMutation.isPending ? t.declining : t.decline}
           </button>

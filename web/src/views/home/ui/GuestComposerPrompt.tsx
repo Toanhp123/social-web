@@ -7,7 +7,7 @@ type HomeMessages = AppMessages["home"];
 
 export function GuestComposerPrompt({ t }: { t: HomeMessages }) {
   return (
-    <section className="rounded-card border-surface bg-surface shadow-card border p-5">
+    <section className="rounded-card border-surface-border bg-surface shadow-card border p-5">
       <p className="text-primary text-base font-semibold">
         {t.guestComposerTitle}
       </p>

@@ -80,7 +80,7 @@ export function AppSettingsButton() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="rounded-pill border-subtle bg-surface text-secondary hover:text-brand grid size-10 place-items-center border shadow-sm transition"
+        className="rounded-pill border-subtle bg-surface text-secondary hover:text-brand shadow-control grid size-10 place-items-center border transition"
         aria-label={copy.settingsLabel}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}

@@ -33,7 +33,7 @@ export function AppLayout({
       <main className="px-3 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-5">
           {showPageHeader && title && (
-            <section className="rounded-card border-surface bg-surface-elevated shadow-card border px-4 py-4 sm:px-5">
+            <section className="rounded-card border-surface-border bg-surface-elevated shadow-card border px-4 py-4 sm:px-5">
               <div>
                 <h1 className="text-primary text-xl font-semibold sm:text-2xl">
                   {title}

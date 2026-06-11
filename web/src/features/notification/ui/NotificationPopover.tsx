@@ -33,7 +33,7 @@ export function NotificationPopover({
           "rounded-pill border-subtle bg-surface text-secondary",
           "hover:border-brand-border hover:text-brand",
           "focus-visible:ring-brand-ring focus-visible:ring-4 focus-visible:outline-none",
-          "relative grid size-10 place-items-center border shadow-sm transition",
+          "shadow-control relative grid size-10 place-items-center border transition",
         )}
         aria-label={label}
         aria-expanded={isOpen}
@@ -48,7 +48,7 @@ export function NotificationPopover({
       </button>
 
       {isOpen && (
-        <div className="border-subtle bg-surface-elevated shadow-popover absolute top-12 right-0 z-50 w-80 rounded-xl border p-3 backdrop-blur">
+        <div className="border-subtle bg-surface-elevated shadow-popover rounded-card absolute top-12 right-0 z-50 w-80 border p-3 backdrop-blur">
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-primary text-sm font-semibold">{t.title}</p>
 

@@ -176,7 +176,7 @@ export function Combobox({
           isPill ? "w-fit max-w-full" : "w-full",
           isPill
             ? "rounded-pill bg-surface-muted text-secondary hover:bg-surface-muted focus:ring-brand-ring gap-1.5 border border-transparent text-xs font-semibold shadow-none focus:ring-2"
-            : "rounded-control border-subtle bg-surface-soft text-primary hover:border-brand hover:bg-surface focus:border-brand focus:ring-brand-ring gap-3 border text-sm shadow-sm focus:ring-2",
+            : "rounded-control border-subtle bg-surface-soft text-primary hover:border-brand hover:bg-surface focus:border-brand focus:ring-brand-ring shadow-control gap-3 border text-sm focus:ring-2",
         )}
       >
         <span
@@ -188,7 +188,7 @@ export function Combobox({
           {selectedOption?.icon && !isPill && (
             <span
               className={cn(
-                "bg-brand-soft text-brand grid shrink-0 place-items-center rounded-lg",
+                "bg-brand-soft text-brand rounded-control grid shrink-0 place-items-center",
                 iconSizeClass[size],
               )}
             >
@@ -251,7 +251,7 @@ export function Combobox({
                 aria-selected={isSelected}
                 onClick={() => selectValue(option.value)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg text-left",
+                  "rounded-control flex w-full items-center gap-3 text-left",
                   "hover:bg-surface-soft text-sm transition",
                   optionSizeClass[size],
                   isSelected
@@ -262,7 +262,7 @@ export function Combobox({
                 {option.icon && (
                   <span
                     className={cn(
-                      "bg-surface-muted text-brand grid shrink-0 place-items-center rounded-lg",
+                      "bg-surface-muted text-brand rounded-control grid shrink-0 place-items-center",
                       iconSizeClass[size],
                     )}
                   >

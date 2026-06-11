@@ -72,7 +72,7 @@ export function ImageUploader<TResult>({
       <label
         className={cn(
           "rounded-control inline-flex cursor-pointer items-center gap-2",
-          "border-subtle bg-surface border px-4 py-2 shadow-sm",
+          "border-subtle bg-surface shadow-control border px-4 py-2",
           "text-secondary hover:border-brand hover:text-brand text-sm font-medium",
           (disabled || isUploading) && "pointer-events-none opacity-60",
           className,
