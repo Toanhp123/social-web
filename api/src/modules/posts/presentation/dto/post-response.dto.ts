@@ -5,6 +5,7 @@ import {
   PostVisibility,
   ReactionType,
 } from '@/generated/prisma/client.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 
 export class PostAuthorResponseDto {
@@ -38,6 +39,22 @@ export class PostReactionStatsResponseDto {
   @Expose() totalReactionCount!: number;
   @Expose() commentCount!: number;
   @Expose() shareCount!: number;
+
+  static fromDomain(stats: PostReactionStats): PostReactionStatsResponseDto {
+    const dto = new PostReactionStatsResponseDto();
+
+    dto.likeCount = stats.likeCount;
+    dto.loveCount = stats.loveCount;
+    dto.hahaCount = stats.hahaCount;
+    dto.wowCount = stats.wowCount;
+    dto.sadCount = stats.sadCount;
+    dto.angryCount = stats.angryCount;
+    dto.totalReactionCount = stats.totalReactionCount;
+    dto.commentCount = stats.commentCount;
+    dto.shareCount = stats.shareCount;
+
+    return dto;
+  }
 }
 
 export class PostResponseDto {
@@ -92,17 +109,9 @@ export class PostResponseDto {
       order: media.order,
       alt: media.alt,
     }));
-    dto.reactionStats = {
-      likeCount: post.reactionStats.likeCount,
-      loveCount: post.reactionStats.loveCount,
-      hahaCount: post.reactionStats.hahaCount,
-      wowCount: post.reactionStats.wowCount,
-      sadCount: post.reactionStats.sadCount,
-      angryCount: post.reactionStats.angryCount,
-      totalReactionCount: post.reactionStats.totalReactionCount,
-      commentCount: post.reactionStats.commentCount,
-      shareCount: post.reactionStats.shareCount,
-    };
+    dto.reactionStats = PostReactionStatsResponseDto.fromDomain(
+      post.reactionStats,
+    );
 
     return dto;
   }

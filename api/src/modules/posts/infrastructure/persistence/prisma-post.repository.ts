@@ -4,6 +4,7 @@ import { PrismaTransactionContext } from '@/infrastructure/database/prisma-trans
 import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
 import type { Prisma } from '@/generated/prisma/client.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import { CreatePostInput } from '@/modules/posts/domain/types/create-post-input.type.js';
 import {
@@ -142,6 +143,42 @@ export class PrismaPostRepository implements PostRepository {
     });
 
     return post?.authorId ?? null;
+  }
+
+  async findReactionStats(input: {
+    postId: string;
+    viewerId?: string;
+  }): Promise<PostReactionStats | null> {
+    const client = this.getClient();
+    const post = await client.post.findFirst({
+      where: {
+        id: input.postId,
+        deletedAt: null,
+        isHidden: false,
+        ...this.getVisibilityWhere(input.viewerId),
+      },
+      select: {
+        stats: true,
+      },
+    });
+
+    if (!post?.stats) {
+      return null;
+    }
+
+    const stats = post.stats;
+
+    return new PostReactionStats(
+      stats.likeCount,
+      stats.loveCount,
+      stats.hahaCount,
+      stats.wowCount,
+      stats.sadCount,
+      stats.angryCount,
+      stats.totalReactionCount,
+      stats.commentCount,
+      stats.shareCount,
+    );
   }
 
   private getVisibilityWhere(viewerId?: string): Prisma.PostWhereInput {

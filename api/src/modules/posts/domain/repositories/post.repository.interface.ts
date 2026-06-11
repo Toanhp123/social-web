@@ -1,4 +1,5 @@
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { CreatePostInput } from '@/modules/posts/domain/types/create-post-input.type.js';
 import {
   ListPostsPage,
@@ -11,4 +12,8 @@ export abstract class PostRepository {
   abstract share(input: SharePostInput): Promise<Post>;
   abstract findPage(query: ListPostsQuery): Promise<ListPostsPage>;
   abstract findAuthorId(postId: string): Promise<string | null>;
+  abstract findReactionStats(input: {
+    postId: string;
+    viewerId?: string;
+  }): Promise<PostReactionStats | null>;
 }
