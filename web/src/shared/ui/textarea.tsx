@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef } from "react";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/shared/lib/utils";
 
 type TextareaVariant = "default" | "composer";
@@ -20,20 +20,19 @@ const variantClassName: Record<TextareaVariant, string> = {
   ),
 };
 
-export function Textarea({
-  variant = "default",
-  className,
-  ...props
-}: TextareaProps) {
-  return (
-    <textarea
-      {...props}
-      className={cn(
-        "w-full resize-none outline-none",
-        "disabled:cursor-not-allowed disabled:opacity-60",
-        variantClassName[variant],
-        className,
-      )}
-    />
-  );
-}
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  function Textarea({ variant = "default", className, ...props }, ref) {
+    return (
+      <textarea
+        {...props}
+        ref={ref}
+        className={cn(
+          "w-full resize-none outline-none",
+          "disabled:cursor-not-allowed disabled:opacity-60",
+          variantClassName[variant],
+          className,
+        )}
+      />
+    );
+  },
+);

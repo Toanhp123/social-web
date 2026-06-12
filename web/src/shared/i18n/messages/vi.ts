@@ -221,6 +221,7 @@ export const viMessages = {
     postReaction: "Ai đó đã bày tỏ cảm xúc về bài viết của bạn.",
     postComment: "Ai đó đã bình luận bài viết của bạn.",
     postShare: "Ai đó đã chia sẻ bài viết của bạn.",
+    mentioned: "Ai đó đã nhắc đến bạn.",
     fallback: "Gặp sự cố",
     title: "Thông báo",
   },

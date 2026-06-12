@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LinkedMentionText } from "@/entities/mention";
 import { cn } from "@/shared/lib/utils";
 import { useTranslations } from "@/shared/i18n";
 import { Button } from "@/shared/ui";
@@ -31,7 +32,7 @@ export function PostContent({ content, className }: PostContentProps) {
           shouldCollapse && !isExpanded && "line-clamp-5",
         )}
       >
-        {content}
+        <LinkedMentionText>{content}</LinkedMentionText>
       </p>
 
       {shouldCollapse && (

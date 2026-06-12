@@ -97,7 +97,7 @@ export type RealtimeNotification = {
   id: string;
   userId: string;
   actorId: string;
-  type: "POST_REACTION" | "POST_COMMENT" | "POST_SHARE";
+  type: "POST_REACTION" | "POST_COMMENT" | "POST_SHARE" | "MENTIONED";
   refId: string;
   count: number;
   readAt: string | null;

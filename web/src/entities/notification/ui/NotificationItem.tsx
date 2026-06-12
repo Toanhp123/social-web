@@ -36,6 +36,8 @@ function getNotificationMessage(
       return t.postComment;
     case "POST_SHARE":
       return t.postShare;
+    case "MENTIONED":
+      return t.mentioned;
     default:
       return t.fallback;
   }
