@@ -4,11 +4,10 @@ import { ApiError } from "@/shared/api/api-error";
 import {
   createMyProfileApi,
   deleteMyProfileApi,
-  getUserProfileApi,
   updateMyProfileApi,
   uploadMyProfileImageApi,
 } from "../api/profile-api.server";
-import type { UserProfile } from "@/entities/user";
+import { getUserProfileApi, type UserProfile } from "@/entities/user";
 import { saveProfileSchema, uploadProfileImageSchema } from "./profile.schema";
 
 export type ProfileActionResult =

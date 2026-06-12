@@ -1,1 +1,1 @@
-export { fetchPostReactionStats } from "./api/post-reaction-stats-api";
+export { handlePostReactionStatsRequest } from "./server/post-reaction-stats.server";

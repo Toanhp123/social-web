@@ -1,8 +1,7 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import type { PostPage } from "@/entities/post";
-import { listPostFeedApi } from "../api/post-feed-api.server";
+import { listPostsApi, type PostPage } from "@/entities/post";
 import { listPostFeedSchema } from "./post-feed.schema";
 
 export type ListPostFeedActionResult =
@@ -26,7 +25,7 @@ export async function listPostFeedAction(input: {
   try {
     return {
       ok: true,
-      page: await listPostFeedApi(parsedInput.data),
+      page: await listPostsApi(parsedInput.data),
     };
   } catch (error) {
     if (error instanceof ApiError) {

@@ -1,12 +1,17 @@
 import { optionalAuthApiFetch } from "@/entities/session/server";
-import type { PostPage } from "@/entities/post";
-import type { ListPostFeedInput } from "../model/post-feed.schema";
+import type { PostPage } from "../model/types";
 
-export async function listPostFeedApi({
+export type ListPostsApiInput = {
+  cursor?: string | null;
+  limit?: number;
+  authorId?: string | null;
+};
+
+export async function listPostsApi({
   cursor,
   limit = 10,
   authorId,
-}: ListPostFeedInput): Promise<PostPage> {
+}: ListPostsApiInput): Promise<PostPage> {
   const searchParams = new URLSearchParams({ limit: String(limit) });
 
   if (cursor) {
