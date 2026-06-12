@@ -36,6 +36,7 @@ enum MediaType {
 }
 
 enum FeedReason {
+  AUTHOR
   FOLLOWING // Post từ người đang follow
   FRIEND_ACTIVITY // Hoạt động của bạn bè
   TRENDING // Post hot trong cộng đồng

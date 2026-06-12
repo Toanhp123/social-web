@@ -8,8 +8,17 @@ import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostFeedRepository } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
-import { ListPostsCursor } from '@/modules/posts/domain/types/list-posts-query.type.js';
+import {
+  ListPostsCursor,
+  ListPostsPage,
+} from '@/modules/posts/domain/types/list-posts-query.type.js';
 import { PostListQuery } from '@/modules/posts/domain/value-objects/post-list-query.value-object.js';
+
+const DISCOVERY_START_CURSOR: ListPostsCursor = {
+  createdAt: new Date('9999-12-31T23:59:59.999Z'),
+  id: '~',
+  phase: 'discover',
+};
 
 export type ListPostsInput = {
   viewerId?: string;
@@ -74,9 +83,20 @@ export class ListPostsService {
     authorId?: string;
     limit: number;
     cursor?: ListPostsCursor;
-  }) {
+  }): Promise<ListPostsPage> {
     if (input.authorId || !input.viewerId) {
       return this.postRepository.findPage(input);
+    }
+
+    if (input.cursor?.phase === 'discover') {
+      return this.findDiscoveryPage({
+        viewerId: input.viewerId,
+        limit: input.limit,
+        cursor:
+          input.cursor.id === DISCOVERY_START_CURSOR.id
+            ? undefined
+            : input.cursor,
+      });
     }
 
     const feedPage = await this.postFeedRepository.findPage({
@@ -85,11 +105,35 @@ export class ListPostsService {
       cursor: input.cursor,
     });
 
-    if (feedPage.items.length > 0 || input.cursor) {
-      return feedPage;
+    if (feedPage.items.length > 0) {
+      return {
+        ...feedPage,
+        nextCursor: feedPage.nextCursor
+          ? { ...feedPage.nextCursor, phase: 'feed' }
+          : DISCOVERY_START_CURSOR,
+      };
     }
 
-    return this.postRepository.findPage(input);
+    // Trending feed materialization is deferred; exhausted feeds only read global posts for now.
+    return this.findDiscoveryPage({
+      viewerId: input.viewerId,
+      limit: input.limit,
+    });
+  }
+
+  private async findDiscoveryPage(input: {
+    viewerId: string;
+    limit: number;
+    cursor?: ListPostsCursor;
+  }): Promise<ListPostsPage> {
+    const page = await this.postRepository.findDiscoveryPage(input);
+
+    return {
+      ...page,
+      nextCursor: page.nextCursor
+        ? { ...page.nextCursor, phase: 'discover' }
+        : null,
+    };
   }
 
   private async getCachedResult(input: {

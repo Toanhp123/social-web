@@ -8,11 +8,15 @@ import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import {
+  BackfillFeedPostPage,
+  DeleteFeedItemPage,
   FeedRecipient,
   FanOutRecipientPage,
   PostFeedRepository,
 } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
 import type {
+  BackfillRelationshipFeedInput,
+  DeleteRelationshipFeedItemsInput,
   FanOutPostInput,
   FeedRecipientReason,
 } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
@@ -93,6 +97,173 @@ export class PrismaPostFeedRepository implements PostFeedRepository {
           score: 0,
         })),
         skipDuplicates: true,
+      });
+
+      return result.count;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findRelationshipBackfillPostPage(
+    input: BackfillRelationshipFeedInput & { limit: number },
+  ): Promise<BackfillFeedPostPage> {
+    const client = this.getClient();
+
+    try {
+      const cursor = this.parsePostCursor(input.cursor);
+      const posts = await client.post.findMany({
+        where: {
+          authorId: input.sourceUserId,
+          deletedAt: null,
+          isHidden: false,
+          visibility:
+            input.reason === 'FOLLOWING'
+              ? PostVisibility.PUBLIC
+              : { in: [PostVisibility.PUBLIC, PostVisibility.FRIENDS_ONLY] },
+          ...(cursor
+            ? {
+                OR: [
+                  { createdAt: { lt: cursor.createdAt } },
+                  {
+                    createdAt: cursor.createdAt,
+                    id: { lt: cursor.id },
+                  },
+                ],
+              }
+            : {}),
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: input.limit + 1,
+        select: {
+          id: true,
+          createdAt: true,
+        },
+      });
+      const hasNextPage = posts.length > input.limit;
+      const pageItems = hasNextPage ? posts.slice(0, input.limit) : posts;
+      const lastItem = pageItems.at(-1);
+
+      return {
+        items: pageItems.map((post) => ({
+          postId: post.id,
+          createdAt: post.createdAt,
+          reason: input.reason,
+        })),
+        nextCursor:
+          hasNextPage && lastItem
+            ? this.encodePostCursor({
+                createdAt: lastItem.createdAt,
+                id: lastItem.id,
+              })
+            : null,
+      };
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async createFeedItemsForRecipient(input: {
+    recipientId: string;
+    posts: Array<{
+      postId: string;
+      reason: Exclude<FeedRecipientReason, 'AUTHOR'>;
+    }>;
+  }): Promise<number> {
+    const client = this.getClient();
+
+    try {
+      const result = await client.feed.createMany({
+        data: input.posts.map((post) => ({
+          userId: input.recipientId,
+          postId: post.postId,
+          reason: this.toPrismaFeedReason(post.reason),
+          score: 0,
+        })),
+        skipDuplicates: true,
+      });
+
+      return result.count;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findRelationshipFeedItemPage(
+    input: DeleteRelationshipFeedItemsInput & { limit: number },
+  ): Promise<DeleteFeedItemPage> {
+    const client = this.getClient();
+
+    try {
+      const cursor = this.parsePostCursor(input.cursor);
+      const feedItems = await client.feed.findMany({
+        where: {
+          userId: input.recipientId,
+          reason: this.toPrismaFeedReason(input.reason),
+          ...(cursor
+            ? {
+                OR: [
+                  { createdAt: { lt: cursor.createdAt } },
+                  {
+                    createdAt: cursor.createdAt,
+                    postId: { lt: cursor.id },
+                  },
+                ],
+              }
+            : {}),
+          post: {
+            authorId: input.sourceUserId,
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }, { postId: 'desc' }],
+        take: input.limit + 1,
+        select: {
+          postId: true,
+          createdAt: true,
+        },
+      });
+      const hasNextPage = feedItems.length > input.limit;
+      const pageItems = hasNextPage
+        ? feedItems.slice(0, input.limit)
+        : feedItems;
+      const lastItem = pageItems.at(-1);
+
+      return {
+        items: pageItems.map((item) => ({
+          postId: item.postId,
+          createdAt: item.createdAt,
+        })),
+        nextCursor:
+          hasNextPage && lastItem
+            ? this.encodePostCursor({
+                createdAt: lastItem.createdAt,
+                id: lastItem.postId,
+              })
+            : null,
+      };
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async deleteFeedItemsForRecipient(input: {
+    recipientId: string;
+    postIds: string[];
+  }): Promise<number> {
+    if (input.postIds.length === 0) {
+      return 0;
+    }
+
+    const client = this.getClient();
+
+    try {
+      const result = await client.feed.deleteMany({
+        where: {
+          userId: input.recipientId,
+          postId: {
+            in: input.postIds,
+          },
+        },
       });
 
       return result.count;
@@ -210,7 +381,7 @@ export class PrismaPostFeedRepository implements PostFeedRepository {
       return {
         items: input.afterUserId
           ? []
-          : [{ userId: input.authorId, reason: null }],
+          : [{ userId: input.authorId, reason: 'AUTHOR' }],
         nextCursor: null,
       };
     }
@@ -385,9 +556,54 @@ export class PrismaPostFeedRepository implements PostFeedRepository {
     );
   }
 
-  private toPrismaFeedReason(reason: FeedRecipientReason): FeedReason | null {
-    if (!reason) {
+  private encodePostCursor(input: { createdAt: Date; id: string }): string {
+    return Buffer.from(
+      JSON.stringify({
+        createdAt: input.createdAt.toISOString(),
+        id: input.id,
+      }),
+      'utf8',
+    ).toString('base64url');
+  }
+
+  private parsePostCursor(
+    cursor?: string,
+  ): { createdAt: Date; id: string } | null {
+    if (!cursor) {
       return null;
+    }
+
+    try {
+      const decoded = JSON.parse(
+        Buffer.from(cursor, 'base64url').toString('utf8'),
+      ) as { createdAt?: unknown; id?: unknown };
+
+      if (
+        typeof decoded.createdAt !== 'string' ||
+        typeof decoded.id !== 'string'
+      ) {
+        return null;
+      }
+
+      const createdAt = new Date(decoded.createdAt);
+
+      if (Number.isNaN(createdAt.getTime())) {
+        return null;
+      }
+
+      return { createdAt, id: decoded.id };
+    } catch {
+      return null;
+    }
+  }
+
+  private toPrismaFeedReason(reason: FeedRecipientReason): FeedReason {
+    if (reason === 'AUTHOR') {
+      return FeedReason.AUTHOR;
+    }
+
+    if (reason === 'TRENDING') {
+      return FeedReason.TRENDING;
     }
 
     return reason === 'FRIEND_ACTIVITY'

@@ -2,6 +2,8 @@ export const POST_FEED_QUEUE_NAME = 'post-feed';
 
 export const POST_FEED_JOB_NAMES = {
   fanOutPage: 'fan-out-page',
+  backfillRelationshipPage: 'backfill-relationship-page',
+  removeRelationshipPage: 'remove-relationship-page',
 } as const;
 
 export type PostFeedJobName =
@@ -13,4 +15,16 @@ export type FanOutPostFeedPageJobData = {
   cursor?: string;
 };
 
-export type PostFeedJobData = FanOutPostFeedPageJobData;
+export type RelationshipFeedPageJobData = {
+  recipientId: string;
+  sourceUserId: string;
+  reason: 'FOLLOWING' | 'FRIEND_ACTIVITY';
+  cursor?: string;
+};
+
+export type BackfillRelationshipFeedPageJobData = RelationshipFeedPageJobData;
+export type RemoveRelationshipFeedPageJobData = RelationshipFeedPageJobData;
+
+export type PostFeedJobData =
+  | FanOutPostFeedPageJobData
+  | RelationshipFeedPageJobData;

@@ -129,6 +129,62 @@ export class PrismaPostRepository implements PostRepository {
     }
   }
 
+  async findDiscoveryPage(
+    query: ListPostsQuery & { viewerId: string },
+  ): Promise<ListPostsPage> {
+    const client = this.getClient();
+
+    try {
+      const posts = await client.post.findMany({
+        where: {
+          deletedAt: null,
+          isHidden: false,
+          feedItems: {
+            none: {
+              userId: query.viewerId,
+            },
+          },
+          AND: [
+            this.getVisibilityWhere(query.viewerId),
+            ...(query.cursor
+              ? [
+                  {
+                    OR: [
+                      { createdAt: { lt: query.cursor.createdAt } },
+                      {
+                        createdAt: query.cursor.createdAt,
+                        id: { lt: query.cursor.id },
+                      },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: query.limit + 1,
+        include: PostMapper.includeForViewer(query.viewerId),
+      });
+      const hasNextPage = posts.length > query.limit;
+      const pageItems = hasNextPage ? posts.slice(0, query.limit) : posts;
+      const lastItem = pageItems.at(-1);
+
+      return {
+        items: pageItems.map((post) => PostMapper.toDomain(post)),
+        nextCursor:
+          hasNextPage && lastItem
+            ? {
+                createdAt: lastItem.createdAt,
+                id: lastItem.id,
+                phase: 'discover',
+              }
+            : null,
+      };
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   async findAuthorId(postId: string): Promise<string | null> {
     const client = this.getClient();
     const post = await client.post.findFirst({

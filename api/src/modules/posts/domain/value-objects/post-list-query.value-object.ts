@@ -45,6 +45,7 @@ export class PostListQuery {
       JSON.stringify({
         createdAt: cursor.createdAt.toISOString(),
         id: cursor.id,
+        phase: cursor.phase,
       }),
       'utf8',
     ).toString('base64url');
@@ -71,7 +72,7 @@ export class PostListQuery {
     try {
       const decoded = JSON.parse(
         Buffer.from(cursor, 'base64url').toString('utf8'),
-      ) as { createdAt?: unknown; id?: unknown };
+      ) as { createdAt?: unknown; id?: unknown; phase?: unknown };
 
       if (
         typeof decoded.createdAt !== 'string' ||
@@ -86,7 +87,11 @@ export class PostListQuery {
         throw new Error('Invalid cursor date');
       }
 
-      return { createdAt, id: decoded.id };
+      return {
+        createdAt,
+        id: decoded.id,
+        phase: decoded.phase === 'discover' ? 'discover' : 'feed',
+      };
     } catch {
       throw new DomainError(
         ErrorCode.VALIDATION_ERROR,
