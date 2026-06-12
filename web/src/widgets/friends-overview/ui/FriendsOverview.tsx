@@ -1,5 +1,8 @@
 "use client";
 
+import { Inbox, Search, Send, Users } from "lucide-react";
+import type { ReactNode } from "react";
+import { useState } from "react";
 import {
   FriendCandidateList,
   IncomingFriendRequestList,
@@ -7,55 +10,76 @@ import {
 } from "@/features/friend-request";
 import { FriendsList } from "@/features/friendship";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
+
+type FriendsTab = "friends" | "discover" | "incoming" | "outgoing";
 
 export function FriendsOverview() {
   const t = useTranslations().friends;
+  const [activeTab, setActiveTab] = useState<FriendsTab>("friends");
+
+  const tabs: Array<{
+    id: FriendsTab;
+    label: string;
+    icon: ReactNode;
+    content: ReactNode;
+  }> = [
+    {
+      id: "friends",
+      label: t.title,
+      icon: <Users className="size-4" />,
+      content: <FriendsList />,
+    },
+    {
+      id: "discover",
+      label: t.discoverTitle,
+      icon: <Search className="size-4" />,
+      content: <FriendCandidateList />,
+    },
+    {
+      id: "incoming",
+      label: t.incomingTitle,
+      icon: <Inbox className="size-4" />,
+      content: <IncomingFriendRequestList />,
+    },
+    {
+      id: "outgoing",
+      label: t.outgoingTitle,
+      icon: <Send className="size-4" />,
+      content: <OutgoingFriendRequestList />,
+    },
+  ];
+  const activeTabContent = tabs.find((tab) => tab.id === activeTab)?.content;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <section className="border-subtle bg-surface shadow-card rounded-card border p-5">
-        <div className="mb-4">
-          <h3 className="text-primary text-base font-semibold">{t.title}</h3>
-          <p className="text-muted mt-1 text-sm">{t.description}</p>
-        </div>
+    <section className="rounded-card border-surface-border bg-surface shadow-card border">
+      <div className="border-soft flex gap-1 overflow-x-auto border-b px-3 pt-3">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
 
-        <FriendsList />
-      </section>
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "relative inline-flex h-11 shrink-0 items-center gap-2 px-4 text-sm font-semibold transition",
+                "text-secondary hover:bg-surface-soft hover:text-primary rounded-control",
+                "focus-visible:ring-brand-ring focus-visible:ring-4 focus-visible:outline-none",
+                isActive && "text-brand bg-brand-soft",
+              )}
+            >
+              {tab.icon}
+              {tab.label}
+              {isActive && (
+                <span className="bg-brand rounded-pill absolute right-3 bottom-0 left-3 h-0.5" />
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-      <aside className="space-y-5">
-        <section className="border-subtle bg-surface shadow-card rounded-card border p-5">
-          <div className="mb-4">
-            <h3 className="text-primary text-base font-semibold">
-              {t.discoverTitle}
-            </h3>
-            <p className="text-muted mt-1 text-sm">{t.discoverDescription}</p>
-          </div>
-
-          <FriendCandidateList />
-        </section>
-
-        <section className="border-subtle bg-surface shadow-card rounded-card border p-5">
-          <div className="mb-4">
-            <h3 className="text-primary text-base font-semibold">
-              {t.incomingTitle}
-            </h3>
-            <p className="text-muted mt-1 text-sm">{t.incomingDescription}</p>
-          </div>
-
-          <IncomingFriendRequestList />
-        </section>
-
-        <section className="border-subtle bg-surface shadow-card rounded-card border p-5">
-          <div className="mb-4">
-            <h3 className="text-primary text-base font-semibold">
-              {t.outgoingTitle}
-            </h3>
-            <p className="text-muted mt-1 text-sm">{t.outgoingDescription}</p>
-          </div>
-
-          <OutgoingFriendRequestList />
-        </section>
-      </aside>
-    </div>
+      <div className="p-4 sm:p-5">{activeTabContent}</div>
+    </section>
   );
 }

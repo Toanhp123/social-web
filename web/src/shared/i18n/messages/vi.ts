@@ -269,6 +269,8 @@ export const viMessages = {
     addFriend: "Kết bạn",
     sending: "Đang gửi...",
     sent: "Đã gửi lời mời",
+    alreadyFriends: "Đã là bạn bè",
+    requestReceived: "Đã nhận lời mời",
 
     accept: "Chấp nhận",
     accepting: "Đang chấp nhận...",

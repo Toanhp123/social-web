@@ -1,6 +1,7 @@
 "use client";
 
 import { FriendUserCard, type Friendship } from "@/entities/friend";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { useRemoveFriendMutation } from "../model/use-remove-friend-mutation";
 
@@ -24,12 +25,13 @@ export function FriendItem({ friendship }: FriendItemProps) {
       fullName={friendship.user.fullName}
       username={friendship.user.username}
       avatarAlt={t.avatarAlt}
+      href={getProfileRoute(friendship.user.id)}
       action={
         <button
           type="button"
           onClick={handleRemoveFriend}
           disabled={removeFriendMutation.isPending}
-          className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control shrink-0 border px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control w-full border px-3 py-2 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
         >
           {removeFriendMutation.isPending ? t.removing : t.remove}
         </button>

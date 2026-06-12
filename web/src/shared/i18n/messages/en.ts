@@ -272,6 +272,8 @@ export const enMessages = {
     addFriend: "Add friend",
     sending: "Sending...",
     sent: "Request sent",
+    alreadyFriends: "Friends",
+    requestReceived: "Request received",
 
     accept: "Accept",
     accepting: "Accepting...",

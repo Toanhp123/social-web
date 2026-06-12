@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, UserPlus } from "lucide-react";
 import { FriendUserCard } from "@/entities/friend";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { useFriendCandidatesQuery } from "../model/use-friend-candidates-query";
 import { useSendFriendRequestMutation } from "../model/use-send-friend-request-mutation";
@@ -41,7 +42,7 @@ export function FriendCandidateList() {
           <p className="text-muted mt-1 text-sm">{t.emptyCandidatesHint}</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
           {candidates.map((candidate) => {
             const isSending =
               sendFriendRequestMutation.isPending &&
@@ -54,6 +55,8 @@ export function FriendCandidateList() {
                 fullName={candidate.fullName}
                 username={candidate.username}
                 avatarAlt={t.avatarAlt}
+                href={getProfileRoute(candidate.id)}
+                actionClassName="mt-auto"
                 action={
                   <button
                     type="button"
@@ -64,7 +67,7 @@ export function FriendCandidateList() {
                       })
                     }
                     disabled={sendFriendRequestMutation.isPending}
-                    className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control inline-flex shrink-0 items-center gap-2 px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                    className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control inline-flex h-9 w-full items-center justify-center gap-2 px-3 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                   >
                     <UserPlus className="size-4 shrink-0" />
                     {isSending ? t.sending : t.addFriend}
