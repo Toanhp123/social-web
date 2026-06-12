@@ -16,4 +16,8 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsString()
   authorId?: string;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

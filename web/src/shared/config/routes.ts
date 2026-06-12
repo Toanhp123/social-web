@@ -7,6 +7,7 @@ export const ROUTES = {
   verifyEmail: "/verify-email",
   profile: "/profile",
   friends: "/friends",
+  search: "/search",
 } as const;
 
 export const AUTH_ROUTES = [

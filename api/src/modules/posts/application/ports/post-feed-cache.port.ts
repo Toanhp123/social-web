@@ -3,6 +3,7 @@ import type { Post } from '@/modules/posts/domain/entities/post.entity.js';
 export type PostFeedCacheKey = {
   viewerId: string | null;
   authorId?: string | null;
+  search?: string | null;
   limit: number;
   cursor?: string;
 };

@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUserService } from '@/modules/users/application/services/get-user.service.js';
 import { UserResponseDto } from '@/modules/users/presentation/dto/user-response.dto.js';
 import { JwtAuthGuard } from '@/core/security/guards/jwt-auth.guard.js';
+import { OptionalJwtAuthGuard } from '@/core/security/guards/optional-jwt-auth.guard.js';
 import { CurrentUser } from '@/core/security/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '@/core/security/types/authenticated-user.type.js';
 import { GetUserProfileService } from '@/modules/users/application/services/get-user-profile.service.js';
@@ -50,14 +51,14 @@ export class UserController {
     private readonly listUserMentionCandidatesService: ListUserMentionCandidatesService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('discover')
   async discoverUsers(
     @Query() query: ListUserDiscoveryQueryDto,
-    @CurrentUser() currentUser: AuthenticatedUser,
+    @CurrentUser() currentUser: AuthenticatedUser | null,
   ): Promise<UserSummaryResponseDto[]> {
     const users = await this.listUserDiscoveryService.execute({
-      viewerId: currentUser.userId,
+      viewerId: currentUser?.userId,
       query: query.query,
       limit: query.limit,
     });

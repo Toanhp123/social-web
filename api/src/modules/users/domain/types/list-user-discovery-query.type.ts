@@ -1,5 +1,5 @@
 export type ListUserDiscoveryQuery = {
-  viewerId: string;
+  viewerId?: string;
   query?: string;
   limit?: number;
 };

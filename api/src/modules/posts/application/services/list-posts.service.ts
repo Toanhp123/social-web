@@ -23,6 +23,7 @@ const DISCOVERY_START_CURSOR: ListPostsCursor = {
 export type ListPostsInput = {
   viewerId?: string;
   authorId?: string;
+  search?: string;
   limit?: number;
   cursor?: string;
 };
@@ -50,6 +51,7 @@ export class ListPostsService {
     const cacheKey = {
       viewerId: query.viewerId ?? null,
       authorId: query.authorId ?? null,
+      search: query.search ?? null,
       limit: query.limit,
       cursor: query.rawCursor,
     };
@@ -62,6 +64,7 @@ export class ListPostsService {
     const page = await this.findPage({
       viewerId: query.viewerId,
       authorId: query.authorId,
+      search: query.search,
       limit: query.limit,
       cursor: query.cursor,
     });
@@ -81,10 +84,11 @@ export class ListPostsService {
   private async findPage(input: {
     viewerId?: string;
     authorId?: string;
+    search?: string;
     limit: number;
     cursor?: ListPostsCursor;
   }): Promise<ListPostsPage> {
-    if (input.authorId || !input.viewerId) {
+    if (input.search || input.authorId || !input.viewerId) {
       return this.postRepository.findPage(input);
     }
 
@@ -139,6 +143,7 @@ export class ListPostsService {
   private async getCachedResult(input: {
     viewerId: string | null;
     authorId: string | null;
+    search: string | null;
     limit: number;
     cursor?: string;
   }): Promise<ListPostsResult | null> {
@@ -153,6 +158,7 @@ export class ListPostsService {
     input: {
       viewerId: string | null;
       authorId: string | null;
+      search: string | null;
       limit: number;
       cursor?: string;
     },

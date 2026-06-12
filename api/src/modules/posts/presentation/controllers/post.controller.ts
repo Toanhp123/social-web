@@ -58,6 +58,7 @@ export class PostController {
     const page = await this.listPostsService.execute({
       viewerId: currentUser?.userId,
       authorId: query.authorId,
+      search: query.search,
       limit: query.limit,
       cursor: query.cursor,
     });

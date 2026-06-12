@@ -11,6 +11,7 @@ export type ListPostsPhase = 'feed' | 'discover';
 export type ListPostsQuery = {
   viewerId?: string;
   authorId?: string;
+  search?: string;
   limit: number;
   cursor?: ListPostsCursor;
 };

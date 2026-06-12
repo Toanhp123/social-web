@@ -117,6 +117,7 @@ export class RedisPostFeedCache implements PostFeedCache {
       JSON.stringify({
         viewerId: key.viewerId,
         authorId: key.authorId ?? null,
+        search: key.search ?? null,
         limit: key.limit,
         cursor: key.cursor ?? null,
       }),
