@@ -10,6 +10,7 @@ import { UpdateUserProfileService } from '@/modules/users/application/services/u
 import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
 import { UploadUserProfileImageService } from '@/modules/users/application/services/upload-user-profile-image.service.js';
 import { ListUserDiscoveryService } from '@/modules/users/application/services/list-user-discovery.service.js';
+import { ListUserMentionCandidatesService } from '@/modules/users/application/services/list-user-mention-candidates.service.js';
 
 @Module({
   imports: [UserPersistenceModule, SecurityModule, MediaModule],
@@ -22,6 +23,7 @@ import { ListUserDiscoveryService } from '@/modules/users/application/services/l
     DeleteUserProfileService,
     UploadUserProfileImageService,
     ListUserDiscoveryService,
+    ListUserMentionCandidatesService,
   ],
   exports: [UserPersistenceModule],
 })

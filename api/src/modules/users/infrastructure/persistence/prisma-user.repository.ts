@@ -11,6 +11,7 @@ import { PrismaTransactionContext } from '@/infrastructure/database/prisma-trans
 import { UserProfile } from '@/modules/users/domain/entities/user-profile.entity.js';
 import { UserSummary } from '@/modules/users/domain/entities/user-summary.entity.js';
 import { ListUserDiscoveryQuery } from '@/modules/users/domain/types/list-user-discovery-query.type.js';
+import { ListUserMentionQuery } from '@/modules/users/domain/types/list-user-mention-query.type.js';
 import { UserProfileInput } from '@/modules/users/domain/types/user-profile-input.type.js';
 import { DatabaseError } from '@/core/exceptions/database.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
@@ -124,6 +125,76 @@ export class PrismaUserRepository implements UserRepository {
             : {}),
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: limit,
+        select: UserMapper.summarySelect,
+      });
+
+      return users.map((user) => UserMapper.toSummaryDomain(user));
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findSummariesByUsernames(usernames: string[]): Promise<UserSummary[]> {
+    if (usernames.length === 0) {
+      return [];
+    }
+
+    const client = this.getClient();
+
+    try {
+      const users = await client.user.findMany({
+        where: {
+          username: {
+            in: usernames.map((username) => username.toLowerCase()),
+            mode: 'insensitive',
+          },
+        },
+        select: UserMapper.summarySelect,
+      });
+
+      return users.map((user) => UserMapper.toSummaryDomain(user));
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findMentionCandidates(
+    query: ListUserMentionQuery,
+  ): Promise<UserSummary[]> {
+    const client = this.getClient();
+    const limit = query.limit ?? 8;
+    const searchQuery = query.query?.trim();
+
+    try {
+      const users = await client.user.findMany({
+        where: {
+          id: {
+            not: query.viewerId,
+          },
+          username: {
+            not: null,
+          },
+          ...(searchQuery
+            ? {
+                OR: [
+                  {
+                    fullName: {
+                      contains: searchQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    username: {
+                      contains: searchQuery,
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              }
+            : {}),
+        },
+        orderBy: [{ fullName: 'asc' }, { id: 'asc' }],
         take: limit,
         select: UserMapper.summarySelect,
       });
