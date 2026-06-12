@@ -25,6 +25,7 @@ import { UpdateUserProfileService } from '@/modules/users/application/services/u
 import { DeleteUserProfileService } from '@/modules/users/application/services/delete-user-profile.service.js';
 import { UploadUserProfileImageService } from '@/modules/users/application/services/upload-user-profile-image.service.js';
 import { ListUserDiscoveryService } from '@/modules/users/application/services/list-user-discovery.service.js';
+import { ListUserMentionCandidatesService } from '@/modules/users/application/services/list-user-mention-candidates.service.js';
 import { ListUserDiscoveryQueryDto } from '@/modules/users/presentation/dto/list-user-discovery-query.dto.js';
 import { UserProfileInputDto } from '@/modules/users/presentation/dto/user-profile-input.dto.js';
 import { UserProfileResponseDto } from '@/modules/users/presentation/dto/user-profile-response.dto.js';
@@ -46,6 +47,7 @@ export class UserController {
     private readonly deleteUserProfileService: DeleteUserProfileService,
     private readonly uploadUserProfileImageService: UploadUserProfileImageService,
     private readonly listUserDiscoveryService: ListUserDiscoveryService,
+    private readonly listUserMentionCandidatesService: ListUserMentionCandidatesService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -55,6 +57,21 @@ export class UserController {
     @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<UserSummaryResponseDto[]> {
     const users = await this.listUserDiscoveryService.execute({
+      viewerId: currentUser.userId,
+      query: query.query,
+      limit: query.limit,
+    });
+
+    return users.map((user) => UserSummaryResponseDto.fromDomain(user));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('mentions')
+  async mentionCandidates(
+    @Query() query: ListUserDiscoveryQueryDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserSummaryResponseDto[]> {
+    const users = await this.listUserMentionCandidatesService.execute({
       viewerId: currentUser.userId,
       query: query.query,
       limit: query.limit,

@@ -9,6 +9,7 @@ import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { CreateNotificationService } from '@/modules/notifications/application/services/create-notification.service.js';
+import { NotifyMentionedUsersService } from '@/modules/notifications/application/services/notify-mentioned-users.service.js';
 import { CommentDraft } from '@/modules/comments/domain/entities/comment-draft.entity.js';
 import { Comment } from '@/modules/comments/domain/entities/comment.entity.js';
 import { CommentRepository } from '@/modules/comments/domain/repositories/comment.repository.interface.js';
@@ -39,6 +40,8 @@ export class CreateCommentService {
     private readonly realtimePublisher: RealtimePublisher,
 
     private readonly createNotificationService: CreateNotificationService,
+
+    private readonly notifyMentionedUsersService: NotifyMentionedUsersService,
   ) {}
 
   async execute(input: CreateCommentServiceInput): Promise<Comment> {
@@ -51,6 +54,7 @@ export class CreateCommentService {
     await this.invalidateFeedCache();
     this.publishCommentCreated(comment);
     await this.notifyPostActivity(comment);
+    await this.notifyMentionedUsers(comment);
 
     return comment;
   }
@@ -91,6 +95,15 @@ export class CreateCommentService {
         aggregateKey: `comment-reply:${comment.parentId}`,
       });
     }
+  }
+
+  private async notifyMentionedUsers(comment: Comment): Promise<void> {
+    await this.notifyMentionedUsersService.execute({
+      actorId: comment.author.id,
+      content: comment.content,
+      refId: comment.id,
+      source: 'comment',
+    });
   }
 
   private async invalidateFeedCache(): Promise<void> {

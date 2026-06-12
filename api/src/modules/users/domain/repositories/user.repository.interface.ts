@@ -3,6 +3,7 @@ import { UserProfile } from '@/modules/users/domain/entities/user-profile.entity
 import { UserSummary } from '@/modules/users/domain/entities/user-summary.entity.js';
 import { CreateUserInput } from '@/modules/users/domain/types/create-user-input.type.js';
 import { ListUserDiscoveryQuery } from '@/modules/users/domain/types/list-user-discovery-query.type.js';
+import { ListUserMentionQuery } from '@/modules/users/domain/types/list-user-mention-query.type.js';
 import { UserProfileInput } from '@/modules/users/domain/types/user-profile-input.type.js';
 
 export abstract class UserRepository {
@@ -12,6 +13,14 @@ export abstract class UserRepository {
 
   abstract findDiscoveryCandidates(
     query: ListUserDiscoveryQuery,
+  ): Promise<UserSummary[]>;
+
+  abstract findMentionCandidates(
+    query: ListUserMentionQuery,
+  ): Promise<UserSummary[]>;
+
+  abstract findSummariesByUsernames(
+    usernames: string[],
   ): Promise<UserSummary[]>;
 
   abstract findProfileByUserId(userId: string): Promise<UserProfile | null>;

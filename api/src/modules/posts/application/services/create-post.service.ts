@@ -9,6 +9,7 @@ import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
+import { NotifyMentionedUsersService } from '@/modules/notifications/application/services/notify-mentioned-users.service.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import { PostDraft } from '@/modules/posts/domain/entities/post-draft.entity.js';
 import {
@@ -47,6 +48,8 @@ export class CreatePostService {
     private readonly postFeedJobQueue: PostFeedJobQueue,
 
     private readonly realtimePublisher: RealtimePublisher,
+
+    private readonly notifyMentionedUsersService: NotifyMentionedUsersService,
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
@@ -70,8 +73,18 @@ export class CreatePostService {
       authorId: post.author.id,
       visibility: post.visibility,
     });
+    await this.notifyMentionedUsers(post);
 
     return post;
+  }
+
+  private async notifyMentionedUsers(post: Post): Promise<void> {
+    await this.notifyMentionedUsersService.execute({
+      actorId: post.author.id,
+      content: post.content,
+      refId: post.id,
+      source: 'post',
+    });
   }
 
   private async enqueuePostFeedFanOut(
