@@ -10,10 +10,13 @@ import {
 } from "react";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
-import type { PostPage, PostReactionStats } from "@/entities/post";
+import {
+  fetchPostReactionStats,
+  type PostPage,
+  type PostReactionStats,
+} from "@/entities/post";
 import { commentPostQueryKeys } from "@/features/comment-post";
 import { postFeedQueryKeys } from "@/features/post-feed";
-import { fetchPostReactionStats } from "@/features/post-reaction-stats";
 import type {
   RealtimeEventPayload,
   RealtimeNotification,

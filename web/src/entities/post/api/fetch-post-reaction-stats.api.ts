@@ -1,4 +1,4 @@
-import type { PostReactionStats } from "@/entities/post";
+import type { PostReactionStats } from "../model/types";
 
 export async function fetchPostReactionStats(
   postId: string,

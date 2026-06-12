@@ -1,8 +1,7 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import type { Friendship } from "@/entities/friend";
-import { listFriendsApi } from "../api/list-friends.api";
+import { listFriendsApi, type Friendship } from "@/entities/friend";
 
 export type ListFriendsActionResult =
   | {

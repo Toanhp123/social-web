@@ -2,8 +2,7 @@
 
 import { z } from "zod";
 import { ApiError } from "@/shared/api/api-error";
-import type { FriendUser } from "@/entities/friend";
-import { listFriendCandidatesApi } from "../api/list-friend-candidates.api";
+import { listFriendCandidatesApi, type FriendUser } from "@/entities/friend";
 
 const listFriendCandidatesSchema = z.object({
   query: z.string().trim().max(100).optional(),

@@ -1,11 +1,8 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import type { Comment, CommentPage } from "@/entities/comment";
-import {
-  createPostCommentApi,
-  listPostCommentsApi,
-} from "../api/comment-post-api.server";
+import { listCommentsApi, type Comment, type CommentPage } from "@/entities/comment";
+import { createPostCommentApi } from "../api/comment-post-api.server";
 import {
   createPostCommentSchema,
   listPostCommentsSchema,
@@ -38,7 +35,7 @@ export async function listPostCommentsAction(input: {
   try {
     return {
       ok: true,
-      page: await listPostCommentsApi(parsedInput.data),
+      page: await listCommentsApi(parsedInput.data),
     };
   } catch (error) {
     if (error instanceof ApiError) {

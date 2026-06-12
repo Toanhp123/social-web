@@ -1,5 +1,9 @@
 import { authApiFetch } from "@/entities/session/server";
-import type { FriendUser } from "@/entities/friend";
+import type { FriendRequest, Friendship, FriendUser } from "../model/types";
+
+export async function listFriendsApi(): Promise<Friendship[]> {
+  return authApiFetch<Friendship[]>("/friends");
+}
 
 export async function listFriendCandidatesApi(input: {
   query?: string;
@@ -20,4 +24,16 @@ export async function listFriendCandidatesApi(input: {
   return authApiFetch<FriendUser[]>(
     `/users/discover${queryString ? `?${queryString}` : ""}`,
   );
+}
+
+export async function listIncomingFriendRequestsApi(): Promise<
+  FriendRequest[]
+> {
+  return authApiFetch<FriendRequest[]>("/friend-requests/incoming");
+}
+
+export async function listOutgoingFriendRequestsApi(): Promise<
+  FriendRequest[]
+> {
+  return authApiFetch<FriendRequest[]>("/friend-requests/outgoing");
 }

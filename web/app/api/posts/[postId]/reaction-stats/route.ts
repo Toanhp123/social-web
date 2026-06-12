@@ -1,1 +1,1 @@
-export { handlePostReactionStatsRequest as GET } from "@/features/post-reaction-stats/server";
+export { handlePostReactionStatsRequest as GET } from "@/features/post-reaction-stats";

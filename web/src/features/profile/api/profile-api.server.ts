@@ -1,14 +1,6 @@
 import { authApiFetch } from "@/entities/session/server";
-import type { User, UserProfile } from "@/entities/user";
+import type { UserProfile } from "@/entities/user";
 import type { UserProfileInput } from "../model/profile.schema";
-
-export async function getUserApi(userId: string): Promise<User> {
-  return authApiFetch<User>(`/users/${userId}`);
-}
-
-export async function getUserProfileApi(userId: string): Promise<UserProfile> {
-  return authApiFetch<UserProfile>(`/users/${userId}/profile`);
-}
 
 export async function createMyProfileApi(
   input: UserProfileInput,
