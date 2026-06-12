@@ -64,41 +64,9 @@ export class PrismaUserRepository implements UserRepository {
     const searchQuery = query.query?.trim();
 
     try {
-      const friendships = await client.friendship.findMany({
-        where: {
-          OR: [{ user1Id: query.viewerId }, { user2Id: query.viewerId }],
-        },
-        select: {
-          user1Id: true,
-          user2Id: true,
-        },
-      });
-      const pendingRequests = await client.friendRequest.findMany({
-        where: {
-          status: 'PENDING',
-          OR: [{ requesterId: query.viewerId }, { receiverId: query.viewerId }],
-        },
-        select: {
-          requesterId: true,
-          receiverId: true,
-        },
-      });
-      const excludedUserIds = new Set<string>([query.viewerId]);
-
-      friendships.forEach((friendship) => {
-        excludedUserIds.add(
-          friendship.user1Id === query.viewerId
-            ? friendship.user2Id
-            : friendship.user1Id,
-        );
-      });
-      pendingRequests.forEach((request) => {
-        excludedUserIds.add(
-          request.requesterId === query.viewerId
-            ? request.receiverId
-            : request.requesterId,
-        );
-      });
+      const excludedUserIds = query.viewerId
+        ? await this.findExcludedDiscoveryUserIds(client, query.viewerId)
+        : new Set<string>();
 
       const users = await client.user.findMany({
         where: {
@@ -133,6 +101,49 @@ export class PrismaUserRepository implements UserRepository {
     } catch (error) {
       throw mapPrismaError(error);
     }
+  }
+
+  private async findExcludedDiscoveryUserIds(
+    client: PrismaClientLike,
+    viewerId: string,
+  ): Promise<Set<string>> {
+    const friendships = await client.friendship.findMany({
+      where: {
+        OR: [{ user1Id: viewerId }, { user2Id: viewerId }],
+      },
+      select: {
+        user1Id: true,
+        user2Id: true,
+      },
+    });
+    const pendingRequests = await client.friendRequest.findMany({
+      where: {
+        status: 'PENDING',
+        OR: [{ requesterId: viewerId }, { receiverId: viewerId }],
+      },
+      select: {
+        requesterId: true,
+        receiverId: true,
+      },
+    });
+    const excludedUserIds = new Set<string>([viewerId]);
+
+    friendships.forEach((friendship) => {
+      excludedUserIds.add(
+        friendship.user1Id === viewerId
+          ? friendship.user2Id
+          : friendship.user1Id,
+      );
+    });
+    pendingRequests.forEach((request) => {
+      excludedUserIds.add(
+        request.requesterId === viewerId
+          ? request.receiverId
+          : request.requesterId,
+      );
+    });
+
+    return excludedUserIds;
   }
 
   async findSummariesByUsernames(usernames: string[]): Promise<UserSummary[]> {

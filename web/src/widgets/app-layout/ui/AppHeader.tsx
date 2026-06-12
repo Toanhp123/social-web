@@ -7,7 +7,6 @@ import {
   Home,
   LogIn,
   MessageCircle,
-  Search,
   UserPlus,
   UserRound,
   Users,
@@ -19,6 +18,7 @@ import { ROUTES } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { LogoutButton } from "@/features/logout";
+import { AppSearchBox } from "@/features/search";
 import { useCurrentSession } from "@/entities/session";
 
 type AppHeaderProps = {
@@ -35,7 +35,7 @@ export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
       <div className="mx-auto flex h-12 max-w-7xl min-w-0 items-center gap-2 sm:h-14 sm:gap-3">
         <AppBrand t={t} />
 
-        <AppSearch t={t} />
+        <AppSearchBox className="ml-2" />
 
         <AppNavigation t={t} />
 
@@ -90,15 +90,6 @@ function AppBrand({ t }: { t: AppMessages["app"] }) {
         {t.brand}
       </span>
     </Link>
-  );
-}
-
-function AppSearch({ t }: { t: AppMessages["app"] }) {
-  return (
-    <label className="rounded-pill border-subtle bg-surface-muted text-muted ml-2 hidden min-w-0 flex-1 items-center gap-3 border px-4 py-2 text-sm md:flex md:max-w-md">
-      <Search className="size-4 shrink-0" />
-      <span className="truncate">{t.searchPlaceholder}</span>
-    </label>
   );
 }
 

@@ -8,6 +8,7 @@ const POST_FEED_PAGE_SIZE = 10;
 
 type UsePostFeedQueryInput = {
   authorId?: string;
+  search?: string;
 };
 
 export function usePostFeedQuery(input: UsePostFeedQueryInput = {}) {
@@ -19,6 +20,7 @@ export function usePostFeedQuery(input: UsePostFeedQueryInput = {}) {
         cursor: pageParam,
         limit: POST_FEED_PAGE_SIZE,
         authorId: input.authorId,
+        search: input.search,
       });
 
       if (!result.ok) {

@@ -5,6 +5,7 @@ export {
   getRefreshToken,
   setAuthCookies,
 } from "./lib/auth-cookie.server";
+export { getCurrentSessionUser } from "./lib/current-session-user.server";
 export {
   authApiFetch,
   optionalAuthApiFetch,

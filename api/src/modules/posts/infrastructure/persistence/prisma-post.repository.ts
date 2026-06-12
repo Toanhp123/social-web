@@ -94,6 +94,7 @@ export class PrismaPostRepository implements PostRepository {
           ...(query.authorId ? { authorId: query.authorId } : {}),
           AND: [
             this.getVisibilityWhere(query.viewerId),
+            ...this.getSearchWhere(query.search),
             ...(query.cursor
               ? [
                   {
@@ -146,6 +147,7 @@ export class PrismaPostRepository implements PostRepository {
           },
           AND: [
             this.getVisibilityWhere(query.viewerId),
+            ...this.getSearchWhere(query.search),
             ...(query.cursor
               ? [
                   {
@@ -243,6 +245,43 @@ export class PrismaPostRepository implements PostRepository {
     }
 
     return { OR: [{ visibility: 'PUBLIC' }, { authorId: viewerId }] };
+  }
+
+  private getSearchWhere(search?: string): Prisma.PostWhereInput[] {
+    if (!search) {
+      return [];
+    }
+
+    return [
+      {
+        OR: [
+          {
+            content: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            author: {
+              OR: [
+                {
+                  fullName: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  username: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ];
   }
 
   private async assertVisiblePost(

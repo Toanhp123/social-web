@@ -1,4 +1,4 @@
-import { authApiFetch } from "@/entities/session/server";
+import { authApiFetch, optionalAuthApiFetch } from "@/entities/session/server";
 import type { FriendRequest, Friendship, FriendUser } from "../model/types";
 
 export async function listFriendsApi(): Promise<Friendship[]> {
@@ -21,7 +21,7 @@ export async function listFriendCandidatesApi(input: {
 
   const queryString = searchParams.toString();
 
-  return authApiFetch<FriendUser[]>(
+  return optionalAuthApiFetch<FriendUser[]>(
     `/users/discover${queryString ? `?${queryString}` : ""}`,
   );
 }
