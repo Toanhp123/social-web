@@ -27,7 +27,8 @@
     "preseed": "npm run generate",
     "seed": "tsx prisma/seed-users.ts",
     "seed:users": "tsx prisma/seed-users.ts --users=100000",
-    "seed:posts": "tsx prisma/seed-posts.ts --posts=1000000"
+    "seed:posts": "tsx prisma/seed-posts.ts --posts=1000000",
+    "feed:backfill": "tsx prisma/backfill-feed.ts"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",

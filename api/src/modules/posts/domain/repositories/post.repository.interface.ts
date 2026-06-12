@@ -11,6 +11,9 @@ export abstract class PostRepository {
   abstract create(input: CreatePostInput): Promise<Post>;
   abstract share(input: SharePostInput): Promise<Post>;
   abstract findPage(query: ListPostsQuery): Promise<ListPostsPage>;
+  abstract findDiscoveryPage(
+    query: ListPostsQuery & { viewerId: string },
+  ): Promise<ListPostsPage>;
   abstract findAuthorId(postId: string): Promise<string | null>;
   abstract findReactionStats(input: {
     postId: string;

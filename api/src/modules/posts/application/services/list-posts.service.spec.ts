@@ -7,6 +7,12 @@ import type { PostRepository } from '@/modules/posts/domain/repositories/post.re
 import type { ListPostsPage } from '@/modules/posts/domain/types/list-posts-query.type.js';
 
 describe('ListPostsService', () => {
+  const createPostFeedCache = (): PostFeedCache =>
+    ({
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue(undefined),
+    }) as unknown as PostFeedCache;
+
   it('reads the personalized feed when a viewer is present and no author filter is requested', async () => {
     const post = { id: 'post-1' } as unknown as Post;
     const feedPage: ListPostsPage = {
@@ -15,14 +21,13 @@ describe('ListPostsService', () => {
     };
     const postRepository = {
       findPage: jest.fn(),
+      findDiscoveryPage: jest.fn(),
     } as unknown as PostRepository;
     const postFeedRepository = {
       findPage: jest.fn().mockResolvedValue(feedPage),
+      createFeedItemsForRecipient: jest.fn(),
     } as unknown as PostFeedRepository;
-    const postFeedCache = {
-      get: jest.fn().mockResolvedValue(null),
-      set: jest.fn().mockResolvedValue(undefined),
-    } as unknown as PostFeedCache;
+    const postFeedCache = createPostFeedCache();
     const service = new ListPostsService(
       postRepository,
       postFeedRepository,
@@ -37,5 +42,105 @@ describe('ListPostsService', () => {
       cursor: undefined,
     });
     expect(postRepository.findPage).not.toHaveBeenCalled();
+  });
+
+  it('returns a discovery cursor after the final personalized feed page', async () => {
+    const post = { id: 'post-1' } as unknown as Post;
+    const feedPage: ListPostsPage = {
+      items: [post],
+      nextCursor: null,
+    };
+    const postRepository = {
+      findPage: jest.fn(),
+      findDiscoveryPage: jest.fn(),
+    } as unknown as PostRepository;
+    const postFeedRepository = {
+      findPage: jest.fn().mockResolvedValue(feedPage),
+      createFeedItemsForRecipient: jest.fn(),
+    } as unknown as PostFeedRepository;
+    const service = new ListPostsService(
+      postRepository,
+      postFeedRepository,
+      createPostFeedCache(),
+    );
+
+    const result = await service.execute({ viewerId: 'viewer-1', limit: 10 });
+
+    expect(result.nextCursor).toEqual(expect.any(String));
+    expect(
+      Buffer.from(result.nextCursor ?? '', 'base64url').toString('utf8'),
+    ).toContain('"phase":"discover"');
+  });
+
+  it('reads discovery posts when the cursor is in discovery phase', async () => {
+    const post = { id: 'post-2', createdAt: new Date() } as unknown as Post;
+    const discoveryPage: ListPostsPage = {
+      items: [post],
+      nextCursor: null,
+    };
+    const postRepository = {
+      findPage: jest.fn(),
+      findDiscoveryPage: jest.fn().mockResolvedValue(discoveryPage),
+    } as unknown as PostRepository;
+    const postFeedRepository = {
+      findPage: jest.fn(),
+      createFeedItemsForRecipient: jest.fn().mockResolvedValue(1),
+    } as unknown as PostFeedRepository;
+    const service = new ListPostsService(
+      postRepository,
+      postFeedRepository,
+      createPostFeedCache(),
+    );
+    const cursor = Buffer.from(
+      JSON.stringify({
+        createdAt: new Date('2026-01-01T00:00:00.000Z').toISOString(),
+        id: 'post-3',
+        phase: 'discover',
+      }),
+      'utf8',
+    ).toString('base64url');
+
+    await service.execute({ viewerId: 'viewer-1', limit: 10, cursor });
+
+    expect(postRepository.findDiscoveryPage).toHaveBeenCalledWith({
+      viewerId: 'viewer-1',
+      limit: 10,
+      cursor: {
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        id: 'post-3',
+        phase: 'discover',
+      },
+    });
+    expect(postFeedRepository.findPage).not.toHaveBeenCalled();
+  });
+
+  it('does not store discovered posts in the viewer feed yet', async () => {
+    const post = {
+      id: 'post-2',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    } as unknown as Post;
+    const discoveryPage: ListPostsPage = {
+      items: [post],
+      nextCursor: null,
+    };
+    const postRepository = {
+      findPage: jest.fn(),
+      findDiscoveryPage: jest.fn().mockResolvedValue(discoveryPage),
+    } as unknown as PostRepository;
+    const postFeedRepository = {
+      findPage: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      createFeedItemsForRecipient: jest.fn().mockResolvedValue(1),
+    } as unknown as PostFeedRepository;
+    const service = new ListPostsService(
+      postRepository,
+      postFeedRepository,
+      createPostFeedCache(),
+    );
+
+    await service.execute({ viewerId: 'viewer-1', limit: 10 });
+
+    expect(
+      postFeedRepository.createFeedItemsForRecipient,
+    ).not.toHaveBeenCalled();
   });
 });

@@ -6,6 +6,7 @@ import {
 import { SecurityModule } from '@/core/security/security.module.js';
 import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
+import { PostsModule } from '@/modules/posts/posts.module.js';
 import { UserModule } from '@/modules/users/user.module.js';
 import { CancelFriendRequestService } from '@/modules/friends/application/services/cancel-friend-request.service.js';
 import { ListFriendRequestsService } from '@/modules/friends/application/services/list-friend-requests.service.js';
@@ -20,7 +21,13 @@ import { PrismaFriendRequestRepository } from './infrastructure/persistence/pris
 import { PrismaFriendShipRepository } from './infrastructure/persistence/prisma-friend.repository.js';
 
 @Module({
-  imports: [DatabaseModule, SecurityModule, UserModule, NotificationsModule],
+  imports: [
+    DatabaseModule,
+    SecurityModule,
+    UserModule,
+    NotificationsModule,
+    PostsModule,
+  ],
   controllers: [FriendController, FriendRequestController],
   providers: [
     AcceptFriendRequestService,

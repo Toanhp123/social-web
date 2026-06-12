@@ -11,11 +11,13 @@ import { RedisModule } from '@/infrastructure/redis/redis.module.js';
 import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
+import { BackfillRelationshipFeedService } from '@/modules/posts/application/services/backfill-relationship-feed.service.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
 import { FanOutPostFeedService } from '@/modules/posts/application/services/fan-out-post-feed.service.js';
 import { GetPostReactionStatsService } from '@/modules/posts/application/services/get-post-reaction-stats.service.js';
 import { ListPostsService } from '@/modules/posts/application/services/list-posts.service.js';
 import { ReactToPostService } from '@/modules/posts/application/services/react-to-post.service.js';
+import { RemoveRelationshipFeedService } from '@/modules/posts/application/services/remove-relationship-feed.service.js';
 import { SharePostService } from '@/modules/posts/application/services/share-post.service.js';
 import { RedisPostFeedCache } from '@/modules/posts/infrastructure/cache/redis-post-feed-cache.js';
 import { PostPersistenceModule } from '@/modules/posts/infrastructure/persistence/post-persistence.module.js';
@@ -39,10 +41,12 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
   controllers: [PostController],
   providers: [
     CreatePostService,
+    BackfillRelationshipFeedService,
     FanOutPostFeedService,
     GetPostReactionStatsService,
     ListPostsService,
     ReactToPostService,
+    RemoveRelationshipFeedService,
     SharePostService,
     PostFeedProcessor,
     {
@@ -54,6 +58,6 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
       useClass: BullMqPostFeedJobQueue,
     },
   ],
-  exports: [PostPersistenceModule, POST_FEED_CACHE],
+  exports: [PostPersistenceModule, POST_FEED_CACHE, POST_FEED_JOB_QUEUE],
 })
 export class PostsModule {}
