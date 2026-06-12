@@ -224,6 +224,7 @@ export const enMessages = {
     postReaction: "Someone reacted to your post.",
     postComment: "Someone commented on your post.",
     postShare: "Someone shared your post.",
+    mentioned: "Someone mentioned you.",
     fallback: "Error",
     title: "Notifications",
   },

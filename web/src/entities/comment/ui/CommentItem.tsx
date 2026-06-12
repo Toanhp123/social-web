@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { LinkedMentionText } from "@/entities/mention";
 import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
@@ -71,7 +72,7 @@ export function CommentItem({
               </Link>
             )}
 
-            <span>{comment.content}</span>
+            <LinkedMentionText>{comment.content}</LinkedMentionText>
           </p>
 
           {shouldCollapse && (

@@ -3,9 +3,9 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
+import { MentionTextarea } from "@/features/mention-users";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Textarea } from "@/shared/ui";
 import { useCreateCommentMutation } from "../model/use-create-comment-mutation";
 
 type CommentFormProps = {
@@ -58,23 +58,23 @@ export function CommentForm({
       onSubmit={handleSubmit}
       className={cn("flex items-end gap-2", compact && "text-sm")}
     >
-      <Textarea
+      <MentionTextarea
         rows={compact ? 1 : 2}
         value={content}
+        onValueChange={setContent}
         onFocus={() => {
           if (!canInteract) {
             onRequireAuth?.();
           }
         }}
-        onChange={(event) => setContent(event.target.value)}
         placeholder={compact ? t.writeReply : t.writeComment}
-        className="flex-1"
+        wrapperClassName="flex-1"
       />
 
       <button
         type="submit"
         disabled={isDisabled}
-        className="grid size-10 shrink-0 place-items-center rounded-pill bg-brand text-inverse transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-pill bg-brand text-inverse hover:bg-brand-hover grid size-10 shrink-0 place-items-center transition disabled:cursor-not-allowed disabled:opacity-50"
         aria-label={t.send}
       >
         {createCommentMutation.isPending ? (
@@ -86,4 +86,3 @@ export function CommentForm({
     </form>
   );
 }
-
