@@ -1,4 +1,4 @@
-import { getUserApi, getUserProfileApi } from "@/entities/user";
+import { getUserApi, getUserProfileApi } from "@/entities/user/server";
 import { ApiError } from "@/shared/api/api-error";
 
 export async function getUserOrNull(userId: string) {

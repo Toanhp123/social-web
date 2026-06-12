@@ -7,7 +7,8 @@ import {
   updateMyProfileApi,
   uploadMyProfileImageApi,
 } from "../api/profile-api.server";
-import { getUserProfileApi, type UserProfile } from "@/entities/user";
+import type { UserProfile } from "@/entities/user";
+import { getUserProfileApi } from "@/entities/user/server";
 import { saveProfileSchema, uploadProfileImageSchema } from "./profile.schema";
 
 export type ProfileActionResult =

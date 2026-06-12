@@ -1,7 +1,8 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import { listPostsApi, type PostPage } from "@/entities/post";
+import type { PostPage } from "@/entities/post";
+import { listPostsApi } from "@/entities/post/server";
 import { listPostFeedSchema } from "./post-feed.schema";
 
 export type ListPostFeedActionResult =

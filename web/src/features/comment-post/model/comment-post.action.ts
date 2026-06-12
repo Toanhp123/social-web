@@ -1,7 +1,8 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import { listCommentsApi, type Comment, type CommentPage } from "@/entities/comment";
+import type { Comment, CommentPage } from "@/entities/comment";
+import { listCommentsApi } from "@/entities/comment/server";
 import { createPostCommentApi } from "../api/comment-post-api.server";
 import {
   createPostCommentSchema,

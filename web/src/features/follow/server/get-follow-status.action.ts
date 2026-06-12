@@ -1,7 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { getFollowStatusApi, type FollowStatus } from "@/entities/follow";
+import type { FollowStatus } from "@/entities/follow";
+import { getFollowStatusApi } from "@/entities/follow/server";
 import { ApiError } from "@/shared/api/api-error";
 
 const getFollowStatusSchema = z.object({

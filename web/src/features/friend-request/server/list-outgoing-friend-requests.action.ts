@@ -1,10 +1,8 @@
 "use server";
 
 import { ApiError } from "@/shared/api/api-error";
-import {
-  listOutgoingFriendRequestsApi,
-  type FriendRequest,
-} from "@/entities/friend";
+import type { FriendRequest } from "@/entities/friend";
+import { listOutgoingFriendRequestsApi } from "@/entities/friend/server";
 
 export type ListOutgoingFriendRequestsActionResult =
   | { ok: true; requests: FriendRequest[] }
