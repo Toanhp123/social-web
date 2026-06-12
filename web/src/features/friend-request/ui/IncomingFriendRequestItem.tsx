@@ -1,6 +1,7 @@
 "use client";
 
-import { FriendRequest, FriendUserCard } from "@/entities/friend";
+import { FriendUserCard, type FriendRequest } from "@/entities/friend";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { useAcceptFriendRequestMutation } from "../model/use-accept-friend-request-mutation";
 import { useRejectFriendRequestMutation } from "../model/use-reject-friend-request-mutation";
@@ -23,10 +24,12 @@ export function IncomingFriendRequestItem({
     <FriendUserCard
       avatarUrl={requester.avatarUrl}
       fullName={requester.fullName}
-      username={requester.username}
       avatarAlt={t.avatarAlt}
+      href={getProfileRoute(requester.id)}
+      variant="listItem"
+      actionClassName="w-full sm:w-auto"
       action={
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="grid gap-2 sm:flex sm:shrink-0 sm:items-center">
           <button
             type="button"
             onClick={() =>
@@ -35,7 +38,7 @@ export function IncomingFriendRequestItem({
               })
             }
             disabled={isPending}
-            className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+            className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control px-3 py-2 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {acceptMutation.isPending ? t.accepting : t.accept}
           </button>
@@ -48,7 +51,7 @@ export function IncomingFriendRequestItem({
               })
             }
             disabled={isPending}
-            className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control border px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+            className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control border px-3 py-2 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {rejectMutation.isPending ? t.declining : t.decline}
           </button>

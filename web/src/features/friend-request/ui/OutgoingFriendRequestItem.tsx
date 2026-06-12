@@ -1,6 +1,7 @@
 "use client";
 
-import { FriendRequest, FriendUserCard } from "@/entities/friend";
+import { FriendUserCard, type FriendRequest } from "@/entities/friend";
+import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { useCancelFriendRequestMutation } from "../model/use-cancel-friend-request-mutation";
 
@@ -20,8 +21,10 @@ export function OutgoingFriendRequestItem({
     <FriendUserCard
       avatarUrl={receiver.avatarUrl}
       fullName={receiver.fullName}
-      username={receiver.username}
       avatarAlt={t.avatarAlt}
+      href={getProfileRoute(receiver.id)}
+      variant="listItem"
+      actionClassName="w-full sm:w-auto"
       action={
         <button
           type="button"
@@ -31,7 +34,7 @@ export function OutgoingFriendRequestItem({
             })
           }
           disabled={cancelMutation.isPending}
-          className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control shrink-0 border px-3 py-1.5 text-sm font-medium transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control w-full border px-3 py-2 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:w-auto"
         >
           {cancelMutation.isPending ? t.canceling : t.cancel}
         </button>

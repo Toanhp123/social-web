@@ -1,3 +1,6 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/utils";
 import { Avatar } from "@/shared/ui/Avatar";
 
 type FriendUserCardProps = {
@@ -5,35 +8,88 @@ type FriendUserCardProps = {
   fullName: string;
   username?: string | null;
   avatarAlt: string;
-  action?: React.ReactNode;
+  href?: string;
+  action?: ReactNode;
+  variant?: "card" | "listItem";
+  avatarSize?: number;
+  className?: string;
+  actionClassName?: string;
 };
 
 export function FriendUserCard({
   avatarUrl,
   fullName,
-  username,
   avatarAlt,
+  href,
   action,
+  variant = "card",
+  avatarSize,
+  className,
+  actionClassName,
 }: FriendUserCardProps) {
-  return (
-    <article className="border-subtle bg-surface hover:bg-surface-soft rounded-card flex items-center justify-between gap-4 border p-4 transition">
-      <div className="flex min-w-0 items-center gap-3">
-        <Avatar
-          src={avatarUrl}
-          alt={`${avatarAlt} ${fullName}`}
-          name={fullName}
-        />
+  const isListItem = variant === "listItem";
+  const resolvedAvatarSize = avatarSize ?? (isListItem ? 44 : 60);
 
-        <div className="min-w-0">
-          <p className="text-primary truncate font-medium">{fullName}</p>
+  const profileContent = (
+    <>
+      <Avatar
+        src={avatarUrl}
+        alt={`${avatarAlt} ${fullName}`}
+        name={fullName}
+        size={resolvedAvatarSize}
+        className="ring-surface-border ring-2"
+      />
 
-          {username && (
-            <p className="text-muted truncate text-sm">@{username}</p>
+      <div
+        className={cn("min-w-0", isListItem ? "flex-1" : "w-full text-center")}
+      >
+        <p
+          className={cn(
+            "text-primary truncate leading-tight font-semibold",
+            isListItem ? "text-sm" : "text-base",
           )}
-        </div>
+        >
+          {fullName}
+        </p>
       </div>
+    </>
+  );
 
-      {action}
+  const profileClassName = cn(
+    "min-w-0",
+    isListItem
+      ? "flex flex-1 items-center gap-3"
+      : "flex flex-col items-center gap-3",
+  );
+
+  const profileBlock = href ? (
+    <Link href={href} className={cn("group", profileClassName)}>
+      {profileContent}
+    </Link>
+  ) : (
+    <div className={profileClassName}>{profileContent}</div>
+  );
+
+  return (
+    <article
+      className={cn(
+        "rounded-card border-surface-border bg-surface shadow-card border transition",
+        "hover:border-brand-border hover:bg-surface-soft",
+        isListItem
+          ? "flex w-full items-center justify-between gap-3 p-3"
+          : "flex min-h-40 w-full flex-col justify-between gap-3 p-3",
+        className,
+      )}
+    >
+      {profileBlock}
+
+      {action && (
+        <div
+          className={cn(isListItem ? "shrink-0" : "w-full", actionClassName)}
+        >
+          {action}
+        </div>
+      )}
     </article>
   );
 }
