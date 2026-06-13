@@ -18,6 +18,7 @@ type PostCardProps = {
   onCommentClick?: () => void;
   onShareClick?: () => void;
   onMediaClick?: () => void;
+  menuSlot?: ReactNode;
   commentsSlot?: ReactNode;
 };
 
@@ -30,6 +31,7 @@ export function PostCard({
   onCommentClick,
   onShareClick,
   onMediaClick,
+  menuSlot,
   commentsSlot,
 }: PostCardProps) {
   const currentReaction = post.currentReaction
@@ -44,7 +46,7 @@ export function PostCard({
       )}
     >
       <div className="p-4 pb-3">
-        <PostHeader post={post} metaLabel={metaLabel} />
+        <PostHeader post={post} metaLabel={metaLabel} menuSlot={menuSlot} />
 
         {post.content && <PostContent content={post.content} />}
       </div>

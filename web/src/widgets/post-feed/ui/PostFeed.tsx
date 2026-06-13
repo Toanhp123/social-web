@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Newspaper, WifiOff } from "lucide-react";
 import { PostCard, type Post, type ReactionType } from "@/entities/post";
 import { CommentForm, PostCommentsList } from "@/features/comment-post";
+import { PostManagementMenu } from "@/features/manage-post";
 import { usePostFeedQuery } from "@/features/post-feed";
 import { useReactPostMutation } from "@/features/react-post";
 import { useRealtimePostSubscription } from "@/features/realtime";
@@ -157,6 +158,18 @@ export function PostFeed({
               onMediaClick={() => openPostDetails(post.id)}
               onCommentClick={() => openPostDetails(post.id)}
               onShareClick={() => handleShareClick(post)}
+              menuSlot={
+                <PostManagementMenu
+                  post={post}
+                  canInteract={canInteract}
+                  onRequireAuth={requireAuth}
+                  onRemoved={() => {
+                    if (selectedPostId === post.id) {
+                      closePostDetails();
+                    }
+                  }}
+                />
+              }
             />
           ))}
         </div>
@@ -185,6 +198,14 @@ export function PostFeed({
             handleReactionChange(selectedPost.id, type)
           }
           onShareClick={() => handleShareClick(selectedPost)}
+          menuSlot={
+            <PostManagementMenu
+              post={selectedPost}
+              canInteract={canInteract}
+              onRequireAuth={requireAuth}
+              onRemoved={closePostDetails}
+            />
+          }
           commentsSlot={
             <PostCommentsList
               postId={selectedPost.id}

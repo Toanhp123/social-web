@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import { mapPrismaError } from '@/infrastructure/database/prisma-error.mapper.js';
-import type { Prisma } from '@/generated/prisma/client.js';
+import {
+  ReportStatus,
+  ReportType,
+  type Prisma,
+} from '@/generated/prisma/client.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
@@ -79,6 +83,118 @@ export class PrismaPostRepository implements PostRepository {
         throw error;
       }
 
+      throw mapPrismaError(error);
+    }
+  }
+
+  async softDelete(input: {
+    postId: string;
+    deletedById: string;
+  }): Promise<void> {
+    const client = this.getClient();
+
+    try {
+      const result = await client.post.updateMany({
+        where: {
+          id: input.postId,
+          authorId: input.deletedById,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      if (result.count === 0) {
+        throw new DomainError(
+          ErrorCode.RESOURCE_NOT_FOUND,
+          'Post not found',
+          404,
+        );
+      }
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw error;
+      }
+
+      throw mapPrismaError(error);
+    }
+  }
+
+  async report(input: {
+    postId: string;
+    reporterId: string;
+    reason?: string | null;
+  }): Promise<void> {
+    const client = this.getClient();
+
+    try {
+      await this.assertVisiblePost(client, input.postId, input.reporterId);
+
+      const existingReport = await client.report.findFirst({
+        where: {
+          reporterId: input.reporterId,
+          targetPostId: input.postId,
+          type: ReportType.POST,
+          status: ReportStatus.CANCELED,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (existingReport) {
+        await client.report.update({
+          where: { id: existingReport.id },
+          data: {
+            reason: input.reason ?? null,
+            status: ReportStatus.PENDING,
+            reviewedAt: null,
+          },
+        });
+        return;
+      }
+
+      await client.report.create({
+        data: {
+          reporterId: input.reporterId,
+          targetPostId: input.postId,
+          type: ReportType.POST,
+          reason: input.reason ?? null,
+          status: ReportStatus.PENDING,
+        },
+      });
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw error;
+      }
+
+      throw mapPrismaError(error);
+    }
+  }
+
+  async cancelReport(input: {
+    postId: string;
+    reporterId: string;
+  }): Promise<boolean> {
+    const client = this.getClient();
+
+    try {
+      const result = await client.report.updateMany({
+        where: {
+          reporterId: input.reporterId,
+          targetPostId: input.postId,
+          type: ReportType.POST,
+          status: ReportStatus.PENDING,
+        },
+        data: {
+          status: ReportStatus.CANCELED,
+          reviewedAt: new Date(),
+        },
+      });
+
+      return result.count > 0;
+    } catch (error) {
       throw mapPrismaError(error);
     }
   }
@@ -185,6 +301,26 @@ export class PrismaPostRepository implements PostRepository {
     } catch (error) {
       throw mapPrismaError(error);
     }
+  }
+
+  async hasReportedPost(input: {
+    postId: string;
+    reporterId: string;
+  }): Promise<boolean> {
+    const client = this.getClient();
+    const report = await client.report.findFirst({
+      where: {
+        reporterId: input.reporterId,
+        targetPostId: input.postId,
+        type: ReportType.POST,
+        status: ReportStatus.PENDING,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Boolean(report);
   }
 
   async findAuthorId(postId: string): Promise<string | null> {

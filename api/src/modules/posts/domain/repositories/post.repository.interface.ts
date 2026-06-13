@@ -10,6 +10,23 @@ import { SharePostInput } from '@/modules/posts/domain/types/share-post-input.ty
 export abstract class PostRepository {
   abstract create(input: CreatePostInput): Promise<Post>;
   abstract share(input: SharePostInput): Promise<Post>;
+  abstract softDelete(input: {
+    postId: string;
+    deletedById: string;
+  }): Promise<void>;
+  abstract report(input: {
+    postId: string;
+    reporterId: string;
+    reason?: string | null;
+  }): Promise<void>;
+  abstract cancelReport(input: {
+    postId: string;
+    reporterId: string;
+  }): Promise<boolean>;
+  abstract hasReportedPost(input: {
+    postId: string;
+    reporterId: string;
+  }): Promise<boolean>;
   abstract findPage(query: ListPostsQuery): Promise<ListPostsPage>;
   abstract findDiscoveryPage(
     query: ListPostsQuery & { viewerId: string },

@@ -15,7 +15,7 @@ export class CreateNotificationService {
   ) {}
 
   async execute(input: CreateNotificationInput): Promise<Notification | null> {
-    if (!input.actorId || input.actorId === input.userId) {
+    if (input.actorId && input.actorId === input.userId) {
       return null;
     }
 

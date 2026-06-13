@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { PostCard } from "@/entities/post";
+import { useCurrentSession } from "@/entities/session";
+import { PostManagementMenu } from "@/features/manage-post";
 import { usePostFeedQuery } from "@/features/post-feed";
-import { getProfileRoute } from "@/shared/config/routes";
+import {
+  CALLBACK_URL_SEARCH_PARAM,
+  getProfileRoute,
+  ROUTES,
+} from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { Avatar } from "@/shared/ui/Avatar";
 import { useSearchUsersQuery } from "../model/use-search-users-query";
@@ -15,10 +22,22 @@ type SearchResultsProps = {
 
 export function SearchResults({ query }: SearchResultsProps) {
   const t = useTranslations().search;
+  const { currentUser } = useCurrentSession();
+  const router = useRouter();
+  const pathname = usePathname();
   const normalizedQuery = query.trim();
   const usersQuery = useSearchUsersQuery(normalizedQuery);
   const postsQuery = usePostFeedQuery({ search: normalizedQuery });
   const posts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const canInteract = Boolean(currentUser);
+
+  function requireAuth() {
+    const callbackUrl = pathname ? `${pathname}?q=${normalizedQuery}` : ROUTES.search;
+    const searchParams = new URLSearchParams();
+
+    searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
+    router.push(`${ROUTES.login}?${searchParams.toString()}`);
+  }
 
   if (normalizedQuery.length < 2) {
     return (
@@ -91,7 +110,17 @@ export function SearchResults({ query }: SearchResultsProps) {
           ) : posts.length ? (
             <>
               {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  menuSlot={
+                    <PostManagementMenu
+                      post={post}
+                      canInteract={canInteract}
+                      onRequireAuth={requireAuth}
+                    />
+                  }
+                />
               ))}
 
               {postsQuery.hasNextPage && (

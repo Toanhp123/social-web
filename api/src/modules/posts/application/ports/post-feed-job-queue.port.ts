@@ -14,6 +14,11 @@ export type BackfillRelationshipFeedPageJobInput = {
 export type RemoveRelationshipFeedPageJobInput =
   BackfillRelationshipFeedPageJobInput;
 
+export type RemovePostFeedPageJobInput = {
+  postId: string;
+  cursor?: string;
+};
+
 export abstract class PostFeedJobQueue {
   abstract enqueueFanOutPage(input: FanOutPostFeedPageJobInput): Promise<void>;
   abstract enqueueRelationshipBackfillPage(
@@ -21,5 +26,8 @@ export abstract class PostFeedJobQueue {
   ): Promise<void>;
   abstract enqueueRelationshipRemovalPage(
     input: RemoveRelationshipFeedPageJobInput,
+  ): Promise<void>;
+  abstract enqueuePostFeedRemovalPage(
+    input: RemovePostFeedPageJobInput,
   ): Promise<void>;
 }
