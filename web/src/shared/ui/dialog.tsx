@@ -57,7 +57,7 @@ export function Dialog({
   return createPortal(
     <div
       className={cn(
-        "fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-3 sm:p-6",
+        "fixed inset-0 z-100 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-6",
         className,
       )}
       onClick={onClose}
@@ -66,8 +66,9 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "rounded-card bg-surface shadow-popover relative flex w-full max-w-2xl flex-col overflow-hidden",
-          "max-h-[calc(100dvh-2.5rem)]",
+          "bg-surface shadow-popover relative flex h-dvh w-full max-w-2xl flex-col overflow-hidden rounded-none",
+          "sm:h-auto sm:rounded-card",
+          "max-h-dvh",
           "sm:max-h-[min(86dvh,760px)]",
           contentClassName,
         )}

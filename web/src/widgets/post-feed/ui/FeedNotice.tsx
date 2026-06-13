@@ -16,8 +16,8 @@ export function FeedNotice({
   onAction,
 }: FeedNoticeProps) {
   return (
-    <div className="rounded-card border border-dashed border-subtle bg-surface p-6 shadow-card">
-      <div className="flex items-start gap-4">
+    <div className="rounded-card border border-dashed border-subtle bg-surface p-4 shadow-card sm:p-6">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="grid size-11 shrink-0 place-items-center rounded-control bg-brand-soft text-brand">
           {icon}
         </div>

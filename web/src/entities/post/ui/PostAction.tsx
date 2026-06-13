@@ -22,7 +22,7 @@ export function PostAction({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "flex w-full min-w-0 items-center justify-center gap-2 rounded-control px-3 py-2 text-sm font-medium transition",
+        "flex h-10 w-full min-w-0 items-center justify-center gap-1.5 rounded-control px-2 text-sm font-medium transition sm:gap-2 sm:px-3",
         "disabled:cursor-not-allowed disabled:opacity-60",
         active
           ? "text-brand hover:bg-brand-soft"
@@ -30,7 +30,7 @@ export function PostAction({
       )}
     >
       {icon}
-      <span className="truncate">{label}</span>
+      <span className="hidden min-w-0 truncate sm:inline">{label}</span>
     </button>
   );
 }

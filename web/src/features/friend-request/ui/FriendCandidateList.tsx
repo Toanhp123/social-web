@@ -37,12 +37,12 @@ export function FriendCandidateList() {
           {t.loadCandidatesError}
         </div>
       ) : candidates.length === 0 ? (
-        <div className="border-soft bg-surface rounded-panel shadow-card border p-5 text-center">
+        <div className="border-soft bg-surface rounded-panel shadow-card border p-4 text-center sm:p-5">
           <p className="text-primary font-semibold">{t.emptyCandidates}</p>
           <p className="text-muted mt-1 text-sm">{t.emptyCandidatesHint}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
           {candidates.map((candidate) => {
             const isSending =
               sendFriendRequestMutation.isPending &&

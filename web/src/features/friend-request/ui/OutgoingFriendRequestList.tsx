@@ -28,7 +28,7 @@ export function OutgoingFriendRequestList() {
 
   if (requests.length === 0) {
     return (
-      <div className="border-soft bg-surface rounded-panel shadow-card border p-6 text-center">
+      <div className="border-soft bg-surface rounded-panel shadow-card border p-4 text-center sm:p-6">
         <p className="text-primary font-semibold">{t.emptyOutgoing}</p>
 
         <p className="text-muted mt-1 text-sm">{t.emptyOutgoingHint}</p>

@@ -9,7 +9,6 @@ import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { AppLayout } from "@/widgets/app-layout";
 import { PostFeed } from "@/widgets/post-feed";
-import { GuestComposerPrompt } from "./GuestComposerPrompt";
 import { GuestProfilePrompt } from "./GuestProfilePrompt";
 import { HomeRail } from "./HomeRail";
 
@@ -30,8 +29,12 @@ export function HomePageContent() {
           <HomeRail currentUserEmail={currentUser?.email} t={t} />
         </aside>
 
-        <main className="min-w-0 space-y-5">
-          {currentUser ? <CreatePostComposer /> : <GuestComposerPrompt t={t} />}
+        <main className="min-w-0 space-y-4 sm:space-y-5">
+          {currentUser && (
+            <div className="hidden md:block">
+              <CreatePostComposer />
+            </div>
+          )}
 
           <PostFeed canInteract={Boolean(currentUser)} />
         </main>

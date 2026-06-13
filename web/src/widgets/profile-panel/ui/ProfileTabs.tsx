@@ -28,7 +28,7 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
             type="button"
             onClick={() => onTabChange(item.value)}
             className={cn(
-              "rounded-control hover:bg-surface-muted relative px-4 py-3 transition",
+              "rounded-control hover:bg-surface-muted relative min-w-24 flex-1 px-3 py-3 text-center transition sm:min-w-0 sm:flex-none sm:px-4",
               isActive && "text-brand",
             )}
           >

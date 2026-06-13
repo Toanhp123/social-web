@@ -53,7 +53,7 @@ export function FriendsOverview() {
 
   return (
     <section className="rounded-card border-surface-border bg-surface shadow-card border">
-      <div className="border-soft flex gap-1 overflow-x-auto border-b px-3 pt-3">
+      <div className="border-soft flex gap-1 overflow-x-auto border-b px-2 pt-2 sm:px-3 sm:pt-3">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
@@ -63,14 +63,14 @@ export function FriendsOverview() {
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "relative inline-flex h-11 shrink-0 items-center gap-2 px-4 text-sm font-semibold transition",
+                "relative inline-flex h-11 shrink-0 items-center gap-2 px-3 text-sm font-semibold transition sm:px-4",
                 "text-secondary hover:bg-surface-soft hover:text-primary rounded-control",
                 "focus-visible:ring-brand-ring focus-visible:ring-4 focus-visible:outline-none",
                 isActive && "text-brand bg-brand-soft",
               )}
             >
               {tab.icon}
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
               {isActive && (
                 <span className="bg-brand rounded-pill absolute right-3 bottom-0 left-3 h-0.5" />
               )}
@@ -79,7 +79,7 @@ export function FriendsOverview() {
         })}
       </div>
 
-      <div className="p-4 sm:p-5">{activeTabContent}</div>
+      <div className="p-3 sm:p-5">{activeTabContent}</div>
     </section>
   );
 }

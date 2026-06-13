@@ -14,7 +14,7 @@ export function FriendsList() {
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-card border-surface-border bg-surface shadow-card flex min-h-48 animate-pulse flex-col items-center justify-between border p-4"
+            className="rounded-card border-surface-border bg-surface shadow-card flex min-h-36 animate-pulse flex-col items-center justify-between border p-3 sm:min-h-48 sm:p-4"
           >
             <div className="bg-surface-muted size-20 rounded-full" />
             <div className="bg-surface-muted rounded-pill h-4 w-3/4" />
@@ -33,7 +33,7 @@ export function FriendsList() {
 
   if (friendships.length === 0) {
     return (
-      <div className="border-subtle bg-surface shadow-card rounded-card border border-dashed p-10 text-center">
+      <div className="border-subtle bg-surface shadow-card rounded-card border border-dashed p-6 text-center sm:p-10">
         <p className="text-primary font-medium">{t.emptyTitle}</p>
 
         <p className="text-muted mt-1 text-sm">{t.emptyDescription}</p>
