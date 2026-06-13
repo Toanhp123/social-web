@@ -22,6 +22,8 @@ describe('ListPostsService', () => {
     const postRepository = {
       findPage: jest.fn(),
       findDiscoveryPage: jest.fn(),
+      softDelete: jest.fn(),
+      report: jest.fn(),
     } as unknown as PostRepository;
     const postFeedRepository = {
       findPage: jest.fn().mockResolvedValue(feedPage),
@@ -53,6 +55,8 @@ describe('ListPostsService', () => {
     const postRepository = {
       findPage: jest.fn(),
       findDiscoveryPage: jest.fn(),
+      softDelete: jest.fn(),
+      report: jest.fn(),
     } as unknown as PostRepository;
     const postFeedRepository = {
       findPage: jest.fn().mockResolvedValue(feedPage),
@@ -81,6 +85,8 @@ describe('ListPostsService', () => {
     const postRepository = {
       findPage: jest.fn(),
       findDiscoveryPage: jest.fn().mockResolvedValue(discoveryPage),
+      softDelete: jest.fn(),
+      report: jest.fn(),
     } as unknown as PostRepository;
     const postFeedRepository = {
       findPage: jest.fn(),
@@ -126,6 +132,8 @@ describe('ListPostsService', () => {
     const postRepository = {
       findPage: jest.fn(),
       findDiscoveryPage: jest.fn().mockResolvedValue(discoveryPage),
+      softDelete: jest.fn(),
+      report: jest.fn(),
     } as unknown as PostRepository;
     const postFeedRepository = {
       findPage: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),

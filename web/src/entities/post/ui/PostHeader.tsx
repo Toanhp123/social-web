@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   Globe2,
   Lock,
-  MoreHorizontal,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -23,6 +23,7 @@ type VisibilityConfig = {
 type PostHeaderProps = {
   post: Post;
   metaLabel?: string;
+  menuSlot?: ReactNode;
 };
 
 const VISIBILITY_CONFIGS = {
@@ -43,9 +44,7 @@ const VISIBILITY_CONFIGS = {
   },
 } satisfies Record<Post["visibility"], VisibilityConfig>;
 
-export function PostHeader({ post, metaLabel }: PostHeaderProps) {
-  const t = useTranslations().post;
-
+export function PostHeader({ post, metaLabel, menuSlot }: PostHeaderProps) {
   return (
     <div className="flex items-start gap-3">
       <Avatar
@@ -73,13 +72,7 @@ export function PostHeader({ post, metaLabel }: PostHeaderProps) {
         </p>
       </div>
 
-      <button
-        type="button"
-        className="rounded-pill text-placeholder hover:bg-surface-muted hover:text-secondary grid size-9 shrink-0 place-items-center transition"
-        aria-label={t.menu}
-      >
-        <MoreHorizontal className="size-5" />
-      </button>
+      {menuSlot}
     </div>
   );
 }

@@ -17,6 +17,7 @@ type PostDetailsDialogProps = {
   onReactionChange?: (type: ReactionType | null) => void;
   onCommentClick?: () => void;
   onShareClick?: () => void;
+  menuSlot?: ReactNode;
 };
 
 export function PostDetailsDialog({
@@ -30,6 +31,7 @@ export function PostDetailsDialog({
   onReactionChange,
   onCommentClick,
   onShareClick,
+  menuSlot,
 }: PostDetailsDialogProps) {
   const t = useTranslations().post;
 
@@ -54,6 +56,7 @@ export function PostDetailsDialog({
             onReactionChange={onReactionChange}
             onCommentClick={onCommentClick}
             onShareClick={onShareClick}
+            menuSlot={menuSlot}
             commentsSlot={
               commentsSlot ? (
                 <div className="border-t border-soft bg-surface px-4 py-3">

@@ -59,6 +59,8 @@ enum NotificationType {
   COMMENT_REACTION
   MESSAGE_RECEIVED
   MENTIONED
+  POST_REPORT_SUBMITTED
+  POST_REPORT_CANCELED
 }
 
 enum MessageType {
@@ -90,6 +92,7 @@ enum ReportStatus {
   PENDING
   REVIEWED
   REJECTED
+  CANCELED
 }
 
 enum StoryVisibility {

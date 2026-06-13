@@ -9,6 +9,7 @@ import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import {
   BackfillFeedPostPage,
+  DeletePostFeedItemPage,
   DeleteFeedItemPage,
   FeedRecipient,
   FanOutRecipientPage,
@@ -16,6 +17,7 @@ import {
 } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
 import type {
   BackfillRelationshipFeedInput,
+  DeletePostFeedItemsInput,
   DeleteRelationshipFeedItemsInput,
   FanOutPostInput,
   FeedRecipientReason,
@@ -262,6 +264,85 @@ export class PrismaPostFeedRepository implements PostFeedRepository {
           userId: input.recipientId,
           postId: {
             in: input.postIds,
+          },
+        },
+      });
+
+      return result.count;
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async findPostFeedItemPage(
+    input: DeletePostFeedItemsInput & { limit: number },
+  ): Promise<DeletePostFeedItemPage> {
+    const client = this.getClient();
+
+    try {
+      const cursor = this.parsePostFeedCursor(input.cursor);
+      const feedItems = await client.feed.findMany({
+        where: {
+          postId: input.postId,
+          ...(cursor
+            ? {
+                OR: [
+                  { createdAt: { lt: cursor.createdAt } },
+                  {
+                    createdAt: cursor.createdAt,
+                    userId: { lt: cursor.userId },
+                  },
+                ],
+              }
+            : {}),
+        },
+        orderBy: [{ createdAt: 'desc' }, { userId: 'desc' }],
+        take: input.limit + 1,
+        select: {
+          userId: true,
+          createdAt: true,
+        },
+      });
+      const hasNextPage = feedItems.length > input.limit;
+      const pageItems = hasNextPage
+        ? feedItems.slice(0, input.limit)
+        : feedItems;
+      const lastItem = pageItems.at(-1);
+
+      return {
+        items: pageItems.map((item) => ({
+          userId: item.userId,
+          createdAt: item.createdAt,
+        })),
+        nextCursor:
+          hasNextPage && lastItem
+            ? this.encodePostFeedCursor({
+                createdAt: lastItem.createdAt,
+                userId: lastItem.userId,
+              })
+            : null,
+      };
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async deleteFeedItemsForPost(input: {
+    postId: string;
+    userIds: string[];
+  }): Promise<number> {
+    if (input.userIds.length === 0) {
+      return 0;
+    }
+
+    const client = this.getClient();
+
+    try {
+      const result = await client.feed.deleteMany({
+        where: {
+          postId: input.postId,
+          userId: {
+            in: input.userIds,
           },
         },
       });
@@ -592,6 +673,50 @@ export class PrismaPostFeedRepository implements PostFeedRepository {
       }
 
       return { createdAt, id: decoded.id };
+    } catch {
+      return null;
+    }
+  }
+
+  private encodePostFeedCursor(input: {
+    createdAt: Date;
+    userId: string;
+  }): string {
+    return Buffer.from(
+      JSON.stringify({
+        createdAt: input.createdAt.toISOString(),
+        userId: input.userId,
+      }),
+      'utf8',
+    ).toString('base64url');
+  }
+
+  private parsePostFeedCursor(
+    cursor?: string,
+  ): { createdAt: Date; userId: string } | null {
+    if (!cursor) {
+      return null;
+    }
+
+    try {
+      const decoded = JSON.parse(
+        Buffer.from(cursor, 'base64url').toString('utf8'),
+      ) as { createdAt?: unknown; userId?: unknown };
+
+      if (
+        typeof decoded.createdAt !== 'string' ||
+        typeof decoded.userId !== 'string'
+      ) {
+        return null;
+      }
+
+      const createdAt = new Date(decoded.createdAt);
+
+      if (Number.isNaN(createdAt.getTime())) {
+        return null;
+      }
+
+      return { createdAt, userId: decoded.userId };
     } catch {
       return null;
     }

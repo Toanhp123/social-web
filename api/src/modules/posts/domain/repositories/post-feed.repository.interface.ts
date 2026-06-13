@@ -60,6 +60,21 @@ export type DeleteFeedItemPage = {
   nextCursor: string | null;
 };
 
+export type DeletePostFeedItemsInput = {
+  postId: string;
+  cursor?: string;
+};
+
+export type DeletePostFeedItem = {
+  userId: string;
+  createdAt: Date;
+};
+
+export type DeletePostFeedItemPage = {
+  items: DeletePostFeedItem[];
+  nextCursor: string | null;
+};
+
 export abstract class PostFeedRepository {
   abstract findFanOutRecipientPage(
     input: FanOutPostInput & { limit: number },
@@ -81,6 +96,13 @@ export abstract class PostFeedRepository {
   abstract deleteFeedItemsForRecipient(input: {
     recipientId: string;
     postIds: string[];
+  }): Promise<number>;
+  abstract findPostFeedItemPage(
+    input: DeletePostFeedItemsInput & { limit: number },
+  ): Promise<DeletePostFeedItemPage>;
+  abstract deleteFeedItemsForPost(input: {
+    postId: string;
+    userIds: string[];
   }): Promise<number>;
   abstract findPage(
     query: ListPostsQuery & { viewerId: string },

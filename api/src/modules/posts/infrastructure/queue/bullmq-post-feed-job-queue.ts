@@ -5,6 +5,7 @@ import type {
   BackfillRelationshipFeedPageJobInput,
   FanOutPostFeedPageJobInput,
   PostFeedJobQueue,
+  RemovePostFeedPageJobInput,
   RemoveRelationshipFeedPageJobInput,
 } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
 import {
@@ -40,6 +41,18 @@ export class BullMqPostFeedJobQueue implements PostFeedJobQueue {
     input: RemoveRelationshipFeedPageJobInput,
   ): Promise<void> {
     await this.queue.add(POST_FEED_JOB_NAMES.removeRelationshipPage, input);
+  }
+
+  async enqueuePostFeedRemovalPage(
+    input: RemovePostFeedPageJobInput,
+  ): Promise<void> {
+    await this.queue.add(POST_FEED_JOB_NAMES.removePostPage, input, {
+      jobId: createJobId([
+        POST_FEED_JOB_NAMES.removePostPage,
+        input.postId,
+        input.cursor ?? 'initial',
+      ]),
+    });
   }
 }
 

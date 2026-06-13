@@ -4,6 +4,7 @@ export const POST_FEED_JOB_NAMES = {
   fanOutPage: 'fan-out-page',
   backfillRelationshipPage: 'backfill-relationship-page',
   removeRelationshipPage: 'remove-relationship-page',
+  removePostPage: 'remove-post-page',
 } as const;
 
 export type PostFeedJobName =
@@ -25,6 +26,12 @@ export type RelationshipFeedPageJobData = {
 export type BackfillRelationshipFeedPageJobData = RelationshipFeedPageJobData;
 export type RemoveRelationshipFeedPageJobData = RelationshipFeedPageJobData;
 
+export type RemovePostFeedPageJobData = {
+  postId: string;
+  cursor?: string;
+};
+
 export type PostFeedJobData =
   | FanOutPostFeedPageJobData
-  | RelationshipFeedPageJobData;
+  | RelationshipFeedPageJobData
+  | RemovePostFeedPageJobData;
