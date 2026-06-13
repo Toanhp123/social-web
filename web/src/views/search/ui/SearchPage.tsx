@@ -1,7 +1,7 @@
-import { SearchResults } from "@/features/search";
 import { getCurrentSessionUser } from "@/entities/session/server";
 import { getServerTranslations } from "@/shared/i18n/server";
 import { AppLayout } from "@/widgets/app-layout";
+import { SearchResults } from "@/widgets/search-results";
 
 type SearchPageProps = {
   searchParams: Promise<{

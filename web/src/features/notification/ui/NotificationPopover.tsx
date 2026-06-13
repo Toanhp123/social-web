@@ -10,11 +10,15 @@ import { NotificationItem } from "@/entities/notification";
 type NotificationPopoverProps = {
   label: string;
   className?: string;
+  buttonClassName?: string;
+  popoverClassName?: string;
 };
 
 export function NotificationPopover({
   label,
   className,
+  buttonClassName,
+  popoverClassName,
 }: NotificationPopoverProps) {
   const { notifications, unreadNotificationCount, clearUnreadNotifications } =
     useRealtime();
@@ -34,6 +38,7 @@ export function NotificationPopover({
           "hover:border-brand-border hover:text-brand",
           "focus-visible:ring-brand-ring focus-visible:ring-4 focus-visible:outline-none",
           "shadow-control relative grid size-10 place-items-center border transition",
+          buttonClassName,
         )}
         aria-label={label}
         aria-expanded={isOpen}
@@ -48,7 +53,12 @@ export function NotificationPopover({
       </button>
 
       {isOpen && (
-        <div className="border-subtle bg-surface-elevated shadow-popover rounded-card absolute top-12 right-0 z-50 w-80 border p-3 backdrop-blur">
+        <div
+          className={cn(
+            "border-subtle bg-surface-elevated shadow-popover rounded-card absolute top-12 right-0 z-50 w-80 border p-3 backdrop-blur",
+            popoverClassName,
+          )}
+        >
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-primary text-sm font-semibold">{t.title}</p>
 
