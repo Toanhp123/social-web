@@ -1,2 +1,3 @@
 export { AppSearchBox } from "./ui/AppSearchBox";
-export { SearchResults } from "./ui/SearchResults";
+export { MobileSearchButton } from "./ui/MobileSearchButton";
+export { useSearchUsersQuery } from "./model/use-search-users-query";

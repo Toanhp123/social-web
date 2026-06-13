@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Settings } from "lucide-react";
 import { useI18n, useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 import {
   applyFontSize,
   applyTheme,
@@ -20,7 +21,15 @@ import type {
 } from "../model/app-settings";
 import { AppSettingsPopover } from "./AppSettingsPopover";
 
-export function AppSettingsButton() {
+type AppSettingsButtonProps = {
+  className?: string;
+  buttonClassName?: string;
+};
+
+export function AppSettingsButton({
+  className,
+  buttonClassName,
+}: AppSettingsButtonProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const { language, setLanguage } = useI18n();
@@ -77,10 +86,13 @@ export function AppSettingsButton() {
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className={cn("relative", className)}>
       <button
         type="button"
-        className="rounded-pill border-subtle bg-surface text-secondary hover:text-brand shadow-control grid size-10 place-items-center border transition"
+        className={cn(
+          "rounded-pill border-subtle bg-surface text-secondary hover:text-brand shadow-control grid size-10 place-items-center border transition",
+          buttonClassName,
+        )}
         aria-label={copy.settingsLabel}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}

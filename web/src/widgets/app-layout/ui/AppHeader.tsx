@@ -13,12 +13,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppSettingsButton } from "@/features/app-settings";
+import { CreatePostHeaderButton } from "@/features/create-post";
 import { NotificationPopover } from "@/features/notification";
 import { ROUTES } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { LogoutButton } from "@/features/logout";
-import { AppSearchBox } from "@/features/search";
+import { AppSearchBox, MobileSearchButton } from "@/features/search";
 import { useCurrentSession } from "@/entities/session";
 
 type AppHeaderProps = {
@@ -31,52 +32,91 @@ export function AppHeader({ actions, mobileActions, t }: AppHeaderProps) {
   const { currentUser } = useCurrentSession();
 
   return (
-    <header className="border-soft bg-surface-elevated/95 sticky top-0 z-30 overflow-x-clip border-b px-2 py-2 backdrop-blur sm:px-6 lg:px-8">
-      <div className="mx-auto flex h-12 max-w-7xl min-w-0 items-center gap-2 sm:h-14 sm:gap-3">
-        <AppBrand t={t} />
+    <header className="border-soft bg-surface-elevated/95 sticky top-0 z-30 overflow-x-clip border-b backdrop-blur">
+      <MobileHeaderContent t={t} mobileActions={mobileActions} />
 
-        <AppSearchBox className="ml-2" />
-
-        <AppNavigation t={t} />
-
-        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1 sm:gap-2">
-          <HeaderIconButton
-            icon={MessageCircle}
-            label={t.messages}
-            className="hidden sm:grid"
-          />
-
-          <NotificationPopover
-            label={t.notifications}
-            className="hidden sm:block"
-          />
-
-          <AppSettingsButton />
-
-          {currentUser ? (
-            <AuthenticatedHeaderActions t={t} />
-          ) : (
-            <GuestHeaderActions t={t} />
-          )}
-
-          {mobileActions && (
-            <div className="flex min-w-0 shrink-0 items-center sm:hidden">
-              {mobileActions}
-            </div>
-          )}
-
-          {actions && (
-            <div className="hidden min-w-0 shrink-0 items-center sm:flex">
-              {actions}
-            </div>
-          )}
-        </div>
-      </div>
+      <DesktopHeaderContent t={t} currentUser={currentUser} actions={actions} />
     </header>
   );
 }
 
-function AppBrand({ t }: { t: AppMessages["app"] }) {
+function MobileHeaderContent({
+  t,
+  mobileActions,
+}: {
+  t: AppMessages["app"];
+  mobileActions?: ReactNode;
+}) {
+  return (
+    <div className="mx-auto max-w-7xl px-3 py-2 md:hidden">
+      <div className="flex h-11 min-w-0 items-center gap-2">
+        <AppBrand t={t} compact={false} />
+
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {mobileActions}
+
+          <MobileSearchButton className="rounded-pill border-subtle bg-surface text-secondary shadow-control hover:text-brand grid size-10 place-items-center border transition" />
+
+          <CreatePostHeaderButton className="rounded-pill bg-brand text-inverse shadow-control hover:bg-brand-hover grid size-10 place-items-center transition" />
+        </div>
+      </div>
+
+      <MobileNavigation t={t} />
+    </div>
+  );
+}
+
+function DesktopHeaderContent({
+  t,
+  currentUser,
+  actions,
+}: {
+  t: AppMessages["app"];
+  currentUser: ReturnType<typeof useCurrentSession>["currentUser"];
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="mx-auto hidden h-14 max-w-7xl min-w-0 items-center gap-3 px-6 py-2 md:flex lg:px-8">
+      <AppBrand t={t} />
+
+      <AppSearchBox className="ml-2" />
+
+      <AppNavigation t={t} />
+
+      <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2">
+        <HeaderIconButton
+          icon={MessageCircle}
+          label={t.messages}
+          className="grid"
+        />
+
+        <NotificationPopover label={t.notifications} />
+
+        <AppSettingsButton />
+
+        {currentUser ? (
+          <AuthenticatedHeaderActions t={t} />
+        ) : (
+          <GuestHeaderActions t={t} />
+        )}
+
+        {actions && (
+          <div className="hidden min-w-0 shrink-0 items-center sm:flex">
+            {actions}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AppBrand({
+  t,
+  compact = true,
+}: {
+  t: AppMessages["app"];
+  compact?: boolean;
+}) {
   return (
     <Link
       href={ROUTES.home}
@@ -86,9 +126,72 @@ function AppBrand({ t }: { t: AppMessages["app"] }) {
         <UserRound className="size-4 sm:size-5" />
       </span>
 
-      <span className="text-primary hidden truncate text-sm font-semibold tracking-wide sm:inline">
+      <span
+        className={cn(
+          "text-primary truncate text-sm font-semibold tracking-wide",
+          compact && "hidden sm:inline",
+        )}
+      >
         {t.brand}
       </span>
+    </Link>
+  );
+}
+
+function MobileNavigation({ t }: { t: AppMessages["app"] }) {
+  const pathname = usePathname() ?? "";
+
+  return (
+    <nav className="mt-2 grid grid-cols-4 gap-1">
+      <MobileNavLink
+        href={ROUTES.home}
+        label={t.feed}
+        icon={Home}
+        active={pathname === ROUTES.home}
+      />
+      <MobileNavLink
+        href={ROUTES.friends}
+        label={t.friends}
+        icon={Users}
+        active={pathname.startsWith(ROUTES.friends)}
+      />
+      <NotificationPopover
+        label={t.notifications}
+        className="flex justify-center"
+        buttonClassName="h-11 w-full rounded-control border-0 bg-transparent shadow-none"
+        popoverClassName="right-1/2 w-[calc(100vw-1.5rem)] translate-x-1/2"
+      />
+      <div className="flex justify-center">
+        <AppSettingsButton
+          className="w-full"
+          buttonClassName="h-11 w-full rounded-control border-0 bg-transparent shadow-none"
+        />
+      </div>
+    </nav>
+  );
+}
+
+function MobileNavLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      className={cn(
+        "rounded-control text-secondary hover:bg-surface-soft hover:text-brand grid h-11 place-items-center transition",
+        active && "bg-surface-muted text-brand",
+      )}
+    >
+      <Icon className="size-5" />
     </Link>
   );
 }

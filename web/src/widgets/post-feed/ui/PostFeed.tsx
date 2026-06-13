@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Newspaper, WifiOff } from "lucide-react";
 import { PostCard, type Post, type ReactionType } from "@/entities/post";
 import { CommentForm, PostCommentsList } from "@/features/comment-post";
@@ -20,21 +20,28 @@ import { PostSkeleton } from "./PostSkeleton";
 type PostFeedProps = {
   canInteract?: boolean;
   authorId?: string;
+  search?: string;
   showHeader?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
 export function PostFeed({
   canInteract = true,
   authorId,
-  showHeader = true,
+  search,
+  showHeader = false,
+  emptyTitle,
+  emptyDescription,
 }: PostFeedProps) {
   const t = useTranslations().feed;
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [sharingPost, setSharingPost] = useState<Post | null>(null);
-  const feedQuery = usePostFeedQuery({ authorId });
+  const feedQuery = usePostFeedQuery({ authorId, search });
   const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
     () => feedQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -52,12 +59,17 @@ export function PostFeed({
     feedQuery.error instanceof Error ? feedQuery.error.message : "";
 
   function requireAuth() {
-    const callbackUrl = pathname ?? ROUTES.home;
-    const searchParams = new URLSearchParams();
+    const queryString = searchParams?.toString() ?? "";
+    const callbackUrl = pathname
+      ? queryString
+        ? `${pathname}?${queryString}`
+        : pathname
+      : ROUTES.home;
+    const authSearchParams = new URLSearchParams();
 
-    searchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
+    authSearchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
 
-    router.push(`${ROUTES.login}?${searchParams.toString()}`);
+    router.push(`${ROUTES.login}?${authSearchParams.toString()}`);
   }
 
   function handleReactionChange(postId: string, type: ReactionType | null) {
@@ -140,8 +152,8 @@ export function PostFeed({
       ) : posts.length === 0 ? (
         <FeedNotice
           icon={<Newspaper className="size-5" />}
-          title={t.emptyTitle}
-          description={t.emptyDescription}
+          title={emptyTitle ?? t.emptyTitle}
+          description={emptyDescription ?? t.emptyDescription}
         />
       ) : (
         <div className="space-y-4">
