@@ -11,6 +11,7 @@ type DialogProps = {
   onClose: () => void;
   children: ReactNode;
   closeLabel?: string;
+  layout?: "modal" | "fullscreenOnMobile";
   className?: string;
   contentClassName?: string;
   bodyClassName?: string;
@@ -22,6 +23,7 @@ export function Dialog({
   onClose,
   children,
   closeLabel,
+  layout = "modal",
   className,
   contentClassName,
   bodyClassName,
@@ -29,6 +31,7 @@ export function Dialog({
 }: DialogProps) {
   const t = useTranslations().shared;
   const resolvedCloseLabel = closeLabel ?? t.close;
+  const isFullscreenOnMobile = layout === "fullscreenOnMobile";
 
   useEffect(() => {
     if (!open) return;
@@ -57,7 +60,10 @@ export function Dialog({
   return createPortal(
     <div
       className={cn(
-        "fixed inset-0 z-100 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-6",
+        "fixed inset-0 z-100 flex justify-center bg-black/60",
+        isFullscreenOnMobile
+          ? "items-end p-0 sm:items-center sm:p-6"
+          : "items-center p-3 sm:p-6",
         className,
       )}
       onClick={onClose}
@@ -66,10 +72,10 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "bg-surface shadow-popover relative flex h-dvh w-full max-w-2xl flex-col overflow-hidden rounded-none",
-          "sm:h-auto sm:rounded-card",
-          "max-h-dvh",
-          "sm:max-h-[min(86dvh,760px)]",
+          "bg-surface shadow-popover relative flex w-full max-w-2xl flex-col overflow-hidden",
+          isFullscreenOnMobile
+            ? "h-dvh max-h-dvh rounded-none sm:h-auto sm:max-h-[min(86dvh,760px)] sm:rounded-card"
+            : "max-h-[calc(100dvh-2.5rem)] rounded-card sm:max-h-[min(86dvh,760px)]",
           contentClassName,
         )}
         onClick={(event) => event.stopPropagation()}

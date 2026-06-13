@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
 import { useTranslations } from "@/shared/i18n";
+import { cn } from "@/shared/lib/utils";
 import type { Post, ReactionType } from "../model/types";
 import type { PostReactionOption } from "../lib/post-reaction-options";
 import { PostAction } from "./PostAction";
@@ -15,6 +16,7 @@ type PostReactionControlsProps = {
   post: Post;
   currentReaction: PostReactionOption | null;
   isReacting?: boolean;
+  density?: "compact" | "comfortable";
   onReactionChange?: (type: ReactionType | null) => void;
   onCommentClick?: () => void;
   onShareClick?: () => void;
@@ -24,6 +26,7 @@ export function PostReactionControls({
   post,
   currentReaction,
   isReacting,
+  density = "comfortable",
   onReactionChange,
   onCommentClick,
   onShareClick,
@@ -81,7 +84,12 @@ export function PostReactionControls({
     <>
       <PostSummary post={post} currentReaction={currentReaction} />
 
-      <div className="border-soft grid grid-cols-3 items-center border-t px-1.5 py-1.5 sm:px-2 sm:py-2">
+      <div
+        className={cn(
+          "border-soft grid grid-cols-3 items-center border-t",
+          density === "compact" ? "px-1.5 py-1.5" : "px-2 py-2",
+        )}
+      >
         <div
           className="relative"
           onMouseEnter={openReactionPickerWithDelay}
@@ -111,6 +119,7 @@ export function PostReactionControls({
             label={currentReaction ? currentReaction.label : t.like}
             active={Boolean(currentReaction)}
             disabled={isReacting}
+            density={density}
             onClick={handleLikeClick}
           />
         </div>
@@ -118,12 +127,14 @@ export function PostReactionControls({
         <PostAction
           icon={<MessageCircle className="size-4" />}
           label={t.comment}
+          density={density}
           onClick={onCommentClick}
         />
 
         <PostAction
           icon={<Send className="size-4" />}
           label={t.share}
+          density={density}
           onClick={onShareClick}
         />
       </div>

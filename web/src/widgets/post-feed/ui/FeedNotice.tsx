@@ -4,6 +4,7 @@ type FeedNoticeProps = {
   icon: ReactNode;
   title: string;
   description: string;
+  density?: "compact" | "comfortable";
   actionLabel?: string;
   onAction?: () => void;
 };
@@ -12,12 +13,23 @@ export function FeedNotice({
   icon,
   title,
   description,
+  density = "comfortable",
   actionLabel,
   onAction,
 }: FeedNoticeProps) {
   return (
-    <div className="rounded-card border border-dashed border-subtle bg-surface p-4 shadow-card sm:p-6">
-      <div className="flex items-start gap-3 sm:gap-4">
+    <div
+      className={[
+        "rounded-card border border-dashed border-subtle bg-surface shadow-card",
+        density === "compact" ? "p-4" : "p-6",
+      ].join(" ")}
+    >
+      <div
+        className={[
+          "flex items-start",
+          density === "compact" ? "gap-3" : "gap-4",
+        ].join(" ")}
+      >
         <div className="grid size-11 shrink-0 place-items-center rounded-control bg-brand-soft text-brand">
           {icon}
         </div>

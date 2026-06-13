@@ -6,6 +6,7 @@ type PostActionProps = {
   label: string;
   active?: boolean;
   disabled?: boolean;
+  density?: "compact" | "comfortable";
   onClick?: () => void;
 };
 
@@ -14,15 +15,19 @@ export function PostAction({
   label,
   active,
   disabled,
+  density = "comfortable",
   onClick,
 }: PostActionProps) {
+  const isCompact = density === "compact";
+
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "flex h-10 w-full min-w-0 items-center justify-center gap-1.5 rounded-control px-2 text-sm font-medium transition sm:gap-2 sm:px-3",
+        "flex h-10 w-full min-w-0 items-center justify-center rounded-control text-sm font-medium transition",
+        isCompact ? "gap-1.5 px-2" : "gap-2 px-3",
         "disabled:cursor-not-allowed disabled:opacity-60",
         active
           ? "text-brand hover:bg-brand-soft"
@@ -30,7 +35,7 @@ export function PostAction({
       )}
     >
       {icon}
-      <span className="hidden min-w-0 truncate sm:inline">{label}</span>
+      {!isCompact && <span className="min-w-0 truncate">{label}</span>}
     </button>
   );
 }

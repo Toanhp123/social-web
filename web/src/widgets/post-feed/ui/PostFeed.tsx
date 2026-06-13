@@ -17,6 +17,8 @@ import { FeedHeader } from "./FeedHeader";
 import { FeedNotice } from "./FeedNotice";
 import { PostSkeleton } from "./PostSkeleton";
 
+type FeedDensity = "compact" | "comfortable";
+
 type PostFeedProps = {
   canInteract?: boolean;
   authorId?: string;
@@ -41,6 +43,7 @@ export function PostFeed({
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [sharingPost, setSharingPost] = useState<Post | null>(null);
+  const density = useResponsiveFeedDensity();
   const feedQuery = usePostFeedQuery({ authorId, search });
   const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
@@ -137,15 +140,16 @@ export function PostFeed({
 
       {feedQuery.isLoading ? (
         <div className="space-y-4" aria-label={t.loadingFeed}>
-          <PostSkeleton />
-          <PostSkeleton compact />
-          <PostSkeleton />
+          <PostSkeleton density={density} />
+          <PostSkeleton density={density} compact />
+          <PostSkeleton density={density} />
         </div>
       ) : errorMessage ? (
         <FeedNotice
           icon={<WifiOff className="size-5" />}
           title={t.cannotLoad}
           description={errorMessage}
+          density={density}
           actionLabel={t.retry}
           onAction={() => void feedQuery.refetch()}
         />
@@ -154,6 +158,7 @@ export function PostFeed({
           icon={<Newspaper className="size-5" />}
           title={emptyTitle ?? t.emptyTitle}
           description={emptyDescription ?? t.emptyDescription}
+          density={density}
         />
       ) : (
         <div className="space-y-4">
@@ -162,6 +167,7 @@ export function PostFeed({
               key={post.id}
               post={post}
               metaLabel={formatPostDate(post.createdAt)}
+              density={density}
               isReacting={
                 reactPostMutation.isPending &&
                 reactPostMutation.variables?.postId === post.id
@@ -201,6 +207,7 @@ export function PostFeed({
           open
           post={selectedPost}
           metaLabel={formatPostDate(selectedPost.createdAt)}
+          density={density}
           isReacting={
             reactPostMutation.isPending &&
             reactPostMutation.variables?.postId === selectedPost.id
@@ -249,6 +256,23 @@ export function PostFeed({
       )}
     </section>
   );
+}
+
+function useResponsiveFeedDensity(): FeedDensity {
+  const [density, setDensity] = useState<FeedDensity>("comfortable");
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const updateDensity = () =>
+      setDensity(mediaQuery.matches ? "compact" : "comfortable");
+
+    updateDensity();
+    mediaQuery.addEventListener("change", updateDensity);
+
+    return () => mediaQuery.removeEventListener("change", updateDensity);
+  }, []);
+
+  return density;
 }
 
 function formatPostDate(value: string) {

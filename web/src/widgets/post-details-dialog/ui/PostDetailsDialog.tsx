@@ -11,6 +11,7 @@ type PostDetailsDialogProps = {
   post: Post | null;
   metaLabel?: string;
   isReacting?: boolean;
+  density?: "compact" | "comfortable";
   commentsSlot?: ReactNode;
   commentFormSlot?: ReactNode;
   onClose: () => void;
@@ -25,6 +26,7 @@ export function PostDetailsDialog({
   post,
   metaLabel,
   isReacting,
+  density = "comfortable",
   commentsSlot,
   commentFormSlot,
   onClose,
@@ -44,6 +46,7 @@ export function PostDetailsDialog({
       open={open}
       onClose={onClose}
       closeLabel={t.closeDetails}
+      layout="fullscreenOnMobile"
       contentClassName="sm:max-w-2xl"
       bodyScrollable={false}
     >
@@ -53,6 +56,7 @@ export function PostDetailsDialog({
             post={post}
             metaLabel={metaLabel}
             isReacting={isReacting}
+            density={density}
             onReactionChange={onReactionChange}
             onCommentClick={onCommentClick}
             onShareClick={onShareClick}

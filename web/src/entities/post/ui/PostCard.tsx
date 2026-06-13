@@ -14,6 +14,7 @@ type PostCardProps = {
   className?: string;
   metaLabel?: string;
   isReacting?: boolean;
+  density?: "compact" | "comfortable";
   onReactionChange?: (type: ReactionType | null) => void;
   onCommentClick?: () => void;
   onShareClick?: () => void;
@@ -27,6 +28,7 @@ export function PostCard({
   className,
   metaLabel,
   isReacting,
+  density = "comfortable",
   onReactionChange,
   onCommentClick,
   onShareClick,
@@ -45,7 +47,11 @@ export function PostCard({
         className,
       )}
     >
-      <div className="p-3 pb-2 sm:p-4 sm:pb-3">
+      <div
+        className={cn(
+          density === "compact" ? "p-3 pb-2" : "p-4 pb-3",
+        )}
+      >
         <PostHeader post={post} metaLabel={metaLabel} menuSlot={menuSlot} />
 
         {post.content && <PostContent content={post.content} />}
@@ -57,6 +63,7 @@ export function PostCard({
         post={post}
         currentReaction={currentReaction}
         isReacting={isReacting}
+        density={density}
         onReactionChange={onReactionChange}
         onCommentClick={onCommentClick}
         onShareClick={onShareClick}

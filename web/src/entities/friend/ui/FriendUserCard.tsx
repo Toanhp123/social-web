@@ -11,6 +11,7 @@ type FriendUserCardProps = {
   href?: string;
   action?: ReactNode;
   variant?: "card" | "listItem";
+  density?: "compact" | "comfortable";
   avatarSize?: number;
   className?: string;
   actionClassName?: string;
@@ -23,11 +24,13 @@ export function FriendUserCard({
   href,
   action,
   variant = "card",
+  density = "comfortable",
   avatarSize,
   className,
   actionClassName,
 }: FriendUserCardProps) {
   const isListItem = variant === "listItem";
+  const isCompact = density === "compact";
   const resolvedAvatarSize = avatarSize ?? (isListItem ? 44 : 60);
 
   const profileContent = (
@@ -77,7 +80,10 @@ export function FriendUserCard({
         "hover:border-brand-border hover:bg-surface-soft",
         isListItem
           ? "flex w-full items-center justify-between gap-3 p-3"
-          : "flex min-h-36 w-full flex-col justify-between gap-3 p-3 sm:min-h-40",
+          : cn(
+              "flex w-full flex-col justify-between gap-3 p-3",
+              isCompact ? "min-h-36" : "min-h-40",
+            ),
         className,
       )}
     >

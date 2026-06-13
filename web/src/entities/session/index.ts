@@ -9,5 +9,3 @@ export {
   CurrentSessionProvider,
   useCurrentSession,
 } from "./model/session-context";
-
-export { getCurrentSessionUser } from "./lib/current-session-user.server";
