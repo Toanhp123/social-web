@@ -41,12 +41,12 @@ export function AppSettingsPopover({
         "sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-3 sm:max-h-none sm:w-88 sm:overflow-hidden",
       )}
     >
-      <div className="border-soft border-b px-4 py-3">
+      <div className="border-soft border-b px-3 py-3 sm:px-4">
         <p className="text-primary text-sm font-semibold">{copy.settings}</p>
         <p className="text-muted mt-0.5 text-xs">{copy.description}</p>
       </div>
 
-      <div className="space-y-5 p-4">
+      <div className="space-y-4 p-3 sm:space-y-5 sm:p-4">
         <ThemeSettingsSection
           copy={copy}
           theme={theme}

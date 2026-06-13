@@ -77,7 +77,7 @@ export function FriendUserCard({
         "hover:border-brand-border hover:bg-surface-soft",
         isListItem
           ? "flex w-full items-center justify-between gap-3 p-3"
-          : "flex min-h-40 w-full flex-col justify-between gap-3 p-3",
+          : "flex min-h-36 w-full flex-col justify-between gap-3 p-3 sm:min-h-40",
         className,
       )}
     >

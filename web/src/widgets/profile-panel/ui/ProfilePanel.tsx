@@ -50,7 +50,7 @@ export function ProfilePanel({
           canEdit={canEdit}
         />
 
-        <div className={isSidebar ? "px-4" : "px-6"}>
+        <div className={isSidebar ? "px-4" : "px-3 sm:px-6"}>
           <ProfileHeader
             profile={profile}
             currentUser={currentUser}

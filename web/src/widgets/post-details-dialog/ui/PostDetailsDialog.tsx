@@ -44,7 +44,7 @@ export function PostDetailsDialog({
       open={open}
       onClose={onClose}
       closeLabel={t.closeDetails}
-      contentClassName="max-w-2xl"
+      contentClassName="sm:max-w-2xl"
       bodyScrollable={false}
     >
       <div className="flex min-h-0 flex-1 flex-col">
@@ -59,7 +59,7 @@ export function PostDetailsDialog({
             menuSlot={menuSlot}
             commentsSlot={
               commentsSlot ? (
-                <div className="border-t border-soft bg-surface px-4 py-3">
+                <div className="border-t border-soft bg-surface px-3 py-3 sm:px-4">
                   {commentsSlot}
                 </div>
               ) : null
@@ -69,7 +69,7 @@ export function PostDetailsDialog({
         </div>
 
         {commentFormSlot && (
-          <div className="shrink-0 border-t border-soft bg-surface px-4 py-3">
+          <div className="shrink-0 border-t border-soft bg-surface px-3 py-2.5 sm:px-4 sm:py-3">
             {commentFormSlot}
           </div>
         )}

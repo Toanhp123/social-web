@@ -4,7 +4,7 @@ type PostSkeletonProps = {
 
 export function PostSkeleton({ compact }: PostSkeletonProps) {
   return (
-    <div className="rounded-card border-surface-border bg-surface shadow-card border p-4 opacity-80">
+    <div className="rounded-card border-surface-border bg-surface shadow-card border p-3 opacity-80 sm:p-4">
       <div className="flex items-center gap-3">
         <div className="rounded-pill bg-surface-muted size-10" />
         <div className="space-y-2">

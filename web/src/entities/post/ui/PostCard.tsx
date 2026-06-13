@@ -45,7 +45,7 @@ export function PostCard({
         className,
       )}
     >
-      <div className="p-4 pb-3">
+      <div className="p-3 pb-2 sm:p-4 sm:pb-3">
         <PostHeader post={post} metaLabel={metaLabel} menuSlot={menuSlot} />
 
         {post.content && <PostContent content={post.content} />}

@@ -56,13 +56,13 @@ export function ProfileHeader({
         "border-subtle border-b",
         isSidebar
           ? "pb-4"
-          : "flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between",
+          : "flex flex-col gap-3 pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
       )}
     >
       <div
         className={cn(
           "flex min-w-0 gap-4",
-          isSidebar ? "-mt-10 flex-col" : "-mt-9 items-end",
+          isSidebar ? "-mt-10 flex-col" : "-mt-8 items-end sm:-mt-9",
         )}
       >
         <Avatar
@@ -72,15 +72,15 @@ export function ProfileHeader({
           size={isSidebar ? 96 : 160}
           className={cn(
             "border-surface-border shadow-card border-4",
-            isSidebar ? "size-24 text-3xl" : "size-32 text-5xl sm:size-40",
+            isSidebar ? "size-24 text-3xl" : "size-24 text-3xl sm:size-40 sm:text-5xl",
           )}
         />
 
-        <div className={cn("min-w-0", !isSidebar && "pb-5")}>
+        <div className={cn("min-w-0", !isSidebar && "pb-3 sm:pb-5")}>
           <h2
             className={cn(
               "text-primary truncate font-bold tracking-tight",
-              isSidebar ? "text-xl" : "text-3xl",
+              isSidebar ? "text-xl" : "text-2xl sm:text-3xl",
             )}
           >
             {displayName}
@@ -105,7 +105,7 @@ export function ProfileHeader({
       <div
         className={cn(
           "flex flex-wrap items-center gap-2",
-          isSidebar ? "mt-4" : "pb-5",
+          isSidebar ? "mt-4" : "pb-3 sm:pb-5",
         )}
       >
         {canEdit && (
@@ -116,7 +116,7 @@ export function ProfileHeader({
           <>
             <button
               type="button"
-              className="rounded-control bg-surface-muted text-primary hover:bg-surface-muted inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold transition"
+              className="rounded-control bg-surface-muted text-primary hover:bg-surface-muted inline-flex h-10 items-center justify-center gap-2 px-3 text-sm font-semibold transition sm:px-4"
             >
               <Pencil className="size-4" />
               {t.editProfile}
@@ -133,7 +133,9 @@ export function ProfileHeader({
         )}
 
         {actions && (
-          <div className="flex flex-wrap items-center gap-2">{actions}</div>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:flex-none">
+            {actions}
+          </div>
         )}
       </div>
     </div>
