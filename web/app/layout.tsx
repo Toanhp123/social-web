@@ -7,10 +7,8 @@ import { I18nProvider } from "@/shared/i18n";
 import { getServerLanguage } from "@/shared/i18n/server";
 import { getServerTheme } from "@/features/app-settings/server";
 import { RealtimeProvider } from "@/features/realtime";
-import {
-  CurrentSessionProvider,
-  getCurrentSessionUser,
-} from "@/entities/session";
+import { CurrentSessionProvider } from "@/entities/session";
+import { getCurrentSessionUser } from "@/entities/session/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 

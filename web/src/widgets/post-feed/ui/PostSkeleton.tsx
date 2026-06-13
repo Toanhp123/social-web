@@ -1,10 +1,19 @@
 type PostSkeletonProps = {
   compact?: boolean;
+  density?: "compact" | "comfortable";
 };
 
-export function PostSkeleton({ compact }: PostSkeletonProps) {
+export function PostSkeleton({
+  compact,
+  density = "comfortable",
+}: PostSkeletonProps) {
   return (
-    <div className="rounded-card border-surface-border bg-surface shadow-card border p-3 opacity-80 sm:p-4">
+    <div
+      className={[
+        "rounded-card border-surface-border bg-surface shadow-card border opacity-80",
+        density === "compact" ? "p-3" : "p-4",
+      ].join(" ")}
+    >
       <div className="flex items-center gap-3">
         <div className="rounded-pill bg-surface-muted size-10" />
         <div className="space-y-2">
