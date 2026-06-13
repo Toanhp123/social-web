@@ -12,6 +12,7 @@ export function useMentionCandidatesQuery(query: string, enabled: boolean) {
   return useQuery({
     queryKey: mentionQueryKeys.candidates(normalizedQuery),
     enabled,
+    placeholderData: (previousData) => previousData,
     queryFn: async () => {
       const result = await listMentionCandidatesAction({
         query: normalizedQuery || undefined,
