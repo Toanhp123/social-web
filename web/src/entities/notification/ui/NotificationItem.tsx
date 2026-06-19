@@ -4,11 +4,21 @@ import { Notification } from "../model/type";
 type NotificationItemProps = {
   notification: Notification;
   t: AppMessages["notifications"];
+  density?: "compact" | "comfortable";
 };
 
-export function NotificationItem({ notification, t }: NotificationItemProps) {
+export function NotificationItem({
+  notification,
+  t,
+  density = "comfortable",
+}: NotificationItemProps) {
   return (
-    <article className="border-subtle bg-surface-soft hover:bg-surface-muted rounded-control border p-3 transition">
+    <article
+      className={[
+        "border-subtle bg-surface-soft hover:bg-surface-muted rounded-control border transition",
+        density === "compact" ? "p-2.5" : "p-3",
+      ].join(" ")}
+    >
       <p className="text-primary text-sm font-medium">
         {getNotificationMessage(notification.type, t)}
       </p>

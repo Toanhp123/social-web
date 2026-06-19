@@ -82,7 +82,12 @@ export function CreatePostDialog({
         />
 
         <div className="rounded-card border-subtle bg-surface-soft mt-4 border p-3">
-          <MediaPicker name="media" label={t.addMedia} maxFiles={10} />
+          <MediaPicker
+            name="media"
+            label={t.addMedia}
+            maxFiles={10}
+            density="compact"
+          />
         </div>
 
         {errorMessage && (

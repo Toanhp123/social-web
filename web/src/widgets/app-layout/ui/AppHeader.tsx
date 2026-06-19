@@ -159,7 +159,6 @@ function MobileNavigation({ t }: { t: AppMessages["app"] }) {
         label={t.notifications}
         className="flex justify-center"
         buttonClassName="h-11 w-full rounded-control border-0 bg-transparent shadow-none"
-        popoverClassName="right-1/2 w-[calc(100vw-1.5rem)] translate-x-1/2"
       />
       <div className="flex justify-center">
         <AppSettingsButton
