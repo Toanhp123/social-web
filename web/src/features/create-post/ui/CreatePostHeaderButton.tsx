@@ -1,13 +1,10 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SquarePen } from "lucide-react";
 import { useCurrentSession } from "@/entities/session";
-import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
-import { useCreatePostMutation } from "../model/use-create-post-mutation";
+import { useRequireAuthRedirect } from "@/shared/lib/use-require-auth-redirect";
+import { useCreatePostDialogController } from "../model/use-create-post-dialog-controller";
 import { CreatePostDialog } from "./CreatePostDialog";
 
 type CreatePostHeaderButtonProps = {
@@ -19,36 +16,8 @@ export function CreatePostHeaderButton({
 }: CreatePostHeaderButtonProps) {
   const t = useTranslations().createPost;
   const { currentUser } = useCurrentSession();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const [formKey, setFormKey] = useState(0);
-
-  const createPostMutation = useCreatePostMutation({
-    onCreated: () => {
-      setFormKey((key) => key + 1);
-      setIsOpen(false);
-    },
-  });
-
-  const errorMessage =
-    createPostMutation.error instanceof Error
-      ? createPostMutation.error.message
-      : "";
-
-  function requireAuth() {
-    const queryString = searchParams?.toString() ?? "";
-    const callbackUrl = pathname
-      ? queryString
-        ? `${pathname}?${queryString}`
-        : pathname
-      : ROUTES.home;
-    const authSearchParams = new URLSearchParams();
-
-    authSearchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
-    router.push(`${ROUTES.login}?${authSearchParams.toString()}`);
-  }
+  const requireAuth = useRequireAuthRedirect();
+  const createPostDialog = useCreatePostDialogController();
 
   function handleOpen() {
     if (!currentUser) {
@@ -56,21 +25,7 @@ export function CreatePostHeaderButton({
       return;
     }
 
-    setIsOpen(true);
-  }
-
-  function handleClose() {
-    if (createPostMutation.isPending) {
-      return;
-    }
-
-    setIsOpen(false);
-    setFormKey((key) => key + 1);
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    createPostMutation.mutate(new FormData(event.currentTarget));
+    createPostDialog.open();
   }
 
   return (
@@ -79,7 +34,7 @@ export function CreatePostHeaderButton({
         type="button"
         aria-label={t.title}
         aria-haspopup="dialog"
-        aria-expanded={isOpen}
+        aria-expanded={createPostDialog.isOpen}
         onClick={handleOpen}
         className={className}
       >
@@ -87,12 +42,12 @@ export function CreatePostHeaderButton({
       </button>
 
       <CreatePostDialog
-        open={isOpen}
-        formKey={formKey}
-        isSubmitting={createPostMutation.isPending}
-        errorMessage={errorMessage}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
+        open={createPostDialog.isOpen}
+        formKey={createPostDialog.formKey}
+        isSubmitting={createPostDialog.isSubmitting}
+        errorMessage={createPostDialog.errorMessage}
+        onClose={createPostDialog.close}
+        onSubmit={createPostDialog.submit}
       />
     </>
   );
