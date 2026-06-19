@@ -44,10 +44,16 @@ function getNotificationMessage(
       return t.postReaction;
     case "POST_COMMENT":
       return t.postComment;
+    case "COMMENT_REPLY":
+      return t.commentReply;
     case "POST_SHARE":
       return t.postShare;
     case "MENTIONED":
       return t.mentioned;
+    case "POST_REPORT_SUBMITTED":
+      return t.postReportSubmitted;
+    case "POST_REPORT_CANCELED":
+      return t.postReportCanceled;
     default:
       return t.fallback;
   }
