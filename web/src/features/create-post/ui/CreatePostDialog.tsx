@@ -86,7 +86,7 @@ export function CreatePostDialog({
             name="media"
             label={t.addMedia}
             maxFiles={10}
-            density="compact"
+            size="sm"
           />
         </div>
 
@@ -99,9 +99,10 @@ export function CreatePostDialog({
         <div className="border-soft mt-5 border-t pt-4">
           <Button
             type="submit"
+            size="lg"
             disabled={isSubmitting}
             fullWidth
-            className="rounded-pill inline-flex h-11 items-center justify-center gap-2"
+            className="rounded-pill inline-flex items-center justify-center gap-2"
           >
             <SendHorizontal className="size-4" />
             {isSubmitting ? t.posting : t.submit}
