@@ -1,67 +1,44 @@
 "use client";
 
-import type { FormEvent } from "react";
 import { useState } from "react";
 import { PostCard, type Post } from "@/entities/post";
 import { useTranslations } from "@/shared/i18n";
-import { useCreatePostMutation } from "../model/use-create-post-mutation";
+import { useCreatePostDialogController } from "../model/use-create-post-dialog-controller";
 import { CreatePostTrigger } from "./CreatePostTrigger";
 import { CreatePostDialog } from "./CreatePostDialog";
 
 export function CreatePostComposer() {
   const t = useTranslations().createPost;
-  const [isOpen, setIsOpen] = useState(false);
   const [createdPost, setCreatedPost] = useState<Post | null>(null);
-  const [formKey, setFormKey] = useState(0);
-
-  const createPostMutation = useCreatePostMutation({
+  const createPostDialog = useCreatePostDialogController({
     onCreated: (post) => {
       setCreatedPost(post);
-      setFormKey((key) => key + 1);
-      setIsOpen(false);
     },
   });
 
-  const errorMessage =
-    createPostMutation.error instanceof Error
-      ? createPostMutation.error.message
-      : "";
-
   function handleOpen() {
-    setIsOpen(true);
-  }
-
-  function handleClose() {
-    if (createPostMutation.isPending) {
-      return;
-    }
-
-    setIsOpen(false);
-    setFormKey((key) => key + 1);
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
     setCreatedPost(null);
-    createPostMutation.mutate(new FormData(event.currentTarget));
+    createPostDialog.open();
   }
 
   return (
     <>
-      <CreatePostTrigger isOpen={isOpen} onOpen={handleOpen} />
+      <CreatePostTrigger
+        isOpen={createPostDialog.isOpen}
+        onOpen={handleOpen}
+      />
 
       {createdPost && (
         <PostCard post={createdPost} className="mt-4" metaLabel={t.justPosted} />
       )}
 
       <CreatePostDialog
-        open={isOpen}
-        formKey={formKey}
-        isSubmitting={createPostMutation.isPending}
-        errorMessage={errorMessage}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
+        open={createPostDialog.isOpen}
+        formKey={createPostDialog.formKey}
+        isSubmitting={createPostDialog.isSubmitting}
+        errorMessage={createPostDialog.errorMessage}
+        onClose={createPostDialog.close}
+        onSubmit={createPostDialog.submit}
       />
     </>
   );

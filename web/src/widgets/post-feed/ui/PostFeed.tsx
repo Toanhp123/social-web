@@ -1,23 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Newspaper, WifiOff } from "lucide-react";
-import { PostCard, type Post, type ReactionType } from "@/entities/post";
+import { PostCard } from "@/entities/post";
 import { CommentForm, PostCommentsList } from "@/features/comment-post";
 import { PostManagementMenu } from "@/features/manage-post";
-import { usePostFeedQuery } from "@/features/post-feed";
-import { useReactPostMutation } from "@/features/react-post";
-import { useRealtimePostSubscription } from "@/features/realtime";
 import { SharePostDialog } from "@/features/share-post";
-import { CALLBACK_URL_SEARCH_PARAM, ROUTES } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { PostDetailsDialog } from "@/widgets/post-details-dialog";
+import { formatPostDate } from "../lib/format-post-date";
+import { usePostFeedController } from "../model/use-post-feed-controller";
 import { FeedHeader } from "./FeedHeader";
 import { FeedNotice } from "./FeedNotice";
 import { PostSkeleton } from "./PostSkeleton";
-
-type FeedDensity = "compact" | "comfortable";
 
 type PostFeedProps = {
   canInteract?: boolean;
@@ -37,94 +31,27 @@ export function PostFeed({
   emptyDescription,
 }: PostFeedProps) {
   const t = useTranslations().feed;
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const [sharingPost, setSharingPost] = useState<Post | null>(null);
-  const density = useResponsiveFeedDensity();
-  const feedQuery = usePostFeedQuery({ authorId, search });
-  const reactPostMutation = useReactPostMutation();
-  const posts = useMemo(
-    () => feedQuery.data?.pages.flatMap((page) => page.items) ?? [],
-    [feedQuery.data],
-  );
-  const selectedPost = useMemo(
-    () => posts.find((post) => post.id === selectedPostId) ?? null,
-    [posts, selectedPostId],
-  );
-  useRealtimePostSubscription({
-    postId: selectedPost?.id ?? null,
-    enabled: Boolean(selectedPost),
+  const {
+    density,
+    feedQuery,
+    posts,
+    selectedPost,
+    sharingPost,
+    loadMoreRef,
+    reactPostMutation,
+    errorMessage,
+    requireAuth,
+    handleReactionChange,
+    openPostDetails,
+    closePostDetails,
+    handleShareClick,
+    closeShareDialog,
+    handlePostRemoved,
+  } = usePostFeedController({
+    canInteract,
+    authorId,
+    search,
   });
-  const errorMessage =
-    feedQuery.error instanceof Error ? feedQuery.error.message : "";
-
-  function requireAuth() {
-    const queryString = searchParams?.toString() ?? "";
-    const callbackUrl = pathname
-      ? queryString
-        ? `${pathname}?${queryString}`
-        : pathname
-      : ROUTES.home;
-    const authSearchParams = new URLSearchParams();
-
-    authSearchParams.set(CALLBACK_URL_SEARCH_PARAM, callbackUrl);
-
-    router.push(`${ROUTES.login}?${authSearchParams.toString()}`);
-  }
-
-  function handleReactionChange(postId: string, type: ReactionType | null) {
-    if (!canInteract) {
-      requireAuth();
-      return;
-    }
-
-    reactPostMutation.mutate({ postId, type });
-  }
-
-  function openPostDetails(postId: string) {
-    setSelectedPostId(postId);
-  }
-
-  function closePostDetails() {
-    setSelectedPostId(null);
-  }
-
-  function handleShareClick(post: Post) {
-    if (!canInteract) {
-      requireAuth();
-      return;
-    }
-
-    setSharingPost(post);
-  }
-
-  useEffect(() => {
-    const target = loadMoreRef.current;
-
-    if (!target || !feedQuery.hasNextPage) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (
-          entry.isIntersecting &&
-          feedQuery.hasNextPage &&
-          !feedQuery.isFetchingNextPage
-        ) {
-          void feedQuery.fetchNextPage();
-        }
-      },
-      { rootMargin: "480px 0px" },
-    );
-
-    observer.observe(target);
-
-    return () => observer.disconnect();
-  }, [feedQuery]);
 
   return (
     <section
@@ -181,11 +108,7 @@ export function PostFeed({
                   post={post}
                   canInteract={canInteract}
                   onRequireAuth={requireAuth}
-                  onRemoved={() => {
-                    if (selectedPostId === post.id) {
-                      closePostDetails();
-                    }
-                  }}
+                  onRemoved={() => handlePostRemoved(post.id)}
                 />
               }
             />
@@ -197,7 +120,7 @@ export function PostFeed({
         <SharePostDialog
           post={sharingPost}
           open={Boolean(sharingPost)}
-          onClose={() => setSharingPost(null)}
+          onClose={closeShareDialog}
         />
       )}
 
@@ -256,31 +179,4 @@ export function PostFeed({
       )}
     </section>
   );
-}
-
-function useResponsiveFeedDensity(): FeedDensity {
-  const [density, setDensity] = useState<FeedDensity>("comfortable");
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 639px)");
-    const updateDensity = () =>
-      setDensity(mediaQuery.matches ? "compact" : "comfortable");
-
-    updateDensity();
-    mediaQuery.addEventListener("change", updateDensity);
-
-    return () => mediaQuery.removeEventListener("change", updateDensity);
-  }, []);
-
-  return density;
-}
-
-function formatPostDate(value: string) {
-  return new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 }
