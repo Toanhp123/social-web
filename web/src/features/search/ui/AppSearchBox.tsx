@@ -1,21 +1,19 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
-import { getProfileRoute, ROUTES } from "@/shared/config/routes";
+import { getSearchRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
-import { useDebouncedValue } from "../model/use-debounced-value";
-import { useSearchPreviewQuery } from "../model/use-search-preview-query";
+import { useSearchPreviewController } from "../model/use-search-preview-controller";
+import {
+  SearchPreviewLoading,
+  SearchPreviewPostItem,
+  SearchPreviewSection,
+  SearchPreviewUserItem,
+} from "./SearchPreviewItems";
 
 type AppSearchBoxProps = {
   className?: string;
@@ -27,13 +25,9 @@ export function AppSearchBox({ className }: AppSearchBoxProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const debouncedQuery = useDebouncedValue(query, 250);
-  const normalizedQuery = query.trim();
-  const previewQuery = useSearchPreviewQuery(debouncedQuery);
-  const users = previewQuery.data?.users ?? [];
-  const posts = previewQuery.data?.posts ?? [];
+  const { normalizedQuery, canSearch, previewQuery, users, posts } =
+    useSearchPreviewController(query);
   const searchHref = getSearchRoute(normalizedQuery);
-  const canSearch = normalizedQuery.length >= 2;
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -59,11 +53,14 @@ export function AppSearchBox({ className }: AppSearchBoxProps) {
   return (
     <div
       ref={rootRef}
-      className={cn("relative hidden min-w-0 flex-1 md:block md:max-w-md", className)}
+      className={cn(
+        "relative hidden min-w-0 flex-1 md:block md:max-w-md",
+        className,
+      )}
     >
       <form
         onSubmit={handleSubmit}
-        className="rounded-pill border-subtle bg-surface-muted text-muted flex min-w-0 items-center gap-3 border px-4 py-2 text-sm transition focus-within:border-brand-border focus-within:bg-surface"
+        className="rounded-pill border-subtle bg-surface-muted text-muted focus-within:border-brand-border focus-within:bg-surface flex min-w-0 items-center gap-3 border px-4 py-2 text-sm transition"
       >
         <Search className="size-4 shrink-0" />
         <input
@@ -96,7 +93,7 @@ export function AppSearchBox({ className }: AppSearchBoxProps) {
           {!canSearch ? (
             <p className="text-muted px-3 py-2 text-sm">{t.typeMore}</p>
           ) : previewQuery.isLoading ? (
-            <SearchLoading />
+            <SearchPreviewLoading />
           ) : previewQuery.isError ? (
             <p className="text-danger px-3 py-2 text-sm">{t.loadError}</p>
           ) : users.length === 0 && posts.length === 0 ? (
@@ -104,53 +101,30 @@ export function AppSearchBox({ className }: AppSearchBoxProps) {
           ) : (
             <div className="max-h-96 overflow-y-auto">
               {users.length > 0 && (
-                <SearchSection title={t.people}>
+                <SearchPreviewSection title={t.people}>
                   {users.map((user) => (
-                    <Link
+                    <SearchPreviewUserItem
                       key={user.id}
-                      href={getProfileRoute(user.id)}
+                      user={user}
+                      t={t}
                       onClick={() => setIsOpen(false)}
-                      className="hover:bg-surface-soft rounded-control flex items-center gap-3 px-3 py-2 transition"
-                    >
-                      <Avatar
-                        src={user.avatarUrl}
-                        alt={`${t.avatarAlt} ${user.fullName}`}
-                        name={user.fullName}
-                        size={36}
-                      />
-                      <span className="min-w-0">
-                        <span className="text-primary block truncate text-sm font-semibold">
-                          {user.fullName}
-                        </span>
-                        {user.username && (
-                          <span className="text-muted block truncate text-xs">
-                            @{user.username}
-                          </span>
-                        )}
-                      </span>
-                    </Link>
+                    />
                   ))}
-                </SearchSection>
+                </SearchPreviewSection>
               )}
 
               {posts.length > 0 && (
-                <SearchSection title={t.posts}>
+                <SearchPreviewSection title={t.posts}>
                   {posts.map((post) => (
-                    <Link
+                    <SearchPreviewPostItem
                       key={post.id}
+                      post={post}
                       href={searchHref}
+                      t={t}
                       onClick={() => setIsOpen(false)}
-                      className="hover:bg-surface-soft rounded-control block px-3 py-2 transition"
-                    >
-                      <p className="text-primary truncate text-sm font-semibold">
-                        {post.author.fullName}
-                      </p>
-                      <p className="text-muted mt-1 line-clamp-2 text-sm">
-                        {post.content || t.mediaPost}
-                      </p>
-                    </Link>
+                    />
                   ))}
-                </SearchSection>
+                </SearchPreviewSection>
               )}
 
               <Link
@@ -166,44 +140,4 @@ export function AppSearchBox({ className }: AppSearchBoxProps) {
       )}
     </div>
   );
-}
-
-function SearchSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="py-1">
-      <h3 className="text-muted px-3 py-1 text-xs font-semibold uppercase">
-        {title}
-      </h3>
-      {children}
-    </section>
-  );
-}
-
-function SearchLoading() {
-  return (
-    <div className="space-y-2 p-2">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3 px-2 py-1">
-          <div className="bg-surface-muted size-9 animate-pulse rounded-full" />
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="bg-surface-muted h-3 w-3/4 animate-pulse rounded" />
-            <div className="bg-surface-muted h-2 w-1/2 animate-pulse rounded" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function getSearchRoute(query: string): string {
-  const searchParams = new URLSearchParams();
-  searchParams.set("q", query);
-
-  return `${ROUTES.search}?${searchParams.toString()}`;
 }

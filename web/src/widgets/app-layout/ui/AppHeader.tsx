@@ -19,7 +19,7 @@ import { ROUTES } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { LogoutButton } from "@/features/logout";
-import { AppSearchBox, MobileSearchButton } from "@/features/search";
+import { AppSearchBox, MobileSearchOverlayTrigger } from "@/features/search";
 import { useCurrentSession } from "@/entities/session";
 
 type AppHeaderProps = {
@@ -55,7 +55,7 @@ function MobileHeaderContent({
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {mobileActions}
 
-          <MobileSearchButton className="rounded-pill border-subtle bg-surface text-secondary shadow-control hover:text-brand grid size-10 place-items-center border transition" />
+          <MobileSearchOverlayTrigger className="rounded-pill border-subtle bg-surface text-secondary shadow-control hover:text-brand grid size-10 place-items-center border transition" />
 
           <CreatePostHeaderButton className="rounded-pill bg-brand text-inverse shadow-control hover:bg-brand-hover grid size-10 place-items-center transition" />
         </div>

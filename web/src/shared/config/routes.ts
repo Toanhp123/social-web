@@ -22,3 +22,10 @@ export const CALLBACK_URL_SEARCH_PARAM = "callbackUrl";
 export function getProfileRoute(userId: string): string {
   return `${ROUTES.profile}/${userId}`;
 }
+
+export function getSearchRoute(query: string): string {
+  const searchParams = new URLSearchParams();
+  searchParams.set("q", query);
+
+  return `${ROUTES.search}?${searchParams.toString()}`;
+}
