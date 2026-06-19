@@ -8,20 +8,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { io, type Socket } from "socket.io-client";
-import {
-  fetchPostReactionStats,
-  type PostPage,
-  type PostReactionStats,
-} from "@/entities/post";
-import { commentPostQueryKeys } from "@/features/comment-post";
-import { postFeedQueryKeys } from "@/features/post-feed";
+import { syncRealtimeQueryCache } from "../model/realtime-query-cache-sync";
 import type {
   RealtimeEventPayload,
   RealtimeNotification,
   RealtimeSession,
 } from "../model/realtime-event";
+import { toRealtimeNotification } from "../model/realtime-notification.mapper";
 
 type RealtimeContextValue = {
   isConnected: boolean;
@@ -78,7 +73,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
             setUnreadNotificationCount((count) => count + 1);
           }
         }
-        void handleRealtimeEvent(event, queryClient);
+        void syncRealtimeQueryCache(event, queryClient);
       });
 
       setSocket(nextSocket);
@@ -144,119 +139,5 @@ async function getRealtimeSession(): Promise<RealtimeSession | null> {
   return {
     socketUrl: session.socketUrl,
     token: session.token ?? null,
-  };
-}
-
-async function handleRealtimeEvent(
-  event: RealtimeEventPayload,
-  queryClient: ReturnType<typeof useQueryClient>,
-): Promise<void> {
-  if (event.type === "feed.updated" || event.type === "post.created") {
-    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
-    return;
-  }
-
-  if (event.type === "post.reaction.updated") {
-    const postId = getEventPostId(event.data);
-
-    if (postId) {
-      await refreshPostReactionStats(queryClient, postId);
-    }
-
-    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
-    return;
-  }
-
-  if (event.type === "post.comment.created") {
-    const postId = getEventPostId(event.data);
-
-    if (postId) {
-      await refreshPostReactionStats(queryClient, postId);
-    }
-
-    void queryClient.invalidateQueries({ queryKey: postFeedQueryKeys.all });
-
-    if (postId) {
-      void queryClient.invalidateQueries({
-        queryKey: commentPostQueryKeys.postComments(postId),
-      });
-    }
-  }
-}
-
-async function refreshPostReactionStats(
-  queryClient: ReturnType<typeof useQueryClient>,
-  postId: string,
-): Promise<void> {
-  try {
-    const reactionStats = await fetchPostReactionStats(postId);
-
-    if (!reactionStats) {
-      return;
-    }
-
-    queryClient.setQueriesData<InfiniteData<PostPage>>(
-      { queryKey: postFeedQueryKeys.all },
-      (current) => replacePostReactionStats(current, postId, reactionStats),
-    );
-  } catch {
-    return;
-  }
-}
-
-function replacePostReactionStats(
-  current: InfiniteData<PostPage> | undefined,
-  postId: string,
-  reactionStats: PostReactionStats,
-): InfiniteData<PostPage> | undefined {
-  if (!current) return current;
-
-  return {
-    ...current,
-    pages: current.pages.map((page) => ({
-      ...page,
-      items: page.items.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              reactionStats,
-            }
-          : post,
-      ),
-    })),
-  };
-}
-
-function getEventPostId(data: unknown): string | null {
-  if (!data || typeof data !== "object" || !("postId" in data)) {
-    return null;
-  }
-
-  const postId = data.postId;
-
-  return typeof postId === "string" && postId ? postId : null;
-}
-
-function toRealtimeNotification(data: unknown): RealtimeNotification | null {
-  if (!data || typeof data !== "object") return null;
-
-  const n = data as Record<string, unknown>;
-
-  if (typeof n.id !== "string") return null;
-  if (typeof n.userId !== "string") return null;
-  if (typeof n.actorId !== "string") return null;
-  if (typeof n.notificationType !== "string") return null;
-  if (typeof n.refId !== "string") return null;
-
-  return {
-    id: n.id,
-    userId: n.userId,
-    actorId: n.actorId,
-    type: n.notificationType as RealtimeNotification["type"],
-    refId: n.refId,
-    count: typeof n.count === "number" ? n.count : 1,
-    readAt: typeof n.readAt === "string" ? n.readAt : null,
-    createdAt:
-      typeof n.createdAt === "string" ? n.createdAt : new Date().toISOString(),
   };
 }

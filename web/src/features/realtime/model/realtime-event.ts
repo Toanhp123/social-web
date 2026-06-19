@@ -1,4 +1,5 @@
 import type { PostVisibility, ReactionType } from "@/entities/post";
+import type { NotificationType } from "@/entities/notification";
 
 export type RealtimeEventPayload =
   | RealtimeConnectedEvent
@@ -56,23 +57,13 @@ export type PostCommentCreatedEvent = {
   occurredAt: string;
 };
 
-export type NotificationKind =
-  | "FRIEND_REQUEST_RECEIVED"
-  | "FRIEND_REQUEST_ACCEPTED"
-  | "POST_REACTION"
-  | "POST_COMMENT"
-  | "COMMENT_REPLY"
-  | "COMMENT_REACTION"
-  | "MESSAGE_RECEIVED"
-  | "MENTIONED";
-
 export type NotificationCreatedEvent = {
   type: "notification.created";
   data?: {
     id?: string;
     userId?: string;
     actorId?: string | null;
-    type?: NotificationKind;
+    notificationType?: NotificationType;
     refId?: string | null;
     message?: string | null;
     count?: number;
@@ -96,9 +87,9 @@ export type RealtimeSession = {
 export type RealtimeNotification = {
   id: string;
   userId: string;
-  actorId: string;
-  type: "POST_REACTION" | "POST_COMMENT" | "POST_SHARE" | "MENTIONED";
-  refId: string;
+  actorId: string | null;
+  type: NotificationType;
+  refId: string | null;
   count: number;
   readAt: string | null;
   createdAt: string;
