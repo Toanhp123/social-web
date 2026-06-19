@@ -1,3 +1,3 @@
 export { AppSearchBox } from "./ui/AppSearchBox";
-export { MobileSearchButton } from "./ui/MobileSearchButton";
+export { MobileSearchOverlayTrigger } from "./ui/MobileSearchOverlayTrigger";
 export { useSearchUsersQuery } from "./model/use-search-users-query";
