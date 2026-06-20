@@ -63,6 +63,7 @@ export class PostResponseDto {
   @Expose() type!: PostType;
   @Expose() visibility!: PostVisibility;
   @Expose() originalPostId!: string | null;
+  @Expose() groupId!: string | null;
   @Expose() createdAt!: string;
   @Expose() updatedAt!: string;
   @Expose() currentReaction!: ReactionType | null;
@@ -87,6 +88,7 @@ export class PostResponseDto {
     dto.type = post.type;
     dto.visibility = post.visibility;
     dto.originalPostId = post.originalPostId;
+    dto.groupId = post.groupId;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.currentReaction = post.currentReaction;

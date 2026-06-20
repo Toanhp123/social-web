@@ -10,6 +10,7 @@ type CreatePostDraftInput = {
   authorId: string;
   content?: string | null;
   visibility?: PostVisibility;
+  groupId?: string | null;
   media?: CreatePostMediaInput[];
 };
 
@@ -21,6 +22,7 @@ export class PostDraft {
     public readonly authorId: string,
     public readonly content: string,
     public readonly visibility: PostVisibility,
+    public readonly groupId: string | null,
     public readonly media: readonly CreatePostMediaInput[],
   ) {}
 
@@ -65,6 +67,7 @@ export class PostDraft {
       authorId,
       content,
       input.visibility ?? PostVisibility.PUBLIC,
+      input.groupId?.trim() || null,
       media,
     );
   }
@@ -74,6 +77,7 @@ export class PostDraft {
       authorId: this.authorId,
       content: this.content,
       visibility: this.visibility,
+      groupId: this.groupId,
       media: [...this.media],
     };
   }

@@ -207,9 +207,10 @@ export class PrismaPostRepository implements PostRepository {
         where: {
           deletedAt: null,
           isHidden: false,
+          ...(query.groupId ? { groupId: query.groupId } : { groupId: null }),
           ...(query.authorId ? { authorId: query.authorId } : {}),
           AND: [
-            this.getVisibilityWhere(query.viewerId),
+            ...(query.groupId ? [] : [this.getVisibilityWhere(query.viewerId)]),
             ...this.getSearchWhere(query.search),
             ...(query.cursor
               ? [
@@ -256,6 +257,7 @@ export class PrismaPostRepository implements PostRepository {
         where: {
           deletedAt: null,
           isHidden: false,
+          groupId: null,
           feedItems: {
             none: {
               userId: query.viewerId,
@@ -349,7 +351,7 @@ export class PrismaPostRepository implements PostRepository {
         id: input.postId,
         deletedAt: null,
         isHidden: false,
-        ...this.getVisibilityWhere(input.viewerId),
+        ...this.getPostAccessWhere(input.viewerId),
       },
       select: {
         stats: true,
@@ -381,6 +383,34 @@ export class PrismaPostRepository implements PostRepository {
     }
 
     return { OR: [{ visibility: 'PUBLIC' }, { authorId: viewerId }] };
+  }
+
+  private getPostAccessWhere(viewerId?: string): Prisma.PostWhereInput {
+    const publicPostAccess = {
+      OR: [
+        { groupId: null, visibility: 'PUBLIC' },
+        { group: { privacy: 'PUBLIC' } },
+      ],
+    } satisfies Prisma.PostWhereInput;
+
+    if (!viewerId) {
+      return publicPostAccess;
+    }
+
+    return {
+      OR: [
+        { groupId: null, visibility: 'PUBLIC' },
+        { authorId: viewerId },
+        { group: { privacy: 'PUBLIC' } },
+        {
+          group: {
+            members: {
+              some: { userId: viewerId },
+            },
+          },
+        },
+      ],
+    };
   }
 
   private getSearchWhere(search?: string): Prisma.PostWhereInput[] {
@@ -430,7 +460,7 @@ export class PrismaPostRepository implements PostRepository {
         id: postId,
         deletedAt: null,
         isHidden: false,
-        ...this.getVisibilityWhere(viewerId),
+        ...this.getPostAccessWhere(viewerId),
       },
       select: { id: true },
     });

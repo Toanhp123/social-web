@@ -64,6 +64,7 @@ export class PostMapper {
       prismaPost.type,
       prismaPost.visibility,
       prismaPost.originalPostId,
+      prismaPost.groupId,
       prismaPost.media.map(
         (media) =>
           new PostMedia(
@@ -104,6 +105,7 @@ export class PostMapper {
       authorId: input.authorId,
       content: input.content,
       visibility: input.visibility,
+      groupId: input.groupId ?? null,
       type: this.getTypeFromMedia(input.media.length),
       media:
         input.media.length > 0

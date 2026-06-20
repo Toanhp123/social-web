@@ -10,6 +10,7 @@ export const listPostFeedSchema = z.object({
   cursor: optionalNullableString.optional(),
   limit: z.number().int().min(1).max(30).optional(),
   authorId: optionalNullableString.optional(),
+  groupId: optionalNullableString.optional(),
   search: optionalNullableString.optional(),
 });
 

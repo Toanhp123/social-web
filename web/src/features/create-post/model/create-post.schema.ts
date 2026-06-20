@@ -18,6 +18,10 @@ export const createPostSchema = z
     visibility: z
       .enum(POST_VISIBILITY_VALUES)
       .catch("PUBLIC" satisfies PostVisibility),
+    groupId: z.preprocess(
+      (value) => (typeof value === "string" ? value.trim() || null : null),
+      z.string().min(1).nullable(),
+    ),
     media: z.preprocess(
       (value) => (Array.isArray(value) ? value.filter(isNonEmptyFile) : []),
       z

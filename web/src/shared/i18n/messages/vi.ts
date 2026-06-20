@@ -4,6 +4,7 @@ export const viMessages = {
     searchPlaceholder: "Tìm bạn bè, bài viết, nhóm...",
     feed: "Bảng tin",
     friends: "Bạn bè",
+    groups: "Nhóm",
     messages: "Tin nhắn",
     notifications: "Thông báo",
     footer: "Hồ sơ, bảng tin và công cụ cộng đồng.",

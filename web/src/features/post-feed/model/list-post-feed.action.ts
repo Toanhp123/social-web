@@ -13,6 +13,7 @@ export async function listPostFeedAction(input: {
   cursor?: string | null;
   limit?: number;
   authorId?: string | null;
+  groupId?: string | null;
   search?: string | null;
 }): Promise<ListPostFeedActionResult> {
   const parsedInput = listPostFeedSchema.safeParse(input);

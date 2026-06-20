@@ -5,6 +5,7 @@ import { ListPostsCursor } from '@/modules/posts/domain/types/list-posts-query.t
 type CreatePostListQueryInput = {
   viewerId?: string;
   authorId?: string;
+  groupId?: string;
   search?: string;
   limit?: number;
   cursor?: string;
@@ -18,6 +19,7 @@ export class PostListQuery {
   private constructor(
     public readonly viewerId: string | undefined,
     public readonly authorId: string | undefined,
+    public readonly groupId: string | undefined,
     public readonly search: string | undefined,
     public readonly limit: number,
     public readonly cursor: ListPostsCursor | undefined,
@@ -28,6 +30,7 @@ export class PostListQuery {
     return new PostListQuery(
       input.viewerId,
       this.normalizeOptionalId(input.authorId),
+      this.normalizeOptionalId(input.groupId),
       this.normalizeSearch(input.search),
       this.normalizeLimit(input.limit),
       input.cursor ? this.decodeCursor(input.cursor) : undefined,

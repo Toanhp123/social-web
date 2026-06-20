@@ -4,6 +4,7 @@ export const enMessages = {
     searchPlaceholder: "Search friends, posts, groups...",
     feed: "Feed",
     friends: "Friends",
+    groups: "Groups",
     messages: "Messages",
     notifications: "Notifications",
     footer: "Profile, feed, and community tools.",

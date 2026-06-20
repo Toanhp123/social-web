@@ -19,5 +19,9 @@ export class ListPostsQueryDto {
 
   @IsOptional()
   @IsString()
+  groupId?: string;
+
+  @IsOptional()
+  @IsString()
   search?: string;
 }

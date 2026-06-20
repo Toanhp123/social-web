@@ -11,6 +11,7 @@ import { RedisModule } from '@/infrastructure/redis/redis.module.js';
 import { RealtimeModule } from '@/core/realtime/realtime.module.js';
 import { MediaModule } from '@/modules/media/media.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
+import { GroupsModule } from '@/modules/groups/groups.module.js';
 import { BackfillRelationshipFeedService } from '@/modules/posts/application/services/backfill-relationship-feed.service.js';
 import { CancelPostReportService } from '@/modules/posts/application/services/cancel-post-report.service.js';
 import { CreatePostService } from '@/modules/posts/application/services/create-post.service.js';
@@ -40,6 +41,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     RedisModule,
     RealtimeModule,
     NotificationsModule,
+    GroupsModule,
     QueueModule,
     BullModule.registerQueue({ name: POST_FEED_QUEUE_NAME }),
   ],

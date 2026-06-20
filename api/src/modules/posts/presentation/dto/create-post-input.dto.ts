@@ -10,4 +10,8 @@ export class CreatePostInputDto {
   @IsOptional()
   @IsIn(Object.values(PostVisibility))
   visibility?: PostVisibility;
+
+  @IsOptional()
+  @IsString()
+  groupId?: string;
 }

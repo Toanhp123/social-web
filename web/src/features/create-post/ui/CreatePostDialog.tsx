@@ -10,6 +10,7 @@ import { useVisibilityOptions } from "./VisibilityOptions";
 type CreatePostDialogProps = {
   open: boolean;
   formKey: number;
+  groupId?: string;
   isSubmitting: boolean;
   errorMessage?: string;
   onClose: () => void;
@@ -19,6 +20,7 @@ type CreatePostDialogProps = {
 export function CreatePostDialog({
   open,
   formKey,
+  groupId,
   isSubmitting,
   errorMessage,
   onClose,
@@ -52,6 +54,8 @@ export function CreatePostDialog({
       </header>
 
       <form key={formKey} onSubmit={onSubmit} className="p-5">
+        {groupId && <input type="hidden" name="groupId" value={groupId} />}
+
         <div className="flex items-center gap-3">
           <div className="rounded-pill bg-brand-gradient text-inverse grid size-11 shrink-0 place-items-center text-sm font-semibold">
             SW

@@ -10,6 +10,7 @@ import {
   UserPlus,
   UserRound,
   Users,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import { AppSettingsButton } from "@/features/app-settings";
@@ -142,7 +143,7 @@ function MobileNavigation({ t }: { t: AppMessages["app"] }) {
   const pathname = usePathname() ?? "";
 
   return (
-    <nav className="mt-2 grid grid-cols-4 gap-1">
+    <nav className="mt-2 grid grid-cols-5 gap-1">
       <MobileNavLink
         href={ROUTES.home}
         label={t.feed}
@@ -154,6 +155,12 @@ function MobileNavigation({ t }: { t: AppMessages["app"] }) {
         label={t.friends}
         icon={Users}
         active={pathname.startsWith(ROUTES.friends)}
+      />
+      <MobileNavLink
+        href={ROUTES.groups}
+        label={t.groups}
+        icon={UsersRound}
+        active={pathname.startsWith(ROUTES.groups)}
       />
       <NotificationPopover
         label={t.notifications}
@@ -200,6 +207,7 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
 
   const isHome = pathname === ROUTES.home;
   const isFriends = pathname.startsWith(ROUTES.friends);
+  const isGroups = pathname.startsWith(ROUTES.groups);
 
   return (
     <nav className="rounded-pill border-subtle bg-surface-muted ml-auto hidden items-center gap-1 border p-1 lg:flex">
@@ -227,6 +235,19 @@ function AppNavigation({ t }: { t: AppMessages["app"] }) {
       >
         <Users className={cn("size-4", isFriends && "text-brand")} />
         {t.friends}
+      </Link>
+
+      <Link
+        href={ROUTES.groups}
+        className={cn(
+          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
+          isGroups
+            ? "bg-surface text-primary shadow-control"
+            : "text-muted hover:text-primary",
+        )}
+      >
+        <UsersRound className={cn("size-4", isGroups && "text-brand")} />
+        {t.groups}
       </Link>
     </nav>
   );

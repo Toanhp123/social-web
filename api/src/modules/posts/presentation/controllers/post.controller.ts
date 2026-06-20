@@ -69,6 +69,7 @@ export class PostController {
     const page = await this.listPostsService.execute({
       viewerId: currentUser?.userId,
       authorId: query.authorId,
+      groupId: query.groupId,
       search: query.search,
       limit: query.limit,
       cursor: query.cursor,
@@ -97,6 +98,7 @@ export class PostController {
       authorId: currentUser.userId,
       content: dto.content,
       visibility: dto.visibility,
+      groupId: dto.groupId,
       files: PostUploadedFileMapper.toApplicationFiles(files),
     });
 

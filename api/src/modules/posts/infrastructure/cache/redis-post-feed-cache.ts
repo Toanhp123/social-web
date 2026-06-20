@@ -33,6 +33,7 @@ type CachedPost = {
   type: PostType;
   visibility: PostVisibility;
   originalPostId: string | null;
+  groupId: string | null;
   media: Array<{
     id: string;
     url: string;
@@ -141,6 +142,7 @@ export class RedisPostFeedCache implements PostFeedCache {
         type: post.type,
         visibility: post.visibility,
         originalPostId: post.originalPostId,
+        groupId: post.groupId,
         media: post.media.map((media) => ({
           id: media.id,
           url: media.url,
@@ -189,6 +191,7 @@ export class RedisPostFeedCache implements PostFeedCache {
             post.type,
             post.visibility,
             post.originalPostId ?? null,
+            post.groupId ?? null,
             post.media.map(
               (media) =>
                 new PostMedia(

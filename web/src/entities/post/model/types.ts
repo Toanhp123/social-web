@@ -30,6 +30,7 @@ export type Post = {
   type: PostType;
   visibility: PostVisibility;
   originalPostId: string | null;
+  groupId: string | null;
   author: PostAuthor;
   media: PostMedia[];
   reactionStats: PostReactionStats;
