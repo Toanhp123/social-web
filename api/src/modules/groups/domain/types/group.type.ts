@@ -26,6 +26,11 @@ export type GroupMembership = {
   role: GroupMemberRole;
 };
 
+export type ManageableGroupMemberRole = Extract<
+  GroupMemberRole,
+  'ADMIN' | 'MEMBER'
+>;
+
 export type JoinGroupResult =
   | { status: 'member'; group: Group }
   | { status: 'pending'; group: Group };

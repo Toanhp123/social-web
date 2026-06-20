@@ -8,11 +8,13 @@ export type ListGroupsActionResult =
   | { ok: true; page: GroupPage }
   | { ok: false; error: string };
 
-export async function listGroupsAction(input: {
-  cursor?: string | null;
-  limit?: number;
-  search?: string | null;
-} = {}): Promise<ListGroupsActionResult> {
+export async function listGroupsAction(
+  input: {
+    cursor?: string | null;
+    limit?: number;
+    search?: string | null;
+  } = {},
+): Promise<ListGroupsActionResult> {
   try {
     return {
       ok: true,

@@ -11,6 +11,7 @@ import { PrismaService } from '@/infrastructure/database/prisma.service.js';
 import { PrismaTransactionContext } from '@/infrastructure/database/prisma-transaction-context.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import { GroupRepository } from '@/modules/groups/domain/repositories/group.repository.interface.js';
 import {
   CreateGroupInput,
@@ -18,7 +19,7 @@ import {
   ListGroupsInput,
   ListGroupsPage,
 } from '@/modules/groups/domain/types/group.type.js';
-import { GroupMapper } from './mappers/group.mapper.js';
+import { GROUP_USER_SELECT, GroupMapper } from './mappers/group.mapper.js';
 
 type PrismaClientLike = Prisma.TransactionClient | PrismaService;
 
@@ -195,18 +196,18 @@ export class PrismaGroupRepository implements GroupRepository {
     }
   }
 
-  async listJoinRequests(input: {
-    groupId: string;
-    userId: string;
-  }): Promise<GroupJoinRequest[]> {
+  async listJoinRequests(groupId: string): Promise<GroupJoinRequest[]> {
     const client = this.getClient();
-
-    await this.assertCanManageGroup(client, input.groupId, input.userId);
 
     const requests = await client.groupJoinRequest.findMany({
       where: {
-        groupId: input.groupId,
+        groupId,
         status: GroupJoinRequestStatus.PENDING,
+      },
+      include: {
+        requester: {
+          select: GROUP_USER_SELECT,
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -217,14 +218,9 @@ export class PrismaGroupRepository implements GroupRepository {
   async updateJoinRequest(input: {
     requestId: string;
     groupId: string;
-    actorId: string;
     status: Extract<GroupJoinRequestStatus, 'APPROVED' | 'REJECTED'>;
   }): Promise<GroupJoinRequest> {
-    const client = this.getClient();
-
     try {
-      await this.assertCanManageGroup(client, input.groupId, input.actorId);
-
       return await this.runTransaction(async (tx) => {
         const existingRequest = await tx.groupJoinRequest.findFirst({
           where: {
@@ -280,6 +276,77 @@ export class PrismaGroupRepository implements GroupRepository {
     }
   }
 
+  async listMembers(groupId: string): Promise<GroupMember[]> {
+    const client = this.getClient();
+    const members = await client.groupMember.findMany({
+      where: { groupId },
+      include: {
+        user: {
+          select: GROUP_USER_SELECT,
+        },
+      },
+      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }, { userId: 'asc' }],
+    });
+
+    return members.map((member) => GroupMapper.toMemberDomain(member));
+  }
+
+  async updateMemberRole(input: {
+    groupId: string;
+    userId: string;
+    role: Extract<GroupMemberRole, 'ADMIN' | 'MEMBER'>;
+  }): Promise<GroupMember> {
+    const client = this.getClient();
+
+    try {
+      const member = await client.groupMember.update({
+        where: {
+          groupId_userId: {
+            groupId: input.groupId,
+            userId: input.userId,
+          },
+        },
+        data: {
+          role: input.role,
+        },
+        include: {
+          user: {
+            select: GROUP_USER_SELECT,
+          },
+        },
+      });
+
+      return GroupMapper.toMemberDomain(member);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async removeMember(input: {
+    groupId: string;
+    userId: string;
+  }): Promise<void> {
+    try {
+      await this.runTransaction(async (tx) => {
+        await tx.groupMember.delete({
+          where: {
+            groupId_userId: {
+              groupId: input.groupId,
+              userId: input.userId,
+            },
+          },
+        });
+
+        await tx.group.update({
+          where: { id: input.groupId },
+          data: { memberCount: { decrement: 1 } },
+        });
+      });
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
   private getSearchWhere(search?: string): Prisma.GroupWhereInput {
     if (!search) {
       return {};
@@ -291,30 +358,6 @@ export class PrismaGroupRepository implements GroupRepository {
         { description: { contains: search, mode: 'insensitive' } },
       ],
     };
-  }
-
-  private async assertCanManageGroup(
-    client: PrismaClientLike,
-    groupId: string,
-    userId: string,
-  ): Promise<void> {
-    const membership = await client.groupMember.findUnique({
-      where: {
-        groupId_userId: { groupId, userId },
-      },
-      select: { role: true },
-    });
-
-    if (
-      membership?.role !== GroupMemberRole.OWNER &&
-      membership?.role !== GroupMemberRole.ADMIN
-    ) {
-      throw new DomainError(
-        ErrorCode.FORBIDDEN,
-        'Only group admins can manage requests',
-        403,
-      );
-    }
   }
 
   private async createUniqueSlug(

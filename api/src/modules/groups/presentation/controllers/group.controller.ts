@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
+  Patch,
   Param,
   Post,
   Query,
@@ -14,17 +16,22 @@ import type { AuthenticatedUser } from '@/core/security/types/authenticated-user
 import { CreateGroupService } from '@/modules/groups/application/services/create-group.service.js';
 import { GetGroupService } from '@/modules/groups/application/services/get-group.service.js';
 import { JoinGroupService } from '@/modules/groups/application/services/join-group.service.js';
+import { ListGroupMembersService } from '@/modules/groups/application/services/list-group-members.service.js';
 import { ListGroupJoinRequestsService } from '@/modules/groups/application/services/list-group-join-requests.service.js';
 import { ListGroupsService } from '@/modules/groups/application/services/list-groups.service.js';
+import { RemoveGroupMemberService } from '@/modules/groups/application/services/remove-group-member.service.js';
 import { ReviewGroupJoinRequestService } from '@/modules/groups/application/services/review-group-join-request.service.js';
+import { UpdateGroupMemberRoleService } from '@/modules/groups/application/services/update-group-member-role.service.js';
 import { CreateGroupInputDto } from '@/modules/groups/presentation/dto/create-group-input.dto.js';
 import {
   GroupJoinRequestResponseDto,
+  GroupMemberResponseDto,
   GroupPageResponseDto,
   GroupResponseDto,
   JoinGroupResponseDto,
 } from '@/modules/groups/presentation/dto/group-response.dto.js';
 import { ListGroupsQueryDto } from '@/modules/groups/presentation/dto/list-groups-query.dto.js';
+import { UpdateGroupMemberRoleInputDto } from '@/modules/groups/presentation/dto/update-group-member-role-input.dto.js';
 
 @Controller('groups')
 export class GroupController {
@@ -32,9 +39,12 @@ export class GroupController {
     private readonly createGroupService: CreateGroupService,
     private readonly getGroupService: GetGroupService,
     private readonly joinGroupService: JoinGroupService,
+    private readonly listGroupMembersService: ListGroupMembersService,
     private readonly listGroupsService: ListGroupsService,
     private readonly listGroupJoinRequestsService: ListGroupJoinRequestsService,
+    private readonly removeGroupMemberService: RemoveGroupMemberService,
     private readonly reviewGroupJoinRequestService: ReviewGroupJoinRequestService,
+    private readonly updateGroupMemberRoleService: UpdateGroupMemberRoleService,
   ) {}
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -98,6 +108,52 @@ export class GroupController {
       status: result.status,
       group: GroupResponseDto.fromDomain(result.group),
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':groupId/members')
+  async listMembers(
+    @Param('groupId') groupId: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<GroupMemberResponseDto[]> {
+    const members = await this.listGroupMembersService.execute({
+      groupId,
+      viewerId: currentUser.userId,
+    });
+
+    return members.map((member) => GroupMemberResponseDto.fromDomain(member));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':groupId/members/:userId/role')
+  async updateMemberRole(
+    @Param('groupId') groupId: string,
+    @Param('userId') userId: string,
+    @Body() dto: UpdateGroupMemberRoleInputDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<GroupMemberResponseDto> {
+    const member = await this.updateGroupMemberRoleService.execute({
+      groupId,
+      userId,
+      actorId: currentUser.userId,
+      role: dto.role,
+    });
+
+    return GroupMemberResponseDto.fromDomain(member);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':groupId/members/:userId')
+  async removeMember(
+    @Param('groupId') groupId: string,
+    @Param('userId') userId: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<void> {
+    await this.removeGroupMemberService.execute({
+      groupId,
+      userId,
+      actorId: currentUser.userId,
+    });
   }
 
   @UseGuards(JwtAuthGuard)

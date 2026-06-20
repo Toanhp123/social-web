@@ -5,6 +5,8 @@ import {
 } from '@/generated/prisma/client.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
+import { GroupUser } from '@/modules/groups/domain/entities/group-user.entity.js';
 import { CreateGroupInput } from '@/modules/groups/domain/types/group.type.js';
 
 export function getGroupInclude(viewerId?: string) {
@@ -31,6 +33,29 @@ type GroupPayload = Prisma.GroupGetPayload<{
 
 type GroupJoinRequestPayload = Prisma.GroupJoinRequestGetPayload<object>;
 
+type GroupJoinRequestWithRequesterPayload = Prisma.GroupJoinRequestGetPayload<{
+  include: {
+    requester: {
+      select: typeof GROUP_USER_SELECT;
+    };
+  };
+}>;
+
+type GroupMemberPayload = Prisma.GroupMemberGetPayload<{
+  include: {
+    user: {
+      select: typeof GROUP_USER_SELECT;
+    };
+  };
+}>;
+
+export const GROUP_USER_SELECT = {
+  id: true,
+  fullName: true,
+  username: true,
+  avatarUrl: true,
+} as const;
+
 export class GroupMapper {
   static includeForViewer = getGroupInclude;
 
@@ -54,7 +79,7 @@ export class GroupMapper {
   }
 
   static toJoinRequestDomain(
-    request: GroupJoinRequestPayload,
+    request: GroupJoinRequestPayload | GroupJoinRequestWithRequesterPayload,
   ): GroupJoinRequest {
     return new GroupJoinRequest(
       request.id,
@@ -62,7 +87,27 @@ export class GroupMapper {
       request.requesterId,
       request.status,
       request.createdAt,
+      'requester' in request ? this.toUserDomain(request.requester) : null,
     );
+  }
+
+  static toMemberDomain(member: GroupMemberPayload): GroupMember {
+    return new GroupMember(
+      member.groupId,
+      member.userId,
+      member.role,
+      member.joinedAt,
+      this.toUserDomain(member.user),
+    );
+  }
+
+  private static toUserDomain(user: {
+    id: string;
+    fullName: string;
+    username: string | null;
+    avatarUrl: string | null;
+  }): GroupUser {
+    return new GroupUser(user.id, user.fullName, user.username, user.avatarUrl);
   }
 
   static toPersistence(input: CreateGroupInput & { slug: string }) {

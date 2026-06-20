@@ -5,6 +5,7 @@ import type { Group } from "@/entities/group";
 import { useCurrentSession } from "@/entities/session";
 import { CreatePostComposer } from "@/features/create-post";
 import { GroupJoinButton, useGroupQuery } from "@/features/group-membership";
+import { GroupManagementPanel } from "@/widgets/group-management-panel";
 import { PostFeed } from "@/widgets/post-feed";
 
 type GroupPanelProps = {
@@ -42,7 +43,9 @@ export function GroupPanel({ group: initialGroup }: GroupPanelProps) {
                   ) : (
                     <Users className="size-4" />
                   )}
-                  {group.privacy === "PRIVATE" ? "Private group" : "Public group"}
+                  {group.privacy === "PRIVATE"
+                    ? "Private group"
+                    : "Public group"}
                 </span>
                 <span>{group.memberCount} members</span>
               </div>
@@ -58,6 +61,8 @@ export function GroupPanel({ group: initialGroup }: GroupPanelProps) {
           )}
         </div>
       </section>
+
+      <GroupManagementPanel group={group} />
 
       {isMember && <CreatePostComposer groupId={group.id} />}
 

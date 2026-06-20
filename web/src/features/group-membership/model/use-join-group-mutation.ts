@@ -19,7 +19,10 @@ export function useJoinGroupMutation() {
       return result.result;
     },
     onSuccess: (result) => {
-      queryClient.setQueryData(groupQueryKeys.detail(result.group.id), result.group);
+      queryClient.setQueryData(
+        groupQueryKeys.detail(result.group.id),
+        result.group,
+      );
       queryClient.invalidateQueries({ queryKey: groupQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: postFeedQueryKeys.feed({ groupId: result.group.id }),

@@ -4,6 +4,7 @@ import {
 } from '@/generated/prisma/client.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import {
   CreateGroupInput,
   GroupMembership,
@@ -35,14 +36,20 @@ export abstract class GroupRepository {
     groupId: string;
     requesterId: string;
   }): Promise<GroupJoinRequest>;
-  abstract listJoinRequests(input: {
-    groupId: string;
-    userId: string;
-  }): Promise<GroupJoinRequest[]>;
+  abstract listJoinRequests(groupId: string): Promise<GroupJoinRequest[]>;
   abstract updateJoinRequest(input: {
     requestId: string;
     groupId: string;
-    actorId: string;
     status: Extract<GroupJoinRequestStatus, 'APPROVED' | 'REJECTED'>;
   }): Promise<GroupJoinRequest>;
+  abstract listMembers(groupId: string): Promise<GroupMember[]>;
+  abstract updateMemberRole(input: {
+    groupId: string;
+    userId: string;
+    role: Extract<GroupMemberRole, 'ADMIN' | 'MEMBER'>;
+  }): Promise<GroupMember>;
+  abstract removeMember(input: {
+    groupId: string;
+    userId: string;
+  }): Promise<void>;
 }

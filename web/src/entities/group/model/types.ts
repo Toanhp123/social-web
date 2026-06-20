@@ -2,6 +2,13 @@ export type GroupPrivacy = "PUBLIC" | "PRIVATE";
 export type GroupMemberRole = "OWNER" | "ADMIN" | "MEMBER";
 export type GroupJoinRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export type GroupUser = {
+  id: string;
+  fullName: string;
+  username: string | null;
+  avatarUrl: string | null;
+};
+
 export type GroupViewer = {
   role: GroupMemberRole | null;
   joinRequestStatus: GroupJoinRequestStatus | null;
@@ -37,4 +44,13 @@ export type GroupJoinRequest = {
   requesterId: string;
   status: GroupJoinRequestStatus;
   createdAt: string;
+  requester: GroupUser | null;
+};
+
+export type GroupMember = {
+  groupId: string;
+  userId: string;
+  role: GroupMemberRole;
+  joinedAt: string;
+  user: GroupUser;
 };
