@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   FOLLOW_REPOSITORY,
-  POST_FEED_CACHE,
   POST_FEED_JOB_QUEUE,
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { FollowStatus } from '@/modules/follows/domain/entities/follow-status.entity.js';
 import { FollowRepository } from '@/modules/follows/domain/repositories/follow.repository.interface.js';
 import { FollowUserInput } from '@/modules/follows/domain/types/follow.type.js';
@@ -21,8 +20,7 @@ export class UnfollowUserService {
     @Inject(UNIT_OF_WORK)
     private readonly unitOfWork: UnitOfWork,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
 
     @Inject(POST_FEED_JOB_QUEUE)
     private readonly postFeedJobQueue: PostFeedJobQueue,
@@ -34,7 +32,7 @@ export class UnfollowUserService {
     );
 
     await this.enqueueFeedRemoval(input);
-    await this.invalidateFeedCache();
+    await this.postFeedCacheInvalidation.invalidateViewer(input.followerId);
 
     return status;
   }
@@ -46,14 +44,6 @@ export class UnfollowUserService {
         sourceUserId: input.followingId,
         reason: 'FOLLOWING',
       });
-    } catch {
-      return;
-    }
-  }
-
-  private async invalidateFeedCache(): Promise<void> {
-    try {
-      await this.postFeedCache.invalidateAll();
     } catch {
       return;
     }

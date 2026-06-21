@@ -21,6 +21,7 @@ describe('RemoveRelationshipFeedService', () => {
     } as unknown as PostFeedRepository;
     const postFeedCache = {
       invalidateAll: jest.fn().mockResolvedValue(undefined),
+      invalidateViewer: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedCache;
     const postFeedJobQueue = {
       enqueueRelationshipRemovalPage: jest.fn().mockResolvedValue(undefined),
@@ -65,6 +66,7 @@ describe('RemoveRelationshipFeedService', () => {
       cursor: 'next-cursor',
     });
     expect(postFeedCache.invalidateAll).not.toHaveBeenCalled();
+    expect(postFeedCache.invalidateViewer).not.toHaveBeenCalled();
     expect(realtimePublisher.publishFeedUpdated).not.toHaveBeenCalled();
   });
 
@@ -78,6 +80,7 @@ describe('RemoveRelationshipFeedService', () => {
     } as unknown as PostFeedRepository;
     const postFeedCache = {
       invalidateAll: jest.fn().mockResolvedValue(undefined),
+      invalidateViewer: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedCache;
     const postFeedJobQueue = {
       enqueueRelationshipRemovalPage: jest.fn().mockResolvedValue(undefined),
@@ -104,7 +107,8 @@ describe('RemoveRelationshipFeedService', () => {
     expect(
       postFeedJobQueue.enqueueRelationshipRemovalPage,
     ).not.toHaveBeenCalled();
-    expect(postFeedCache.invalidateAll).toHaveBeenCalledTimes(1);
+    expect(postFeedCache.invalidateAll).not.toHaveBeenCalled();
+    expect(postFeedCache.invalidateViewer).toHaveBeenCalledWith('viewer-1');
     expect(realtimePublisher.publishFeedUpdated).toHaveBeenCalledTimes(1);
   });
 });

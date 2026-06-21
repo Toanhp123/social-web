@@ -3,6 +3,7 @@ import { GroupMemberRole, GroupPrivacy } from '@/generated/prisma/client.js';
 import { GROUP_REPOSITORY } from '@/common/constants/provider-token.constant.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { GroupRepository } from '@/modules/groups/domain/repositories/group.repository.interface.js';
 import { JoinGroupResult } from '@/modules/groups/domain/types/group.type.js';
 
@@ -11,6 +12,8 @@ export class JoinGroupService {
   constructor(
     @Inject(GROUP_REPOSITORY)
     private readonly groupRepository: GroupRepository,
+
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
   ) {}
 
   async execute(input: {
@@ -42,6 +45,7 @@ export class JoinGroupService {
         userId: input.userId,
         role: GroupMemberRole.MEMBER,
       });
+      await this.postFeedCacheInvalidation.invalidateViewer(input.userId);
 
       const joinedGroup =
         (await this.groupRepository.findById({

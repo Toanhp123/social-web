@@ -1,13 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   FOLLOW_REPOSITORY,
-  POST_FEED_CACHE,
   POST_FEED_JOB_QUEUE,
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { FollowStatus } from '@/modules/follows/domain/entities/follow-status.entity.js';
 import { FollowRepository } from '@/modules/follows/domain/repositories/follow.repository.interface.js';
 import { FollowUserInput } from '@/modules/follows/domain/types/follow.type.js';
@@ -26,8 +25,7 @@ export class FollowUserService {
     @Inject(POST_FEED_JOB_QUEUE)
     private readonly postFeedJobQueue: PostFeedJobQueue,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
   ) {}
 
   async execute(input: FollowUserInput): Promise<FollowStatus> {
@@ -42,7 +40,7 @@ export class FollowUserService {
     );
 
     await this.enqueueFeedBackfill(input);
-    await this.invalidateFeedCache();
+    await this.postFeedCacheInvalidation.invalidateViewer(input.followerId);
 
     return status;
   }
@@ -59,14 +57,6 @@ export class FollowUserService {
         `Failed to enqueue feed backfill for follower ${input.followerId} and source user ${input.followingId}`,
         error instanceof Error ? error.stack : undefined,
       );
-      return;
-    }
-  }
-
-  private async invalidateFeedCache(): Promise<void> {
-    try {
-      await this.postFeedCache.invalidateAll();
-    } catch {
       return;
     }
   }

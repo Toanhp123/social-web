@@ -54,4 +54,10 @@ export class GroupAccessService {
       );
     }
   }
+
+  async listMemberIds(groupId: string): Promise<string[]> {
+    const members = await this.groupRepository.listMembers(groupId);
+
+    return members.map((member) => member.userId);
+  }
 }

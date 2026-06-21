@@ -18,7 +18,13 @@ describe(JoinGroupService.name, () => {
       }),
       createJoinRequest: jest.fn<() => Promise<unknown>>(),
     };
-    const service = new JoinGroupService(groupRepository as never);
+    const postFeedCacheInvalidation = {
+      invalidateViewer: jest.fn<() => Promise<void>>().mockResolvedValue(),
+    };
+    const service = new JoinGroupService(
+      groupRepository as never,
+      postFeedCacheInvalidation as never,
+    );
 
     const result = await service.execute({
       groupId: 'group-1',
@@ -32,6 +38,9 @@ describe(JoinGroupService.name, () => {
       role: 'MEMBER',
     });
     expect(groupRepository.createJoinRequest).not.toHaveBeenCalled();
+    expect(postFeedCacheInvalidation.invalidateViewer).toHaveBeenCalledWith(
+      'user-1',
+    );
   });
 
   it('creates a pending request for a private group', async () => {
@@ -52,7 +61,13 @@ describe(JoinGroupService.name, () => {
         status: 'PENDING',
       }),
     };
-    const service = new JoinGroupService(groupRepository as never);
+    const postFeedCacheInvalidation = {
+      invalidateViewer: jest.fn<() => Promise<void>>().mockResolvedValue(),
+    };
+    const service = new JoinGroupService(
+      groupRepository as never,
+      postFeedCacheInvalidation as never,
+    );
 
     const result = await service.execute({
       groupId: 'group-1',
@@ -65,5 +80,6 @@ describe(JoinGroupService.name, () => {
       requesterId: 'user-1',
     });
     expect(groupRepository.addMember).not.toHaveBeenCalled();
+    expect(postFeedCacheInvalidation.invalidateViewer).not.toHaveBeenCalled();
   });
 });

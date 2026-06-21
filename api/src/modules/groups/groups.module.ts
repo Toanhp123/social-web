@@ -12,9 +12,10 @@ import { ReviewGroupJoinRequestService } from '@/modules/groups/application/serv
 import { UpdateGroupMemberRoleService } from '@/modules/groups/application/services/update-group-member-role.service.js';
 import { GroupPersistenceModule } from '@/modules/groups/infrastructure/persistence/group-persistence.module.js';
 import { GroupController } from '@/modules/groups/presentation/controllers/group.controller.js';
+import { PostFeedCacheModule } from '@/modules/posts/infrastructure/cache/post-feed-cache.module.js';
 
 @Module({
-  imports: [GroupPersistenceModule, SecurityModule],
+  imports: [GroupPersistenceModule, SecurityModule, PostFeedCacheModule],
   controllers: [GroupController],
   providers: [
     CreateGroupService,

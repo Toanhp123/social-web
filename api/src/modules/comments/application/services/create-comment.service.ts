@@ -1,15 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   COMMENT_REPOSITORY,
-  POST_FEED_CACHE,
   POST_REPOSITORY,
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { CreateNotificationService } from '@/modules/notifications/application/services/create-notification.service.js';
 import { NotifyMentionedUsersService } from '@/modules/notifications/application/services/notify-mentioned-users.service.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { CommentDraft } from '@/modules/comments/domain/entities/comment-draft.entity.js';
 import { Comment } from '@/modules/comments/domain/entities/comment.entity.js';
 import { CommentRepository } from '@/modules/comments/domain/repositories/comment.repository.interface.js';
@@ -31,8 +30,7 @@ export class CreateCommentService {
     @Inject(UNIT_OF_WORK)
     private readonly unitOfWork: UnitOfWork,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
 
     @Inject(POST_REPOSITORY)
     private readonly postRepository: PostRepository,
@@ -51,7 +49,7 @@ export class CreateCommentService {
       this.commentRepository.create(draft.toCreateInput()),
     );
 
-    await this.invalidateFeedCache();
+    await this.postFeedCacheInvalidation.invalidatePost(comment.postId);
     this.publishCommentCreated(comment);
     await this.notifyPostActivity(comment);
     await this.notifyMentionedUsers(comment);
@@ -104,13 +102,5 @@ export class CreateCommentService {
       refId: comment.id,
       source: 'comment',
     });
-  }
-
-  private async invalidateFeedCache(): Promise<void> {
-    try {
-      await this.postFeedCache.invalidateAll();
-    } catch {
-      return;
-    }
   }
 }

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GROUP_REPOSITORY } from '@/common/constants/provider-token.constant.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import { GroupRolePolicy } from '@/modules/groups/domain/policies/group-role.policy.js';
 import { GroupRepository } from '@/modules/groups/domain/repositories/group.repository.interface.js';
@@ -12,6 +13,8 @@ export class UpdateGroupMemberRoleService {
   constructor(
     @Inject(GROUP_REPOSITORY)
     private readonly groupRepository: GroupRepository,
+
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
   ) {}
 
   async execute(input: {
@@ -47,10 +50,14 @@ export class UpdateGroupMemberRoleService {
       );
     }
 
-    return this.groupRepository.updateMemberRole({
+    const member = await this.groupRepository.updateMemberRole({
       groupId: input.groupId,
       userId: input.userId,
       role: input.role,
     });
+
+    await this.postFeedCacheInvalidation.invalidateViewer(input.userId);
+
+    return member;
   }
 }

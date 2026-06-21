@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { SecurityModule } from '@/core/security/security.module.js';
-import {
-  POST_FEED_CACHE,
-  POST_FEED_JOB_QUEUE,
-} from '@/common/constants/provider-token.constant.js';
+import { POST_FEED_JOB_QUEUE } from '@/common/constants/provider-token.constant.js';
 import { QueueModule } from '@/infrastructure/queue/queue.module.js';
 import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { RedisModule } from '@/infrastructure/redis/redis.module.js';
@@ -25,7 +22,7 @@ import { RemovePostService } from '@/modules/posts/application/services/remove-p
 import { RemoveRelationshipFeedService } from '@/modules/posts/application/services/remove-relationship-feed.service.js';
 import { ReportPostService } from '@/modules/posts/application/services/report-post.service.js';
 import { SharePostService } from '@/modules/posts/application/services/share-post.service.js';
-import { RedisPostFeedCache } from '@/modules/posts/infrastructure/cache/redis-post-feed-cache.js';
+import { PostFeedCacheModule } from '@/modules/posts/infrastructure/cache/post-feed-cache.module.js';
 import { PostPersistenceModule } from '@/modules/posts/infrastructure/persistence/post-persistence.module.js';
 import { BullMqPostFeedJobQueue } from '@/modules/posts/infrastructure/queue/bullmq-post-feed-job-queue.js';
 import { PostFeedProcessor } from '@/modules/posts/infrastructure/queue/post-feed.processor.js';
@@ -39,6 +36,7 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     MediaModule,
     DatabaseModule,
     RedisModule,
+    PostFeedCacheModule,
     RealtimeModule,
     NotificationsModule,
     GroupsModule,
@@ -62,14 +60,10 @@ import { PostController } from '@/modules/posts/presentation/controllers/post.co
     SharePostService,
     PostFeedProcessor,
     {
-      provide: POST_FEED_CACHE,
-      useClass: RedisPostFeedCache,
-    },
-    {
       provide: POST_FEED_JOB_QUEUE,
       useClass: BullMqPostFeedJobQueue,
     },
   ],
-  exports: [PostPersistenceModule, POST_FEED_CACHE, POST_FEED_JOB_QUEUE],
+  exports: [PostPersistenceModule, PostFeedCacheModule, POST_FEED_JOB_QUEUE],
 })
 export class PostsModule {}

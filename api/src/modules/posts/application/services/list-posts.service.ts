@@ -14,6 +14,7 @@ import {
   ListPostsPage,
 } from '@/modules/posts/domain/types/list-posts-query.type.js';
 import { PostListQuery } from '@/modules/posts/domain/value-objects/post-list-query.value-object.js';
+import type { PostFeedCacheKey } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 
 const DISCOVERY_START_CURSOR: ListPostsCursor = {
   createdAt: new Date('9999-12-31T23:59:59.999Z'),
@@ -53,7 +54,8 @@ export class ListPostsService {
 
   async execute(input: ListPostsInput): Promise<ListPostsResult> {
     const query = PostListQuery.create(input);
-    const cacheKey = {
+    const cacheKey: PostFeedCacheKey = {
+      scope: this.getCacheScope(query),
       viewerId: query.viewerId ?? null,
       authorId: query.authorId ?? null,
       groupId: query.groupId ?? null,
@@ -61,10 +63,15 @@ export class ListPostsService {
       limit: query.limit,
       cursor: query.rawCursor,
     };
-    const cached =
-      query.groupId || query.groupFeed
-        ? null
-        : await this.getCachedResult(cacheKey);
+
+    if (query.groupId) {
+      await this.groupAccessService.assertCanView({
+        groupId: query.groupId,
+        viewerId: query.viewerId,
+      });
+    }
+
+    const cached = await this.getCachedResult(cacheKey);
 
     if (cached) {
       return cached;
@@ -78,6 +85,7 @@ export class ListPostsService {
       search: query.search,
       limit: query.limit,
       cursor: query.cursor,
+      groupAccessChecked: Boolean(query.groupId),
     });
 
     const result = {
@@ -87,9 +95,7 @@ export class ListPostsService {
         : null,
     };
 
-    if (!query.groupId && !query.groupFeed) {
-      await this.cacheResult(cacheKey, result);
-    }
+    await this.cacheResult(cacheKey, result);
 
     return result;
   }
@@ -102,14 +108,27 @@ export class ListPostsService {
     search?: string;
     limit: number;
     cursor?: ListPostsCursor;
+    groupAccessChecked?: boolean;
   }): Promise<ListPostsPage> {
-    if (input.groupId) {
-      await this.groupAccessService.assertCanView({
-        groupId: input.groupId,
-        viewerId: input.viewerId,
-      });
+    const repositoryQuery = {
+      viewerId: input.viewerId,
+      authorId: input.authorId,
+      groupId: input.groupId,
+      groupFeed: input.groupFeed,
+      search: input.search,
+      limit: input.limit,
+      cursor: input.cursor,
+    };
 
-      return this.postRepository.findPage(input);
+    if (input.groupId) {
+      if (!input.groupAccessChecked) {
+        await this.groupAccessService.assertCanView({
+          groupId: input.groupId,
+          viewerId: input.viewerId,
+        });
+      }
+
+      return this.postRepository.findPage(repositoryQuery);
     }
 
     if (input.groupFeed) {
@@ -117,11 +136,11 @@ export class ListPostsService {
         return { items: [], nextCursor: null };
       }
 
-      return this.postRepository.findPage(input);
+      return this.postRepository.findPage(repositoryQuery);
     }
 
     if (input.search || input.authorId || !input.viewerId) {
-      return this.postRepository.findPage(input);
+      return this.postRepository.findPage(repositoryQuery);
     }
 
     if (input.cursor?.phase === 'discover') {
@@ -172,14 +191,9 @@ export class ListPostsService {
     };
   }
 
-  private async getCachedResult(input: {
-    viewerId: string | null;
-    authorId: string | null;
-    groupId?: string | null;
-    search: string | null;
-    limit: number;
-    cursor?: string;
-  }): Promise<ListPostsResult | null> {
+  private async getCachedResult(
+    input: PostFeedCacheKey,
+  ): Promise<ListPostsResult | null> {
     try {
       return await this.postFeedCache.get(input);
     } catch {
@@ -188,14 +202,7 @@ export class ListPostsService {
   }
 
   private async cacheResult(
-    input: {
-      viewerId: string | null;
-      authorId: string | null;
-      groupId?: string | null;
-      search: string | null;
-      limit: number;
-      cursor?: string;
-    },
+    input: PostFeedCacheKey,
     result: ListPostsResult,
   ): Promise<void> {
     try {
@@ -203,5 +210,25 @@ export class ListPostsService {
     } catch {
       return;
     }
+  }
+
+  private getCacheScope(query: PostListQuery): PostFeedCacheKey['scope'] {
+    if (query.groupId) {
+      return 'group-detail';
+    }
+
+    if (query.groupFeed) {
+      return 'group-feed';
+    }
+
+    if (query.search) {
+      return 'search';
+    }
+
+    if (query.authorId) {
+      return 'author';
+    }
+
+    return 'home';
   }
 }

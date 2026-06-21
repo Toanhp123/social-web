@@ -3,6 +3,7 @@ import { GroupJoinRequestStatus } from '@/generated/prisma/client.js';
 import { GROUP_REPOSITORY } from '@/common/constants/provider-token.constant.js';
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
 import { GroupRolePolicy } from '@/modules/groups/domain/policies/group-role.policy.js';
 import { GroupRepository } from '@/modules/groups/domain/repositories/group.repository.interface.js';
@@ -12,6 +13,8 @@ export class ReviewGroupJoinRequestService {
   constructor(
     @Inject(GROUP_REPOSITORY)
     private readonly groupRepository: GroupRepository,
+
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
   ) {}
 
   async approve(input: {
@@ -21,11 +24,15 @@ export class ReviewGroupJoinRequestService {
   }): Promise<GroupJoinRequest> {
     await this.assertCanManageRequests(input.groupId, input.actorId);
 
-    return this.groupRepository.updateJoinRequest({
+    const request = await this.groupRepository.updateJoinRequest({
       groupId: input.groupId,
       requestId: input.requestId,
       status: GroupJoinRequestStatus.APPROVED,
     });
+
+    await this.postFeedCacheInvalidation.invalidateViewer(request.requesterId);
+
+    return request;
   }
 
   async reject(input: {

@@ -12,6 +12,7 @@ describe('ListPostsService', () => {
     ({
       get: jest.fn().mockResolvedValue(null),
       set: jest.fn().mockResolvedValue(undefined),
+      invalidateAll: jest.fn().mockResolvedValue(undefined),
     }) as unknown as PostFeedCache;
   const createGroupAccessService = (): GroupAccessService =>
     ({
@@ -161,7 +162,7 @@ describe('ListPostsService', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('reads posts from joined groups when group feed is requested', async () => {
+  it('caches posts from joined groups when group feed is requested', async () => {
     const post = { id: 'group-post-1' } as unknown as Post;
     const page: ListPostsPage = {
       items: [post],
@@ -201,6 +202,90 @@ describe('ListPostsService', () => {
       cursor: undefined,
     });
     expect(postFeedRepository.findPage).not.toHaveBeenCalled();
-    expect(postFeedCache.get).not.toHaveBeenCalled();
+    expect(postFeedCache.get).toHaveBeenCalledWith({
+      scope: 'group-feed',
+      viewerId: 'viewer-1',
+      authorId: null,
+      groupId: null,
+      search: null,
+      limit: 10,
+      cursor: undefined,
+    });
+    expect(postFeedCache.set).toHaveBeenCalledWith(
+      {
+        scope: 'group-feed',
+        viewerId: 'viewer-1',
+        authorId: null,
+        groupId: null,
+        search: null,
+        limit: 10,
+        cursor: undefined,
+      },
+      {
+        items: [post],
+        nextCursor: null,
+      },
+    );
+  });
+
+  it('caches group detail posts after access is checked', async () => {
+    const post = { id: 'group-post-1' } as unknown as Post;
+    const page: ListPostsPage = {
+      items: [post],
+      nextCursor: null,
+    };
+    const postRepository = {
+      findPage: jest.fn().mockResolvedValue(page),
+      findDiscoveryPage: jest.fn(),
+      softDelete: jest.fn(),
+      report: jest.fn(),
+    } as unknown as PostRepository;
+    const postFeedRepository = {
+      findPage: jest.fn(),
+      createFeedItemsForRecipient: jest.fn(),
+    } as unknown as PostFeedRepository;
+    const postFeedCache = createPostFeedCache();
+    const groupAccessService = createGroupAccessService();
+    const service = new ListPostsService(
+      postRepository,
+      postFeedRepository,
+      postFeedCache,
+      groupAccessService,
+    );
+
+    await service.execute({
+      viewerId: 'viewer-1',
+      groupId: 'group-1',
+      limit: 10,
+    });
+
+    expect(groupAccessService.assertCanView).toHaveBeenCalledWith({
+      groupId: 'group-1',
+      viewerId: 'viewer-1',
+    });
+    expect(postFeedCache.get).toHaveBeenCalledWith({
+      scope: 'group-detail',
+      viewerId: 'viewer-1',
+      authorId: null,
+      groupId: 'group-1',
+      search: null,
+      limit: 10,
+      cursor: undefined,
+    });
+    expect(postFeedCache.set).toHaveBeenCalledWith(
+      {
+        scope: 'group-detail',
+        viewerId: 'viewer-1',
+        authorId: null,
+        groupId: 'group-1',
+        search: null,
+        limit: 10,
+        cursor: undefined,
+      },
+      {
+        items: [post],
+        nextCursor: null,
+      },
+    );
   });
 });
