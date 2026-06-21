@@ -2,8 +2,8 @@
 
 import { ShieldCheck, UserMinus, UserPlus, Users } from "lucide-react";
 import type { Group, GroupMember, GroupMemberRole } from "@/entities/group";
-import { Avatar } from "@/shared/ui/Avatar";
-import { Button } from "@/shared/ui";
+import { useTranslations } from "@/shared/i18n";
+import { Avatar, Button, Card, Combobox } from "@/shared/ui";
 import {
   useApproveGroupJoinRequestMutation,
   useGroupJoinRequestsQuery,
@@ -18,6 +18,7 @@ type GroupManagementPanelProps = {
 };
 
 export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
+  const t = useTranslations().groups.detail.management;
   const viewerRole = group.viewer.role;
   const canManage = viewerRole === "OWNER" || viewerRole === "ADMIN";
   const membersQuery = useGroupMembersQuery(group.id, canManage);
@@ -42,14 +43,14 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
     removeMemberMutation.error;
 
   return (
-    <section className="rounded-card border-surface-border bg-surface-elevated shadow-card space-y-5 border p-4">
+    <Card variant="elevated" className="space-y-5">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-primary text-base font-semibold">
-            Group management
+            {t.title}
           </h2>
           <p className="text-muted mt-1 text-sm">
-            Review requests and keep roles tidy.
+            {t.description}
           </p>
         </div>
 
@@ -65,13 +66,13 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
       <div className="space-y-3">
         <h3 className="text-primary flex items-center gap-2 text-sm font-semibold">
           <UserPlus className="size-4" />
-          Join requests
+          {t.joinRequests}
         </h3>
 
         {requestsQuery.isLoading ? (
-          <p className="text-muted text-sm">Loading requests...</p>
+          <p className="text-muted text-sm">{t.loadingRequests}</p>
         ) : requests.length === 0 ? (
-          <p className="text-muted text-sm">No pending requests.</p>
+          <p className="text-muted text-sm">{t.noPendingRequests}</p>
         ) : (
           <div className="space-y-2">
             {requests.map((request) => {
@@ -90,7 +91,7 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
                   <Avatar
                     src={requester?.avatarUrl}
                     name={requester?.fullName ?? request.requesterId}
-                    alt={requester?.fullName ?? "Requester"}
+                    alt={requester?.fullName ?? t.requesterFallback}
                     size={40}
                   />
 
@@ -118,7 +119,7 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
                         })
                       }
                     >
-                      Accept
+                      {t.accept}
                     </Button>
                     <Button
                       type="button"
@@ -133,7 +134,7 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
                         })
                       }
                     >
-                      Decline
+                      {t.decline}
                     </Button>
                   </div>
                 </div>
@@ -146,13 +147,13 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
       <div className="space-y-3">
         <h3 className="text-primary flex items-center gap-2 text-sm font-semibold">
           <Users className="size-4" />
-          Members
+          {t.members}
         </h3>
 
         {membersQuery.isLoading ? (
-          <p className="text-muted text-sm">Loading members...</p>
+          <p className="text-muted text-sm">{t.loadingMembers}</p>
         ) : members.length === 0 ? (
-          <p className="text-muted text-sm">No members found.</p>
+          <p className="text-muted text-sm">{t.noMembers}</p>
         ) : (
           <div className="space-y-2">
             {members.map((member) => (
@@ -181,12 +182,13 @@ export function GroupManagementPanel({ group }: GroupManagementPanelProps) {
                   removeMemberMutation.isPending &&
                   removeMemberMutation.variables?.userId === member.userId
                 }
+                t={t}
               />
             ))}
           </div>
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -197,6 +199,7 @@ type GroupMemberRowProps = {
   onRemove: () => void;
   isUpdating: boolean;
   isRemoving: boolean;
+  t: ReturnType<typeof useTranslations>["groups"]["detail"]["management"];
 };
 
 function GroupMemberRow({
@@ -206,9 +209,15 @@ function GroupMemberRow({
   onRemove,
   isUpdating,
   isRemoving,
+  t,
 }: GroupMemberRowProps) {
   const canEditRole = canChangeRole(viewerRole, member.role);
   const canRemove = canRemoveMember(viewerRole, member.role);
+  const roleOptions = [
+    { value: "OWNER", label: t.roles.owner },
+    { value: "ADMIN", label: t.roles.admin },
+    { value: "MEMBER", label: t.roles.member },
+  ];
 
   return (
     <div className="border-soft flex flex-col gap-3 border-b pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center">
@@ -225,31 +234,24 @@ function GroupMemberRow({
             {member.user.fullName}
           </p>
           <p className="text-muted truncate text-xs">
-            {member.user.username ? `@${member.user.username}` : member.role}
+            {member.user.username ? `@${member.user.username}` : getRoleLabel(member.role, t)}
           </p>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <select
+        <Combobox
+          name={`group-member-role-${member.userId}`}
+          options={roleOptions}
+          size="xs"
           value={member.role}
           disabled={!canEditRole || isUpdating}
-          onChange={(event) =>
-            onUpdateRole(
-              event.target.value as Extract<
-                GroupMemberRole,
-                "ADMIN" | "MEMBER"
-              >,
-            )
-          }
-          className="rounded-control border-subtle bg-surface-soft text-primary h-9 border px-2 text-sm disabled:opacity-60"
-        >
-          <option value="OWNER" disabled>
-            Owner
-          </option>
-          <option value="ADMIN">Admin</option>
-          <option value="MEMBER">Member</option>
-        </select>
+          onValueChange={(nextRole) => {
+            if (nextRole === "ADMIN" || nextRole === "MEMBER") {
+              onUpdateRole(nextRole);
+            }
+          }}
+        />
 
         <Button
           type="button"
@@ -257,7 +259,7 @@ function GroupMemberRow({
           variant="danger"
           fullWidth={false}
           disabled={!canRemove || isRemoving}
-          aria-label={`Remove ${member.user.fullName}`}
+          aria-label={t.removeMember.replace("{name}", member.user.fullName)}
           onClick={onRemove}
           className="grid size-9 place-items-center"
         >
@@ -266,6 +268,15 @@ function GroupMemberRow({
       </div>
     </div>
   );
+}
+
+function getRoleLabel(
+  role: GroupMemberRole,
+  t: ReturnType<typeof useTranslations>["groups"]["detail"]["management"],
+) {
+  if (role === "OWNER") return t.roles.owner;
+  if (role === "ADMIN") return t.roles.admin;
+  return t.roles.member;
 }
 
 function canChangeRole(

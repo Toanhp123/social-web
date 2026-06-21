@@ -1,1 +1,1 @@
-export { GroupPanel } from "./ui/GroupPanel";
+export { GroupAboutRail, GroupPanel } from "./ui/GroupPanel";

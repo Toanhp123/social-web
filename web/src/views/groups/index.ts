@@ -1,1 +1,5 @@
-export { GroupsPage } from "./ui/GroupsPage";
+export {
+  CreateGroupPage,
+  DiscoverGroupsPage,
+  GroupsPage,
+} from "./ui/GroupsPage";

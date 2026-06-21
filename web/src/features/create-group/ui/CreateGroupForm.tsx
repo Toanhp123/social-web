@@ -1,12 +1,20 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { SendHorizontal } from "lucide-react";
-import { Button, Input } from "@/shared/ui";
+import { Globe2, Lock, SendHorizontal } from "lucide-react";
+import { useTranslations } from "@/shared/i18n";
+import { Button, Card, Combobox, Input, Textarea } from "@/shared/ui";
 import { useCreateGroupMutation } from "../model/use-create-group-mutation";
 
-export function CreateGroupForm() {
+type CreateGroupFormProps = {
+  idPrefix?: string;
+};
+
+export function CreateGroupForm({ idPrefix = "group" }: CreateGroupFormProps) {
+  const t = useTranslations().groups;
   const createGroupMutation = useCreateGroupMutation();
+  const nameId = `${idPrefix}-name`;
+  const descriptionId = `${idPrefix}-description`;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -14,47 +22,53 @@ export function CreateGroupForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-card border-surface-border bg-surface-elevated shadow-card space-y-4 border p-4"
-    >
+    <Card variant="elevated" className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="text-primary text-sm font-medium" htmlFor="group-name">
-          Group name
+        <label className="text-primary text-sm font-medium" htmlFor={nameId}>
+          {t.form.name}
         </label>
-        <Input id="group-name" name="name" placeholder="React Vietnam" />
+        <Input id={nameId} name="name" placeholder={t.form.namePlaceholder} />
       </div>
 
       <div>
         <label
           className="text-primary text-sm font-medium"
-          htmlFor="group-description"
+          htmlFor={descriptionId}
         >
-          Description
+          {t.form.description}
         </label>
-        <textarea
-          id="group-description"
+        <Textarea
+          id={descriptionId}
           name="description"
           rows={4}
-          className="rounded-control border-subtle bg-surface-soft text-primary placeholder:text-placeholder focus:border-brand mt-2 w-full resize-none border px-4 py-3 text-sm outline-none"
-          placeholder="What is this group about?"
+          size="lg"
+          className="mt-2"
+          placeholder={t.form.descriptionPlaceholder}
         />
       </div>
 
-      <div>
-        <label className="text-primary text-sm font-medium" htmlFor="privacy">
-          Privacy
-        </label>
-        <select
-          id="privacy"
+      <Combobox
           name="privacy"
+          label={t.form.privacy}
           defaultValue="PUBLIC"
-          className="rounded-control border-subtle bg-surface-soft text-primary focus:border-brand mt-2 h-11 w-full border px-3 text-sm outline-none"
-        >
-          <option value="PUBLIC">Public</option>
-          <option value="PRIVATE">Private</option>
-        </select>
-      </div>
+          variant="detailed"
+          size="md"
+          options={[
+            {
+              value: "PUBLIC",
+              label: t.public,
+              description: t.form.publicDescription,
+              icon: <Globe2 className="size-4" />,
+            },
+            {
+              value: "PRIVATE",
+              label: t.private,
+              description: t.form.privateDescription,
+              icon: <Lock className="size-4" />,
+            },
+          ]}
+        />
 
       {createGroupMutation.error instanceof Error && (
         <p className="rounded-card bg-danger-soft text-danger px-3 py-2 text-sm">
@@ -68,8 +82,9 @@ export function CreateGroupForm() {
         className="inline-flex items-center justify-center gap-2"
       >
         <SendHorizontal className="size-4" />
-        {createGroupMutation.isPending ? "Creating..." : "Create group"}
+        {createGroupMutation.isPending ? t.form.creating : t.form.submit}
       </Button>
-    </form>
+      </form>
+    </Card>
   );
 }

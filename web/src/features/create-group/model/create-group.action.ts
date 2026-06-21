@@ -2,7 +2,7 @@
 
 import { ApiError } from "@/shared/api/api-error";
 import type { Group } from "@/entities/group";
-import { createGroupApi } from "@/entities/group/server";
+import { createGroupApi } from "../api/create-group-api.server";
 import { createGroupSchema } from "./create-group.schema";
 
 export type CreateGroupActionResult =

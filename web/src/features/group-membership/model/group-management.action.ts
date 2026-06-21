@@ -13,7 +13,7 @@ import {
   rejectGroupJoinRequestApi,
   removeGroupMemberApi,
   updateGroupMemberRoleApi,
-} from "@/entities/group/server";
+} from "../api/group-management-api.server";
 
 export type ListGroupMembersActionResult =
   | { ok: true; members: GroupMember[] }

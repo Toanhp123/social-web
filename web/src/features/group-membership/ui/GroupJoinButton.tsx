@@ -2,19 +2,23 @@
 
 import { Lock, UserCheck, UserPlus } from "lucide-react";
 import type { Group } from "@/entities/group";
-import { Button } from "@/shared/ui";
+import { useTranslations } from "@/shared/i18n";
 import { useRequireAuthRedirect } from "@/shared/lib/use-require-auth-redirect";
+import { Button } from "@/shared/ui";
 import { useJoinGroupMutation } from "../model/use-join-group-mutation";
 
 type GroupJoinButtonProps = {
   group: Group;
   canInteract?: boolean;
+  fullWidth?: boolean;
 };
 
 export function GroupJoinButton({
   group,
   canInteract = true,
+  fullWidth = false,
 }: GroupJoinButtonProps) {
+  const t = useTranslations().groups;
   const requireAuth = useRequireAuthRedirect();
   const joinMutation = useJoinGroupMutation();
   const role = group.viewer.role;
@@ -35,12 +39,12 @@ export function GroupJoinButton({
       <Button
         type="button"
         variant="secondary"
-        fullWidth={false}
+        fullWidth={fullWidth}
         disabled
         className="inline-flex items-center justify-center gap-2"
       >
         <UserCheck className="size-4" />
-        Joined
+        {t.joined}
       </Button>
     );
   }
@@ -50,12 +54,12 @@ export function GroupJoinButton({
       <Button
         type="button"
         variant="secondary"
-        fullWidth={false}
+        fullWidth={fullWidth}
         disabled
         className="inline-flex items-center justify-center gap-2"
       >
         <Lock className="size-4" />
-        Pending
+        {t.pending}
       </Button>
     );
   }
@@ -64,13 +68,13 @@ export function GroupJoinButton({
     <div className="space-y-2">
       <Button
         type="button"
-        fullWidth={false}
+        fullWidth={fullWidth}
         disabled={isPending}
         onClick={handleJoin}
         className="inline-flex items-center justify-center gap-2"
       >
         <UserPlus className="size-4" />
-        {isPending ? "Joining..." : "Join group"}
+        {isPending ? t.joining : t.joinGroup}
       </Button>
 
       {joinMutation.error instanceof Error && (

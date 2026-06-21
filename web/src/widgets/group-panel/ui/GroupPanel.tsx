@@ -1,89 +1,84 @@
 "use client";
 
-import { Lock, Users } from "lucide-react";
+import { useState } from "react";
 import type { Group } from "@/entities/group";
 import { useCurrentSession } from "@/entities/session";
-import { CreatePostComposer } from "@/features/create-post";
-import { GroupJoinButton, useGroupQuery } from "@/features/group-membership";
+import { useGroupQuery } from "@/features/group-membership";
+import { useTranslations } from "@/shared/i18n";
 import { GroupManagementPanel } from "@/widgets/group-management-panel";
-import { PostFeed } from "@/widgets/post-feed";
+import { GroupDiscussion } from "./GroupDiscussion";
+import { GroupHeader } from "./GroupHeader";
+import {
+  GroupAboutPanel,
+  GroupMediaPreview,
+  GroupMembersPreview,
+} from "./GroupInfoPanels";
+import { GroupTabs } from "./GroupTabs";
+import type { GroupTab } from "./group-panel.types";
 
 type GroupPanelProps = {
   group: Group;
 };
 
 export function GroupPanel({ group: initialGroup }: GroupPanelProps) {
+  const t = useTranslations().groups;
   const { currentUser } = useCurrentSession();
   const groupQuery = useGroupQuery(initialGroup.id, initialGroup);
   const group = groupQuery.data ?? initialGroup;
   const isMember = Boolean(group.viewer.role);
+  const canManage = group.viewer.role === "OWNER" || group.viewer.role === "ADMIN";
   const canInteract = Boolean(currentUser);
   const canViewFeed = group.privacy === "PUBLIC" || isMember;
+  const [activeTab, setActiveTab] = useState<GroupTab>("discussion");
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-card border-surface-border bg-surface-elevated shadow-card overflow-hidden border">
-        <div className="bg-surface-muted h-40 sm:h-52" />
+    <div className="space-y-4">
+      <GroupHeader
+        group={group}
+        canInteract={canInteract}
+        isMember={isMember}
+        canManage={canManage}
+        t={t}
+      />
 
-        <div className="px-4 pb-5 sm:px-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="min-w-0">
-              <div className="rounded-control bg-brand text-inverse shadow-card -mt-10 grid size-20 place-items-center text-2xl font-semibold">
-                {group.name.trim().charAt(0).toUpperCase() || "G"}
-              </div>
+      <GroupTabs
+        canManage={canManage}
+        labels={t.detail.tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-              <h1 className="text-primary mt-3 text-2xl font-bold">
-                {group.name}
-              </h1>
-
-              <div className="text-muted mt-2 flex flex-wrap items-center gap-3 text-sm">
-                <span className="inline-flex items-center gap-1.5">
-                  {group.privacy === "PRIVATE" ? (
-                    <Lock className="size-4" />
-                  ) : (
-                    <Users className="size-4" />
-                  )}
-                  {group.privacy === "PRIVATE"
-                    ? "Private group"
-                    : "Public group"}
-                </span>
-                <span>{group.memberCount} members</span>
-              </div>
-            </div>
-
-            <GroupJoinButton group={group} canInteract={canInteract} />
-          </div>
-
-          {group.description && (
-            <p className="text-secondary mt-4 max-w-3xl text-sm leading-6">
-              {group.description}
-            </p>
-          )}
-        </div>
-      </section>
-
-      <GroupManagementPanel group={group} />
-
-      {isMember && <CreatePostComposer groupId={group.id} />}
-
-      {canViewFeed ? (
-        <PostFeed
+      {activeTab === "discussion" && (
+        <GroupDiscussion
+          group={group}
+          isMember={isMember}
           canInteract={canInteract}
-          groupId={group.id}
-          emptyTitle="No group posts yet"
-          emptyDescription="Members can start the first discussion here."
+          canViewFeed={canViewFeed}
+          t={t}
         />
-      ) : (
-        <section className="rounded-card border-surface-border bg-surface-elevated shadow-card border p-6 text-center">
-          <Lock className="text-muted mx-auto size-7" />
-          <h2 className="text-primary mt-3 font-semibold">
-            Join this private group to see posts
-          </h2>
-          <p className="text-muted mt-1 text-sm leading-6">
-            Your request will be reviewed by group admins.
-          </p>
-        </section>
       )}
+
+      {activeTab === "about" && <GroupAboutPanel group={group} t={t} />}
+
+      {activeTab === "members" && <GroupMembersPreview group={group} t={t} />}
+
+      {activeTab === "media" && <GroupMediaPreview t={t} />}
+
+      {activeTab === "manage" && canManage && (
+        <GroupManagementPanel group={group} />
+      )}
+    </div>
+  );
+}
+
+export function GroupAboutRail({ group }: { group: Group }) {
+  const t = useTranslations().groups;
+
+  return (
+    <div className="space-y-4">
+      <GroupAboutPanel group={group} compact t={t} />
+      <GroupMediaPreview compact t={t} />
+      <GroupMembersPreview group={group} compact t={t} />
     </div>
   );
 }
