@@ -7,7 +7,7 @@ import type { CurrentSessionUser } from "@/entities/session/server";
 import type { User, UserProfile } from "@/entities/user";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
 
 type ProfileHeaderProps = {
@@ -35,11 +35,15 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   const t = useTranslations().profile;
   const isSidebar = variant === "sidebar";
+  const currentUserName = currentUser.fullName?.trim() || currentUser.email;
+  const currentUserMeta = currentUser.username
+    ? `@${currentUser.username}`
+    : currentUser.email;
 
   const displayName =
     profile?.fullName?.trim() ||
     profileOwner?.fullName?.trim() ||
-    (canEdit ? currentUser.email : t.memberFallback);
+    (canEdit ? currentUserName : t.memberFallback);
   const usernameLabel = profile?.username
     ? `@${profile.username}`
     : profileOwner?.username
@@ -47,7 +51,7 @@ export function ProfileHeader({
       : canEdit && profileOwner?.email
         ? profileOwner.email
         : canEdit
-          ? currentUser.email
+          ? currentUserMeta
           : t.memberFallback;
 
   return (
