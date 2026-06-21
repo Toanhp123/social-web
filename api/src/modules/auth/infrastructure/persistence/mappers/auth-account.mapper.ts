@@ -9,6 +9,12 @@ export const AUTH_ACCOUNT_SELECT = {
   email: true,
   passwordHash: true,
   role: true,
+  user: {
+    select: {
+      fullName: true,
+      username: true,
+    },
+  },
   emailVerifiedAt: true,
   passwordChangedAt: true,
   disabledAt: true,
@@ -40,6 +46,8 @@ export class AuthAccountMapper {
       prismaUser.email,
       prismaUser.passwordHash,
       prismaUser.role as UserRole,
+      prismaUser.user?.fullName ?? null,
+      prismaUser.user?.username ?? null,
       prismaUser.emailVerifiedAt,
       prismaUser.passwordChangedAt,
       prismaUser.disabledAt,

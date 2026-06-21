@@ -115,7 +115,10 @@ export class RegisterService {
           username: profile.username,
         });
 
-        const payload = JwtPayload.fromAuthAccount(newAccount);
+        const payload = JwtPayload.fromAuthAccount(newAccount, {
+          fullName: profile.fullName,
+          username: profile.username,
+        });
         const accessToken = this.tokenService.generateAccessToken(payload);
         const refreshToken = this.tokenService.generateRefreshToken(payload);
         const refreshTokenExpiresAt =
