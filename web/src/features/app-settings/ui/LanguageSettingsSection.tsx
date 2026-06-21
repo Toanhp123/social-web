@@ -1,5 +1,5 @@
 import type { AppLanguage, AppMessages } from "@/shared/i18n";
-import { cn } from "@/shared/lib/utils";
+import { SelectableOptionGroup } from "@/shared/ui";
 import { languageOptions } from "../model/app-settings-options";
 
 type LanguageSettingsSectionProps = {
@@ -22,30 +22,21 @@ export function LanguageSettingsSection({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        {languageOptions.map((option) => {
+      <SelectableOptionGroup
+        columns={2}
+        selectedValues={[language]}
+        onToggle={onLanguageChange}
+        options={languageOptions.map((option) => {
           const Icon = option.icon;
-          const isSelected = language === option.value;
 
-          return (
-            <button
-              key={option.value}
-              type="button"
-              className={cn(
-                "rounded-control flex min-h-14 items-center justify-center gap-2 border px-3 text-sm font-medium transition",
-                isSelected
-                  ? "border-brand-border bg-brand-soft text-brand-strong"
-                  : "border-subtle bg-surface-soft text-secondary hover:border-brand hover:bg-surface",
-              )}
-              onClick={() => onLanguageChange(option.value)}
-            >
-              <Icon className="size-4" />
-              <span>{copy.languageOptions[option.value]}</span>
-              <span className="text-muted text-xs">{option.label}</span>
-            </button>
-          );
+          return {
+            value: option.value,
+            label: copy.languageOptions[option.value],
+            meta: option.label,
+            icon: <Icon className="size-4" />,
+          };
         })}
-      </div>
+      />
     </section>
   );
 }

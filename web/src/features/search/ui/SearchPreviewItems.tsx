@@ -7,7 +7,7 @@ import type { Post } from "@/entities/post";
 import { getProfileRoute } from "@/shared/config/routes";
 import type { AppMessages } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 
 type SearchTranslations = AppMessages["search"];
 type SearchPreviewDensity = "compact" | "comfortable";

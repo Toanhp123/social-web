@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "@/shared/i18n";
-import { cn } from "@/shared/lib/utils";
+import { SegmentedTabs } from "@/shared/ui";
 
 export type ProfileTab = "posts" | "about";
 
@@ -18,28 +18,12 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   ] satisfies Array<{ value: ProfileTab; label: string }>;
 
   return (
-    <nav className="text-secondary flex gap-1 overflow-x-auto py-1 text-sm font-semibold">
-      {tabs.map((item) => {
-        const isActive = item.value === activeTab;
-
-        return (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => onTabChange(item.value)}
-            className={cn(
-              "rounded-control hover:bg-surface-muted relative min-w-24 flex-1 px-3 py-3 text-center transition sm:min-w-0 sm:flex-none sm:px-4",
-              isActive && "text-brand",
-            )}
-          >
-            {item.label}
-
-            {isActive && (
-              <span className="rounded-pill bg-brand absolute inset-x-3 bottom-0 h-1" />
-            )}
-          </button>
-        );
-      })}
-    </nav>
+    <SegmentedTabs
+      items={tabs}
+      value={activeTab}
+      onValueChange={onTabChange}
+      ariaLabel={t.profileInfo}
+      className="py-1"
+    />
   );
 }

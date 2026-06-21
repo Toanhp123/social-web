@@ -24,11 +24,13 @@ import { AppSettingsPopover } from "./AppSettingsPopover";
 type AppSettingsButtonProps = {
   className?: string;
   buttonClassName?: string;
+  showLabel?: boolean;
 };
 
 export function AppSettingsButton({
   className,
   buttonClassName,
+  showLabel = false,
 }: AppSettingsButtonProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -98,6 +100,7 @@ export function AppSettingsButton({
         onClick={() => setIsOpen((current) => !current)}
       >
         <Settings className="size-4" />
+        {showLabel && <span className="truncate">{copy.settingsLabel}</span>}
       </button>
 
       {isOpen && (

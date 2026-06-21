@@ -14,6 +14,7 @@ export async function listPostFeedAction(input: {
   limit?: number;
   authorId?: string | null;
   groupId?: string | null;
+  groupFeed?: boolean;
   search?: string | null;
 }): Promise<ListPostFeedActionResult> {
   const parsedInput = listPostFeedSchema.safeParse(input);

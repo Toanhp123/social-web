@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   LogIn,
-  MessageCircle,
   UserPlus,
   UserRound,
   Users,
@@ -49,7 +48,7 @@ function MobileHeaderContent({
   mobileActions?: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-3 py-2 md:hidden">
+    <div className="w-full px-3 py-2 md:hidden">
       <div className="flex h-11 min-w-0 items-center gap-2">
         <AppBrand t={t} compact={false} />
 
@@ -77,20 +76,12 @@ function DesktopHeaderContent({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mx-auto hidden h-14 max-w-7xl min-w-0 items-center gap-3 px-6 py-2 md:flex lg:px-8">
+    <div className="hidden h-14 w-full min-w-0 items-center gap-3 px-6 py-2 md:flex lg:px-8">
       <AppBrand t={t} />
 
       <AppSearchBox className="ml-2" />
 
-      <AppNavigation t={t} />
-
       <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2">
-        <HeaderIconButton
-          icon={MessageCircle}
-          label={t.messages}
-          className="grid"
-        />
-
         <NotificationPopover label={t.notifications} />
 
         <AppSettingsButton />
@@ -199,82 +190,6 @@ function MobileNavLink({
     >
       <Icon className="size-5" />
     </Link>
-  );
-}
-
-function AppNavigation({ t }: { t: AppMessages["app"] }) {
-  const pathname = usePathname() ?? "";
-
-  const isHome = pathname === ROUTES.home;
-  const isFriends = pathname.startsWith(ROUTES.friends);
-  const isGroups = pathname.startsWith(ROUTES.groups);
-
-  return (
-    <nav className="rounded-pill border-subtle bg-surface-muted ml-auto hidden items-center gap-1 border p-1 lg:flex">
-      <Link
-        href={ROUTES.home}
-        className={cn(
-          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
-          isHome
-            ? "bg-surface text-primary shadow-control"
-            : "text-muted hover:text-primary",
-        )}
-      >
-        <Home className={cn("size-4", isHome && "text-brand")} />
-        {t.feed}
-      </Link>
-
-      <Link
-        href={ROUTES.friends}
-        className={cn(
-          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
-          isFriends
-            ? "bg-surface text-primary shadow-control"
-            : "text-muted hover:text-primary",
-        )}
-      >
-        <Users className={cn("size-4", isFriends && "text-brand")} />
-        {t.friends}
-      </Link>
-
-      <Link
-        href={ROUTES.groups}
-        className={cn(
-          "rounded-pill inline-flex items-center gap-2 px-3 py-2 text-sm font-medium transition",
-          isGroups
-            ? "bg-surface text-primary shadow-control"
-            : "text-muted hover:text-primary",
-        )}
-      >
-        <UsersRound className={cn("size-4", isGroups && "text-brand")} />
-        {t.groups}
-      </Link>
-    </nav>
-  );
-}
-
-type HeaderIconButtonProps = {
-  icon: LucideIcon;
-  label: string;
-  className?: string;
-};
-
-function HeaderIconButton({
-  icon: Icon,
-  label,
-  className,
-}: HeaderIconButtonProps) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        "rounded-pill border-subtle bg-surface text-secondary hover:text-brand shadow-control relative size-10 place-items-center border transition",
-        className,
-      )}
-      aria-label={label}
-    >
-      <Icon className="size-4" />
-    </button>
   );
 }
 

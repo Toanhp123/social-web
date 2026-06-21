@@ -5,7 +5,7 @@ import { Flag, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
 import type { Post } from "@/entities/post";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Dialog } from "@/shared/ui";
+import { Button, Dialog, Textarea } from "@/shared/ui";
 import { usePostManagementMenuController } from "../model/use-post-management-menu-controller";
 
 type PostManagementMenuProps = {
@@ -115,12 +115,12 @@ export function PostManagementMenu({
           </h2>
           <p className="text-muted mt-1 text-sm">{t.reportDescription}</p>
 
-          <textarea
+          <Textarea
             name="reason"
             rows={4}
             maxLength={500}
             placeholder={t.reportPlaceholder}
-            className="rounded-card border-surface-border bg-surface-soft text-primary focus:border-brand mt-4 w-full resize-none border px-3 py-3 text-sm outline-none"
+            className="mt-4 resize-none"
           />
 
           {reportPostMutation.error instanceof Error && (
@@ -130,24 +130,27 @@ export function PostManagementMenu({
           )}
 
           <div className="mt-4 flex justify-end gap-2">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              fullWidth={false}
               onClick={closeReportDialog}
-              className="rounded-control text-secondary hover:bg-surface-muted px-4 py-2 text-sm font-medium"
             >
               {t.cancel}
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="submit"
+              size="sm"
+              fullWidth={false}
               disabled={reportPostMutation.isPending}
-              className="rounded-control bg-brand text-inverse hover:bg-brand-hover inline-flex items-center gap-2 px-4 py-2 text-sm font-medium disabled:opacity-60"
             >
               {reportPostMutation.isPending && (
                 <Loader2 className="size-4 animate-spin" />
               )}
               {reportPostMutation.isPending ? t.reporting : t.submitReport}
-            </button>
+            </Button>
           </div>
         </form>
       </Dialog>

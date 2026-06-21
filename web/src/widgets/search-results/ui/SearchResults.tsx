@@ -6,7 +6,7 @@ import { useCurrentSession } from "@/entities/session";
 import { useSearchUsersQuery } from "@/features/search";
 import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar, EmptyState } from "@/shared/ui";
 import { PostFeed } from "@/widgets/post-feed";
 
 type SearchResultsProps = {
@@ -21,7 +21,18 @@ export function SearchResults({ query }: SearchResultsProps) {
   const canInteract = Boolean(currentUser);
 
   if (normalizedQuery.length < 2) {
-    return <EmptyState title={t.startTitle} description={t.startDescription} />;
+    return (
+      <EmptyState
+        icon={
+          <span className="bg-brand-soft text-brand grid size-12 place-items-center rounded-full">
+            <Search className="size-5" />
+          </span>
+        }
+        title={t.startTitle}
+        description={t.startDescription}
+        className="flex flex-col items-center px-6 py-12 text-center"
+      />
+    );
   }
 
   return (
@@ -87,24 +98,6 @@ export function SearchResults({ query }: SearchResultsProps) {
         </section>
       </div>
     </>
-  );
-}
-
-function EmptyState({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-card border-surface-border bg-surface flex flex-col items-center border px-6 py-12 text-center">
-      <span className="bg-brand-soft text-brand grid size-12 place-items-center rounded-full">
-        <Search className="size-5" />
-      </span>
-      <h2 className="text-primary mt-4 text-lg font-semibold">{title}</h2>
-      <p className="text-muted mt-2 max-w-md text-sm">{description}</p>
-    </div>
   );
 }
 

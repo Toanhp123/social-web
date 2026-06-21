@@ -7,7 +7,7 @@ import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 import type { Comment } from "../model/types";
 
 type CommentItemProps = {

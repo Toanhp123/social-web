@@ -4,8 +4,7 @@ import type { ChangeEvent, ComponentPropsWithoutRef } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMentionCandidatesQuery } from "@/entities/mention";
-import { Avatar } from "@/shared/ui/Avatar";
-import { Textarea } from "@/shared/ui";
+import { Avatar, Textarea } from "@/shared/ui";
 import { cn } from "@/shared/lib/utils";
 
 type MentionTextareaProps = ComponentPropsWithoutRef<typeof Textarea>;

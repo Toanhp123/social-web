@@ -17,6 +17,7 @@ type PostFeedProps = {
   canInteract?: boolean;
   authorId?: string;
   groupId?: string;
+  groupFeed?: boolean;
   search?: string;
   showHeader?: boolean;
   emptyTitle?: string;
@@ -27,6 +28,7 @@ export function PostFeed({
   canInteract = true,
   authorId,
   groupId,
+  groupFeed,
   search,
   showHeader = false,
   emptyTitle,
@@ -53,6 +55,7 @@ export function PostFeed({
     canInteract,
     authorId,
     groupId,
+    groupFeed,
     search,
   });
 

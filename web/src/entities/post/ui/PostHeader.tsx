@@ -11,7 +11,7 @@ import {
 import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 import type { Post } from "../model/types";
 
 type VisibilityConfig = {
