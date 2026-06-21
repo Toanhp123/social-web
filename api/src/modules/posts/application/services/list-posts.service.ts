@@ -25,6 +25,7 @@ export type ListPostsInput = {
   viewerId?: string;
   authorId?: string;
   groupId?: string;
+  groupFeed?: boolean;
   search?: string;
   limit?: number;
   cursor?: string;
@@ -60,7 +61,10 @@ export class ListPostsService {
       limit: query.limit,
       cursor: query.rawCursor,
     };
-    const cached = query.groupId ? null : await this.getCachedResult(cacheKey);
+    const cached =
+      query.groupId || query.groupFeed
+        ? null
+        : await this.getCachedResult(cacheKey);
 
     if (cached) {
       return cached;
@@ -70,6 +74,7 @@ export class ListPostsService {
       viewerId: query.viewerId,
       authorId: query.authorId,
       groupId: query.groupId,
+      groupFeed: query.groupFeed,
       search: query.search,
       limit: query.limit,
       cursor: query.cursor,
@@ -82,7 +87,7 @@ export class ListPostsService {
         : null,
     };
 
-    if (!query.groupId) {
+    if (!query.groupId && !query.groupFeed) {
       await this.cacheResult(cacheKey, result);
     }
 
@@ -93,6 +98,7 @@ export class ListPostsService {
     viewerId?: string;
     authorId?: string;
     groupId?: string;
+    groupFeed?: boolean;
     search?: string;
     limit: number;
     cursor?: ListPostsCursor;
@@ -102,6 +108,14 @@ export class ListPostsService {
         groupId: input.groupId,
         viewerId: input.viewerId,
       });
+
+      return this.postRepository.findPage(input);
+    }
+
+    if (input.groupFeed) {
+      if (!input.viewerId) {
+        return { items: [], nextCursor: null };
+      }
 
       return this.postRepository.findPage(input);
     }

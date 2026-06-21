@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RealtimeModule } from '@/core/realtime/realtime.module.js';
+import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
 import { PostsModule } from '@/modules/posts/posts.module.js';
 import { CreateCommentService } from '@/modules/comments/application/services/create-comment.service.js';
@@ -10,6 +11,7 @@ import { CommentController } from '@/modules/comments/presentation/controllers/c
 @Module({
   imports: [
     CommentPersistenceModule,
+    DatabaseModule,
     PostsModule,
     RealtimeModule,
     NotificationsModule,

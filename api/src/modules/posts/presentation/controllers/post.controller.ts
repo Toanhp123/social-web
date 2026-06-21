@@ -70,6 +70,7 @@ export class PostController {
       viewerId: currentUser?.userId,
       authorId: query.authorId,
       groupId: query.groupId,
+      groupFeed: query.groupFeed === 'true',
       search: query.search,
       limit: query.limit,
       cursor: query.cursor,

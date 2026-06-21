@@ -207,10 +207,12 @@ export class PrismaPostRepository implements PostRepository {
         where: {
           deletedAt: null,
           isHidden: false,
-          ...(query.groupId ? { groupId: query.groupId } : { groupId: null }),
+          ...this.getGroupWhere(query),
           ...(query.authorId ? { authorId: query.authorId } : {}),
           AND: [
-            ...(query.groupId ? [] : [this.getVisibilityWhere(query.viewerId)]),
+            ...(query.groupId || query.groupFeed
+              ? []
+              : [this.getVisibilityWhere(query.viewerId)]),
             ...this.getSearchWhere(query.search),
             ...(query.cursor
               ? [
@@ -383,6 +385,25 @@ export class PrismaPostRepository implements PostRepository {
     }
 
     return { OR: [{ visibility: 'PUBLIC' }, { authorId: viewerId }] };
+  }
+
+  private getGroupWhere(query: ListPostsQuery): Prisma.PostWhereInput {
+    if (query.groupId) {
+      return { groupId: query.groupId };
+    }
+
+    if (query.groupFeed && query.viewerId) {
+      return {
+        groupId: { not: null },
+        group: {
+          members: {
+            some: { userId: query.viewerId },
+          },
+        },
+      };
+    }
+
+    return { groupId: null };
   }
 
   private getPostAccessWhere(viewerId?: string): Prisma.PostWhereInput {

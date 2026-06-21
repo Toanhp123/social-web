@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SecurityModule } from '@/core/security/security.module.js';
+import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
 import { PostsModule } from '@/modules/posts/posts.module.js';
 import { UserModule } from '@/modules/users/user.module.js';
@@ -17,6 +18,7 @@ import { FriendPersistenceModule } from '@/modules/friends/infrastructure/persis
 @Module({
   imports: [
     FriendPersistenceModule,
+    DatabaseModule,
     SecurityModule,
     UserModule,
     NotificationsModule,

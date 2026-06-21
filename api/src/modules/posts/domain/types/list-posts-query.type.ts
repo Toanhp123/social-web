@@ -12,6 +12,7 @@ export type ListPostsQuery = {
   viewerId?: string;
   authorId?: string;
   groupId?: string;
+  groupFeed?: boolean;
   search?: string;
   limit: number;
   cursor?: ListPostsCursor;

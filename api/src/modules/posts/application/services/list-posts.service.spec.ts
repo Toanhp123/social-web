@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import { ListPostsService } from './list-posts.service.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import type { Post } from '@/modules/posts/domain/entities/post.entity.js';
+import type { GroupAccessService } from '@/modules/groups/application/services/group-access.service.js';
 import type { PostFeedRepository } from '@/modules/posts/domain/repositories/post-feed.repository.interface.js';
 import type { PostRepository } from '@/modules/posts/domain/repositories/post.repository.interface.js';
 import type { ListPostsPage } from '@/modules/posts/domain/types/list-posts-query.type.js';
@@ -12,6 +13,10 @@ describe('ListPostsService', () => {
       get: jest.fn().mockResolvedValue(null),
       set: jest.fn().mockResolvedValue(undefined),
     }) as unknown as PostFeedCache;
+  const createGroupAccessService = (): GroupAccessService =>
+    ({
+      assertCanView: jest.fn().mockResolvedValue(undefined),
+    }) as unknown as GroupAccessService;
 
   it('reads the personalized feed when a viewer is present and no author filter is requested', async () => {
     const post = { id: 'post-1' } as unknown as Post;
@@ -34,6 +39,7 @@ describe('ListPostsService', () => {
       postRepository,
       postFeedRepository,
       postFeedCache,
+      createGroupAccessService(),
     );
 
     await service.execute({ viewerId: 'viewer-1', limit: 10 });
@@ -66,6 +72,7 @@ describe('ListPostsService', () => {
       postRepository,
       postFeedRepository,
       createPostFeedCache(),
+      createGroupAccessService(),
     );
 
     const result = await service.execute({ viewerId: 'viewer-1', limit: 10 });
@@ -96,6 +103,7 @@ describe('ListPostsService', () => {
       postRepository,
       postFeedRepository,
       createPostFeedCache(),
+      createGroupAccessService(),
     );
     const cursor = Buffer.from(
       JSON.stringify({
@@ -143,6 +151,7 @@ describe('ListPostsService', () => {
       postRepository,
       postFeedRepository,
       createPostFeedCache(),
+      createGroupAccessService(),
     );
 
     await service.execute({ viewerId: 'viewer-1', limit: 10 });
@@ -150,5 +159,48 @@ describe('ListPostsService', () => {
     expect(
       postFeedRepository.createFeedItemsForRecipient,
     ).not.toHaveBeenCalled();
+  });
+
+  it('reads posts from joined groups when group feed is requested', async () => {
+    const post = { id: 'group-post-1' } as unknown as Post;
+    const page: ListPostsPage = {
+      items: [post],
+      nextCursor: null,
+    };
+    const postRepository = {
+      findPage: jest.fn().mockResolvedValue(page),
+      findDiscoveryPage: jest.fn(),
+      softDelete: jest.fn(),
+      report: jest.fn(),
+    } as unknown as PostRepository;
+    const postFeedRepository = {
+      findPage: jest.fn(),
+      createFeedItemsForRecipient: jest.fn(),
+    } as unknown as PostFeedRepository;
+    const postFeedCache = createPostFeedCache();
+    const service = new ListPostsService(
+      postRepository,
+      postFeedRepository,
+      postFeedCache,
+      createGroupAccessService(),
+    );
+
+    await service.execute({
+      viewerId: 'viewer-1',
+      groupFeed: true,
+      limit: 10,
+    });
+
+    expect(postRepository.findPage).toHaveBeenCalledWith({
+      viewerId: 'viewer-1',
+      authorId: undefined,
+      groupId: undefined,
+      groupFeed: true,
+      search: undefined,
+      limit: 10,
+      cursor: undefined,
+    });
+    expect(postFeedRepository.findPage).not.toHaveBeenCalled();
+    expect(postFeedCache.get).not.toHaveBeenCalled();
   });
 });
