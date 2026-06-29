@@ -8,21 +8,24 @@ import type { ProfileMetaItem } from "../model/types";
 type ProfileAboutCardProps = {
   profile: UserProfile | null;
   metaItems: ProfileMetaItem[];
+  compact?: boolean;
 };
 
 export function ProfileAboutCard({
   profile,
   metaItems,
+  compact = false,
 }: ProfileAboutCardProps) {
   const t = useTranslations().profile;
 
   return (
-    <div className="rounded-card bg-surface p-4 shadow-card">
-      <h3 className="text-lg font-bold text-primary">{t.about}</h3>
+    <div className="border-surface-border rounded-card bg-surface p-4 shadow-card border">
+      <h3 className="text-primary text-lg font-bold">{t.about}</h3>
 
       <p
         className={cn(
           "mt-3 text-sm leading-6",
+          compact && "line-clamp-4",
           profile?.bio ? "text-secondary" : "text-placeholder",
         )}
       >

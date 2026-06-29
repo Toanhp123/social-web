@@ -17,5 +17,6 @@ export type CreatePostInput = {
   authorId: string;
   content: string;
   visibility: PostVisibility;
+  groupId?: string | null;
   media: CreatePostMediaInput[];
 };

@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  Globe2,
-  Lock,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-import { getProfileRoute } from "@/shared/config/routes";
+import { Globe2, Lock, Users, type LucideIcon } from "lucide-react";
+import { getGroupRoute, getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 import type { Post } from "../model/types";
 
 type VisibilityConfig = {
@@ -55,21 +50,35 @@ export function PostHeader({ post, metaLabel, menuSlot }: PostHeaderProps) {
       />
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
           <Link
             href={getProfileRoute(post.author.id)}
-            className="text-primary hover:text-brand truncate text-sm font-semibold transition"
+            className="text-primary hover:text-brand min-w-0 truncate text-sm font-semibold transition"
           >
             {post.author.fullName}
           </Link>
 
-          <VisibilityBadge visibility={post.visibility} />
+          {post.group && (
+            <>
+              <span className="text-muted text-sm font-medium">›</span>
+              <Link
+                href={getGroupRoute(post.group.id)}
+                className="text-primary hover:text-brand min-w-0 truncate text-sm font-semibold transition"
+              >
+                {post.group.name}
+              </Link>
+            </>
+          )}
         </div>
 
-        <p className="text-muted truncate text-xs">
-          {post.author.username ? `@${post.author.username}` : "Member"}
-          {metaLabel ? ` · ${metaLabel}` : ""}
-        </p>
+        <div className="text-muted mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-xs">
+          <span className="min-w-0 truncate">
+            {post.author.username ? `@${post.author.username}` : "Member"}
+          </span>
+          {metaLabel && <span>·</span>}
+          {metaLabel && <span>{metaLabel}</span>}
+          <VisibilityBadge visibility={post.visibility} />
+        </div>
       </div>
 
       {menuSlot}

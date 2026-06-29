@@ -16,6 +16,8 @@ import { PostSkeleton } from "./PostSkeleton";
 type PostFeedProps = {
   canInteract?: boolean;
   authorId?: string;
+  groupId?: string;
+  groupFeed?: boolean;
   search?: string;
   showHeader?: boolean;
   emptyTitle?: string;
@@ -25,6 +27,8 @@ type PostFeedProps = {
 export function PostFeed({
   canInteract = true,
   authorId,
+  groupId,
+  groupFeed,
   search,
   showHeader = false,
   emptyTitle,
@@ -50,6 +54,8 @@ export function PostFeed({
   } = usePostFeedController({
     canInteract,
     authorId,
+    groupId,
+    groupFeed,
     search,
   });
 

@@ -1,8 +1,4 @@
 import { Module } from '@nestjs/common';
-import {
-  FRIEND_REQUEST_REPOSITORY,
-  FRIENDSHIP_REPOSITORY,
-} from '@/common/constants/provider-token.constant.js';
 import { SecurityModule } from '@/core/security/security.module.js';
 import { DatabaseModule } from '@/infrastructure/database/database.module.js';
 import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
@@ -17,11 +13,11 @@ import { FriendController } from '@/modules/friends/presentation/controllers/fri
 import { FriendRequestController } from './presentation/controllers/friendRequest.controller.js';
 import { AcceptFriendRequestService } from '@/modules/friends/application/services/accept-friend-request.service.js';
 import { RejectFriendRequestService } from '@/modules/friends/application/services/reject-friend-request.service.js';
-import { PrismaFriendRequestRepository } from './infrastructure/persistence/prisma-friend-request.repository.js';
-import { PrismaFriendShipRepository } from './infrastructure/persistence/prisma-friend.repository.js';
+import { FriendPersistenceModule } from '@/modules/friends/infrastructure/persistence/friend-persistence.module.js';
 
 @Module({
   imports: [
+    FriendPersistenceModule,
     DatabaseModule,
     SecurityModule,
     UserModule,
@@ -37,14 +33,6 @@ import { PrismaFriendShipRepository } from './infrastructure/persistence/prisma-
     ListFriendRequestsService,
     ListFriendsService,
     RemoveFriendService,
-    {
-      provide: FRIEND_REQUEST_REPOSITORY,
-      useClass: PrismaFriendRequestRepository,
-    },
-    {
-      provide: FRIENDSHIP_REPOSITORY,
-      useClass: PrismaFriendShipRepository,
-    },
   ],
 })
 export class FriendsModule {}

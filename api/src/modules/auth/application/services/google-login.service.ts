@@ -148,7 +148,10 @@ export class GoogleLoginService {
           avatarUrl: normalizedProfile.avatarUrl,
         });
 
-        return await this.issueSession(account, sessionMetadata);
+        return await this.issueSession(account, sessionMetadata, {
+          fullName: normalizedProfile.fullName,
+          username: null,
+        });
       });
     } catch (error) {
       if (!this.isDuplicateField(error)) {
@@ -248,8 +251,9 @@ export class GoogleLoginService {
   private async issueSession(
     account: AuthAccount,
     sessionMetadata: AuthSessionMetadata,
+    profile?: { fullName?: string | null; username?: string | null },
   ): Promise<AuthTokens> {
-    const payload = JwtPayload.fromAuthAccount(account);
+    const payload = JwtPayload.fromAuthAccount(account, profile);
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
     const refreshTokenExpiresAt = this.tokenService.getRefreshTokenExpiresAt();

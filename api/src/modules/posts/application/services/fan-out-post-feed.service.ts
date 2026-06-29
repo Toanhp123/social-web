@@ -1,12 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  POST_FEED_CACHE,
   POST_FEED_JOB_QUEUE,
   POST_FEED_REPOSITORY,
 } from '@/common/constants/provider-token.constant.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import type {
   FanOutPostInput,
   PostFeedRepository,
@@ -20,8 +19,7 @@ export class FanOutPostFeedService {
     @Inject(POST_FEED_REPOSITORY)
     private readonly postFeedRepository: PostFeedRepository,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
 
     @Inject(POST_FEED_JOB_QUEUE)
     private readonly postFeedJobQueue: PostFeedJobQueue,
@@ -51,7 +49,7 @@ export class FanOutPostFeedService {
       return;
     }
 
-    await this.postFeedCache.invalidateAll();
+    await this.postFeedCacheInvalidation.invalidateAll();
     this.realtimePublisher.publishFeedUpdated();
   }
 }

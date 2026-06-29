@@ -7,7 +7,11 @@ import { useCreatePostDialogController } from "../model/use-create-post-dialog-c
 import { CreatePostTrigger } from "./CreatePostTrigger";
 import { CreatePostDialog } from "./CreatePostDialog";
 
-export function CreatePostComposer() {
+type CreatePostComposerProps = {
+  groupId?: string;
+};
+
+export function CreatePostComposer({ groupId }: CreatePostComposerProps) {
   const t = useTranslations().createPost;
   const [createdPost, setCreatedPost] = useState<Post | null>(null);
   const createPostDialog = useCreatePostDialogController({
@@ -35,6 +39,7 @@ export function CreatePostComposer() {
       <CreatePostDialog
         open={createPostDialog.isOpen}
         formKey={createPostDialog.formKey}
+        groupId={groupId}
         isSubmitting={createPostDialog.isSubmitting}
         errorMessage={createPostDialog.errorMessage}
         onClose={createPostDialog.close}

@@ -1,97 +1,93 @@
 import { Injectable } from '@nestjs/common';
-import {
-  MediaType,
-  PostType,
-  PostVisibility,
-  ReactionType,
-} from '@/generated/prisma/client.js';
 import { RedisService } from '@/infrastructure/redis/redis.service.js';
 import type {
   PostFeedCacheKey,
   PostFeedCacheResult,
 } from '@/modules/posts/application/ports/post-feed-cache.port.js';
-import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
-import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
-import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
-import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
-
-type CachedPostFeed = {
-  items: CachedPost[];
-  nextCursor: string | null;
-};
-
-type CachedPost = {
-  id: string;
-  author: {
-    id: string;
-    fullName: string;
-    username: string | null;
-    avatarUrl: string | null;
-  };
-  content: string;
-  type: PostType;
-  visibility: PostVisibility;
-  originalPostId: string | null;
-  media: Array<{
-    id: string;
-    url: string;
-    thumbnailUrl: string | null;
-    mimeType: string | null;
-    size: number | null;
-    type: MediaType;
-    width: number | null;
-    height: number | null;
-    duration: number | null;
-    order: number;
-    alt: string | null;
-  }>;
-  reactionStats?: {
-    likeCount: number;
-    loveCount: number;
-    hahaCount: number;
-    wowCount: number;
-    sadCount: number;
-    angryCount: number;
-    totalReactionCount: number;
-    commentCount: number;
-    shareCount: number;
-  };
-  currentReaction?: ReactionType | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-const FEED_CACHE_PREFIX = 'posts:feed:v1';
-const FEED_CACHE_TTL_SECONDS = 30;
-const SCAN_COUNT = 100;
+import {
+  POST_FEED_CACHE_PREFIX,
+  POST_FEED_CACHE_SCAN_COUNT,
+  POST_FEED_CACHE_TTL_SECONDS,
+} from '@/modules/posts/infrastructure/cache/post-feed-cache.constants.js';
+import {
+  PostFeedCacheSerializer,
+  type CachedPostFeed,
+} from '@/modules/posts/infrastructure/cache/post-feed-cache.serializer.js';
+import { RedisPostFeedCacheKeyBuilder } from '@/modules/posts/infrastructure/cache/redis-post-feed-cache-key.builder.js';
 
 @Injectable()
 export class RedisPostFeedCache implements PostFeedCache {
+  private readonly keyBuilder = new RedisPostFeedCacheKeyBuilder();
+  private readonly serializer = new PostFeedCacheSerializer();
+
   constructor(private readonly redisService: RedisService) {}
 
   async get(key: PostFeedCacheKey): Promise<PostFeedCacheResult | null> {
-    const value = await this.redisService.getClient().get(this.getKey(key));
+    const value = await this.redisService
+      .getClient()
+      .get(this.keyBuilder.getCacheKey(key));
 
     if (!value) {
       return null;
     }
 
-    return this.toDomain(JSON.parse(value) as CachedPostFeed);
+    return this.serializer.toDomain(JSON.parse(value) as CachedPostFeed);
   }
 
   async set(key: PostFeedCacheKey, result: PostFeedCacheResult): Promise<void> {
-    await this.redisService
-      .getClient()
-      .set(
-        this.getKey(key),
-        JSON.stringify(this.toCache(result)),
-        'EX',
-        FEED_CACHE_TTL_SECONDS,
-      );
+    const redis = this.redisService.getClient();
+    const cacheKey = this.keyBuilder.getCacheKey(key);
+    const indexKeys = this.keyBuilder.getIndexKeys(key, result);
+    const pipeline = redis.multi();
+
+    pipeline.set(
+      cacheKey,
+      JSON.stringify(this.serializer.toCache(result)),
+      'EX',
+      POST_FEED_CACHE_TTL_SECONDS,
+    );
+
+    for (const indexKey of indexKeys) {
+      pipeline.sadd(indexKey, cacheKey);
+      pipeline.expire(indexKey, POST_FEED_CACHE_TTL_SECONDS);
+    }
+
+    await pipeline.exec();
   }
 
   async invalidateAll(): Promise<void> {
+    await this.scanAndDelete(() => true, { deleteMalformed: true });
+  }
+
+  async invalidateGroup(groupId: string): Promise<void> {
+    await this.deleteByIndexKeys([this.keyBuilder.getGroupIndexKey(groupId)]);
+  }
+
+  async invalidateViewer(viewerId: string): Promise<void> {
+    await this.deleteByIndexKeys([this.keyBuilder.getViewerIndexKey(viewerId)]);
+  }
+
+  async invalidateViewers(viewerIds: string[]): Promise<void> {
+    const indexKeys = Array.from(new Set(viewerIds))
+      .filter(Boolean)
+      .map((viewerId) => this.keyBuilder.getViewerIndexKey(viewerId));
+
+    await this.deleteByIndexKeys(indexKeys);
+  }
+
+  async invalidateAuthor(authorId: string): Promise<void> {
+    await this.deleteByIndexKeys([this.keyBuilder.getAuthorIndexKey(authorId)]);
+  }
+
+  async invalidatePost(postId: string): Promise<void> {
+    await this.deleteByIndexKeys([this.keyBuilder.getPostIndexKey(postId)]);
+  }
+
+  private async scanAndDelete(
+    shouldDelete: (key: PostFeedCacheKey) => boolean,
+    options: { deleteMalformed?: boolean } = {},
+  ): Promise<void> {
     const redis = this.redisService.getClient();
     let cursor = '0';
 
@@ -99,131 +95,43 @@ export class RedisPostFeedCache implements PostFeedCache {
       const [nextCursor, keys] = await redis.scan(
         cursor,
         'MATCH',
-        `${FEED_CACHE_PREFIX}:*`,
+        `${POST_FEED_CACHE_PREFIX}:*`,
         'COUNT',
-        SCAN_COUNT,
+        POST_FEED_CACHE_SCAN_COUNT,
       );
 
       cursor = nextCursor;
 
-      if (keys.length > 0) {
-        await redis.del(...keys);
+      const deletableKeys = keys.filter((key) => {
+        const decodedKey = this.keyBuilder.decodeCacheKey(key);
+
+        return decodedKey
+          ? shouldDelete(decodedKey)
+          : Boolean(options.deleteMalformed);
+      });
+
+      if (deletableKeys.length > 0) {
+        await redis.del(...deletableKeys);
       }
     } while (cursor !== '0');
   }
 
-  private getKey(key: PostFeedCacheKey): string {
-    const encoded = Buffer.from(
-      JSON.stringify({
-        viewerId: key.viewerId,
-        authorId: key.authorId ?? null,
-        search: key.search ?? null,
-        limit: key.limit,
-        cursor: key.cursor ?? null,
-      }),
-      'utf8',
-    ).toString('base64url');
+  private async deleteByIndexKeys(indexKeys: string[]): Promise<void> {
+    if (indexKeys.length === 0) {
+      return;
+    }
 
-    return `${FEED_CACHE_PREFIX}:${encoded}`;
-  }
+    const redis = this.redisService.getClient();
+    const keyGroups = await Promise.all(
+      indexKeys.map((indexKey) => redis.smembers(indexKey)),
+    );
+    const cacheKeys = Array.from(new Set(keyGroups.flat()));
 
-  private toCache(result: PostFeedCacheResult): CachedPostFeed {
-    return {
-      items: result.items.map((post) => ({
-        id: post.id,
-        author: {
-          id: post.author.id,
-          fullName: post.author.fullName,
-          username: post.author.username,
-          avatarUrl: post.author.avatarUrl,
-        },
-        content: post.content,
-        type: post.type,
-        visibility: post.visibility,
-        originalPostId: post.originalPostId,
-        media: post.media.map((media) => ({
-          id: media.id,
-          url: media.url,
-          thumbnailUrl: media.thumbnailUrl,
-          mimeType: media.mimeType,
-          size: media.size,
-          type: media.type,
-          width: media.width,
-          height: media.height,
-          duration: media.duration,
-          order: media.order,
-          alt: media.alt,
-        })),
-        reactionStats: {
-          likeCount: post.reactionStats.likeCount,
-          loveCount: post.reactionStats.loveCount,
-          hahaCount: post.reactionStats.hahaCount,
-          wowCount: post.reactionStats.wowCount,
-          sadCount: post.reactionStats.sadCount,
-          angryCount: post.reactionStats.angryCount,
-          totalReactionCount: post.reactionStats.totalReactionCount,
-          commentCount: post.reactionStats.commentCount,
-          shareCount: post.reactionStats.shareCount,
-        },
-        currentReaction: post.currentReaction,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString(),
-      })),
-      nextCursor: result.nextCursor,
-    };
-  }
+    if (cacheKeys.length === 0) {
+      await redis.del(...indexKeys);
+      return;
+    }
 
-  private toDomain(result: CachedPostFeed): PostFeedCacheResult {
-    return {
-      items: result.items.map(
-        (post) =>
-          new Post(
-            post.id,
-            new PostAuthor(
-              post.author.id,
-              post.author.fullName,
-              post.author.username,
-              post.author.avatarUrl,
-            ),
-            post.content,
-            post.type,
-            post.visibility,
-            post.originalPostId ?? null,
-            post.media.map(
-              (media) =>
-                new PostMedia(
-                  media.id,
-                  media.url,
-                  media.thumbnailUrl,
-                  media.mimeType,
-                  media.size,
-                  media.type,
-                  media.width,
-                  media.height,
-                  media.duration,
-                  media.order,
-                  media.alt,
-                ),
-            ),
-            new Date(post.createdAt),
-            new Date(post.updatedAt),
-            post.reactionStats
-              ? new PostReactionStats(
-                  post.reactionStats.likeCount,
-                  post.reactionStats.loveCount,
-                  post.reactionStats.hahaCount,
-                  post.reactionStats.wowCount,
-                  post.reactionStats.sadCount,
-                  post.reactionStats.angryCount,
-                  post.reactionStats.totalReactionCount,
-                  post.reactionStats.commentCount,
-                  post.reactionStats.shareCount,
-                )
-              : PostReactionStats.empty(),
-            post.currentReaction ?? null,
-          ),
-      ),
-      nextCursor: result.nextCursor,
-    };
+    await redis.del(...cacheKeys, ...indexKeys);
   }
 }

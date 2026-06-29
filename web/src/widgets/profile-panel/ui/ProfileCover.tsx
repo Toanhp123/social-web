@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ProfileImageUploader } from "@/features/profile";
 import type { UserProfile } from "@/entities/user";
+import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
 import type { ProfilePanelVariant } from "../model/types";
 
@@ -17,13 +18,16 @@ export function ProfileCover({
   onProfileChange,
   canEdit = true,
 }: ProfileCoverProps) {
+  const t = useTranslations().profile;
   const isSidebar = variant === "sidebar";
 
   return (
     <div
       className={cn(
         "bg-surface-muted relative w-full overflow-hidden",
-        isSidebar ? "h-36" : "h-56 sm:h-72",
+        isSidebar
+          ? "h-36"
+          : "aspect-16/7 max-h-90 min-h-40 sm:min-h-64 lg:min-h-72",
       )}
     >
       {profile?.coverUrl ? (
@@ -36,18 +40,20 @@ export function ProfileCover({
           priority={!isSidebar}
         />
       ) : (
-        <div className="bg-brand-gradient text-inverse flex size-full items-center justify-center text-sm font-semibold">
-          Chưa có ảnh bìa
+        <div className="bg-surface-soft text-muted flex size-full items-center justify-center text-sm font-semibold">
+          {t.noCoverPhoto}
         </div>
       )}
 
-      <div className="absolute inset-0 bg-[image:var(--cover-overlay)]" />
+      <div className="absolute inset-0 bg-(image:--cover-overlay)" />
 
       {canEdit && (
         <div
           className={cn(
             "absolute",
-            isSidebar ? "right-3 bottom-3" : "right-4 bottom-4",
+            isSidebar
+              ? "right-3 bottom-3"
+              : "right-3 bottom-3 sm:right-4 sm:bottom-4",
           )}
         >
           <ProfileImageUploader kind="cover" onUploaded={onProfileChange} />

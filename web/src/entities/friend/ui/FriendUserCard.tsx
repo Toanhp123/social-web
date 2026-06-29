@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Avatar } from "@/shared/ui";
 
 type FriendUserCardProps = {
   avatarUrl?: string | null;

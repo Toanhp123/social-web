@@ -1,6 +1,5 @@
-import { Check } from "lucide-react";
 import type { AppMessages } from "@/shared/i18n";
-import { cn } from "@/shared/lib/utils";
+import { SelectableOptionGroup } from "@/shared/ui";
 import type { NotificationSettings } from "../model/app-settings";
 import { notificationOptions } from "../model/app-settings-options";
 
@@ -24,42 +23,22 @@ export function NotificationSettingsSection({
         </p>
       </div>
 
-      <div className="space-y-2">
-        {notificationOptions.map((option) => {
+      <SelectableOptionGroup
+        variant="row"
+        selectedValues={notificationOptions
+          .filter((option) => notificationSettings[option.key])
+          .map((option) => option.key)}
+        onToggle={onNotificationToggle}
+        options={notificationOptions.map((option) => {
           const Icon = option.icon;
-          const isEnabled = notificationSettings[option.key];
 
-          return (
-            <button
-              key={option.key}
-              type="button"
-              className="rounded-control border-subtle bg-surface-soft hover:bg-surface flex w-full items-center justify-between gap-3 border px-3 py-2.5 text-left transition"
-              onClick={() => onNotificationToggle(option.key)}
-            >
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="rounded-control bg-surface-muted text-secondary grid size-9 shrink-0 place-items-center">
-                  <Icon className="size-4" />
-                </span>
-
-                <span className="text-secondary truncate text-sm font-medium">
-                  {copy.notificationOptions[option.key]}
-                </span>
-              </span>
-
-              <span
-                className={cn(
-                  "rounded-pill grid size-6 shrink-0 place-items-center border transition",
-                  isEnabled
-                    ? "border-brand bg-brand text-inverse"
-                    : "border-subtle bg-surface text-muted",
-                )}
-              >
-                {isEnabled && <Check className="size-3.5" />}
-              </span>
-            </button>
-          );
+          return {
+            value: option.key,
+            label: copy.notificationOptions[option.key],
+            icon: <Icon className="size-4" />,
+          };
         })}
-      </div>
+      />
     </section>
   );
 }

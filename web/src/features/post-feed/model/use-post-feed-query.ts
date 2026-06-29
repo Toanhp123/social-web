@@ -8,6 +8,8 @@ const POST_FEED_PAGE_SIZE = 10;
 
 type UsePostFeedQueryInput = {
   authorId?: string;
+  groupId?: string;
+  groupFeed?: boolean;
   search?: string;
 };
 
@@ -20,6 +22,8 @@ export function usePostFeedQuery(input: UsePostFeedQueryInput = {}) {
         cursor: pageParam,
         limit: POST_FEED_PAGE_SIZE,
         authorId: input.authorId,
+        groupId: input.groupId,
+        groupFeed: input.groupFeed,
         search: input.search,
       });
 

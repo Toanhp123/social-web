@@ -6,6 +6,8 @@ import type { CurrentSessionUser } from "../model/current-session-user";
 type AccessTokenPayload = {
   id?: unknown;
   email?: unknown;
+  fullName?: unknown;
+  username?: unknown;
   role?: unknown;
   exp?: unknown;
 };
@@ -46,6 +48,8 @@ function parseCurrentSessionUser(token: string): CurrentSessionUser | null {
     return {
       id: decoded.id,
       email: decoded.email,
+      fullName: typeof decoded.fullName === "string" ? decoded.fullName : null,
+      username: typeof decoded.username === "string" ? decoded.username : null,
       role: decoded.role,
     };
   } catch {

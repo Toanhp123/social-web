@@ -12,6 +12,7 @@ type ImageUploaderProps<TResult> = {
   accept?: string;
   fileFieldName?: string;
   extraFields?: Record<string, string>;
+  size?: "sm" | "md";
   disabled?: boolean;
   icon?: ReactNode;
   className?: string;
@@ -22,12 +23,18 @@ type ImageUploaderProps<TResult> = {
 
 const DEFAULT_IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
 
+const imageUploaderSizeClass = {
+  sm: "px-3 py-2 text-sm",
+  md: "px-4 py-2 text-sm",
+} satisfies Record<NonNullable<ImageUploaderProps<unknown>["size"]>, string>;
+
 export function ImageUploader<TResult>({
   label,
   loadingLabel,
   accept = DEFAULT_IMAGE_ACCEPT,
   fileFieldName = "file",
   extraFields,
+  size = "md",
   disabled,
   icon,
   className,
@@ -72,8 +79,9 @@ export function ImageUploader<TResult>({
       <label
         className={cn(
           "rounded-control inline-flex cursor-pointer items-center gap-2",
-          "border-subtle bg-surface shadow-control border px-4 py-2",
-          "text-secondary hover:border-brand hover:text-brand text-sm font-medium",
+          "border-subtle bg-surface shadow-control border",
+          "text-secondary hover:border-brand hover:text-brand font-medium",
+          imageUploaderSizeClass[size],
           (disabled || isUploading) && "pointer-events-none opacity-60",
           className,
         )}

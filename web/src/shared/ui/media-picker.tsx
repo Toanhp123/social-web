@@ -16,7 +16,7 @@ export type PickedMediaFile = {
 type MediaPickerProps = {
   name: string;
   label: string;
-  density?: "compact" | "comfortable";
+  size?: "sm" | "md";
   accept?: string;
   maxFiles?: number;
   disabled?: boolean;
@@ -26,10 +26,20 @@ type MediaPickerProps = {
 const DEFAULT_MEDIA_ACCEPT =
   "image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime";
 
+const mediaPickerTriggerSizeClass = {
+  sm: "px-3 py-2 text-sm",
+  md: "px-4 py-2 text-sm",
+} satisfies Record<NonNullable<MediaPickerProps["size"]>, string>;
+
+const mediaPickerGridClass = {
+  sm: "grid-cols-2",
+  md: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
+} satisfies Record<NonNullable<MediaPickerProps["size"]>, string>;
+
 export function MediaPicker({
   name,
   label,
-  density = "comfortable",
+  size = "md",
   accept = DEFAULT_MEDIA_ACCEPT,
   maxFiles = 10,
   disabled,
@@ -102,16 +112,14 @@ export function MediaPicker({
     inputRef.current.files = dataTransfer.files;
   }
 
-  const isCompact = density === "compact";
-
   return (
     <div className="space-y-3">
       <label
         className={cn(
           "rounded-control inline-flex cursor-pointer items-center gap-2",
           "border-subtle bg-surface-soft border",
-          isCompact ? "px-3 py-2" : "px-4 py-2",
           "text-secondary hover:border-brand hover:bg-surface text-sm font-medium",
+          mediaPickerTriggerSizeClass[size],
           (disabled || items.length >= maxFiles) &&
             "pointer-events-none opacity-60",
         )}
@@ -131,14 +139,7 @@ export function MediaPicker({
       </label>
 
       {items.length > 0 && (
-        <div
-          className={cn(
-            "grid gap-3",
-            isCompact
-              ? "grid-cols-2"
-              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
-          )}
-        >
+        <div className={cn("grid gap-3", mediaPickerGridClass[size])}>
           {items.map((item) => (
             <div
               key={item.id}

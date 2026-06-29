@@ -15,6 +15,7 @@ export async function createPostAction(
   const parsedInput = createPostSchema.safeParse({
     content: formData.get("content"),
     visibility: formData.get("visibility"),
+    groupId: formData.get("groupId"),
     media: formData.getAll("media"),
   });
 

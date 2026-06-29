@@ -1,5 +1,5 @@
 import type { AppMessages } from "@/shared/i18n";
-import { cn } from "@/shared/lib/utils";
+import { SelectableOptionGroup } from "@/shared/ui";
 import type { AppTheme } from "../model/app-settings";
 import { themeOptions } from "../model/app-settings-options";
 
@@ -23,29 +23,20 @@ export function ThemeSettingsSection({
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {themeOptions.map((option) => {
+      <SelectableOptionGroup
+        columns={3}
+        selectedValues={[theme]}
+        onToggle={onThemeChange}
+        options={themeOptions.map((option) => {
           const Icon = option.icon;
-          const isSelected = theme === option.value;
 
-          return (
-            <button
-              key={option.value}
-              type="button"
-              className={cn(
-                "rounded-control flex min-h-20 flex-col items-center justify-center gap-2 border px-2 text-xs font-medium transition",
-                isSelected
-                  ? "border-brand-border bg-brand-soft text-brand-strong"
-                  : "border-subtle bg-surface-soft text-secondary hover:border-brand hover:bg-surface",
-              )}
-              onClick={() => onThemeChange(option.value)}
-            >
-              <Icon className="size-4" />
-              {copy.themeOptions[option.value]}
-            </button>
-          );
+          return {
+            value: option.value,
+            label: copy.themeOptions[option.value],
+            icon: <Icon className="size-4" />,
+          };
         })}
-      </div>
+      />
     </section>
   );
 }

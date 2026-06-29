@@ -21,6 +21,7 @@ export function ProfileImageUploader({
   return (
     <ImageUploader
       label={isAvatar ? t.changeAvatar : t.changeCover}
+      size="sm"
       icon={
         isAvatar ? (
           <Camera className="size-4" />
@@ -44,4 +45,3 @@ async function uploadProfileImage(formData: FormData) {
 
   return result.profile;
 }
-

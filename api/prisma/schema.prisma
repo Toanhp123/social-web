@@ -30,6 +30,23 @@ enum FriendRequestStatus {
   REJECTED
 }
 
+enum GroupPrivacy {
+  PUBLIC
+  PRIVATE
+}
+
+enum GroupMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum GroupJoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum MediaType {
   IMAGE
   VIDEO
@@ -61,6 +78,8 @@ enum NotificationType {
   MENTIONED
   POST_REPORT_SUBMITTED
   POST_REPORT_CANCELED
+  GROUP_PRIVACY_CHANGED
+  GROUP_JOIN_REQUEST_RECEIVED
 }
 
 enum MessageType {
@@ -248,6 +267,10 @@ model User {
 
   following Follow[] @relation("Following") // mình follow ai
   followers Follow[] @relation("Followers") // ai follow mình
+
+  ownedGroups       Group[]            @relation("OwnedGroups")
+  groupMemberships  GroupMember[]
+  groupJoinRequests GroupJoinRequest[]
 
   savedPosts SavedPost[]
   reports    Report[]
@@ -515,6 +538,66 @@ model FriendRequest {
 }
 
 // =====================================================
+// GROUP SYSTEM
+// =====================================================
+
+model Group {
+  id          String       @id @default(uuid())
+  ownerId     String
+  name        String
+  slug        String       @unique
+  description String?      @db.Text
+  privacy     GroupPrivacy @default(PUBLIC)
+  avatarUrl   String?
+  coverUrl    String?
+  memberCount Int          @default(1)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  owner        User               @relation("OwnedGroups", fields: [ownerId], references: [id], onDelete: Cascade)
+  members      GroupMember[]
+  joinRequests GroupJoinRequest[]
+  posts        Post[]
+
+  @@index([ownerId, createdAt])
+  @@index([privacy, createdAt])
+  @@index([deletedAt])
+}
+
+model GroupMember {
+  groupId  String
+  userId   String
+  role     GroupMemberRole @default(MEMBER)
+  joinedAt DateTime        @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+  @@index([userId, joinedAt])
+  @@index([groupId, role])
+}
+
+model GroupJoinRequest {
+  id          String                 @id @default(uuid())
+  groupId     String
+  requesterId String
+  status      GroupJoinRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  requester User  @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, requesterId])
+  @@index([groupId, status, createdAt])
+  @@index([requesterId, status, createdAt])
+}
+
+// =====================================================
 // POST
 // =====================================================
 
@@ -526,6 +609,7 @@ model Post {
   visibility PostVisibility @default(PUBLIC)
 
   originalPostId String?
+  groupId        String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -534,7 +618,8 @@ model Post {
   isHidden  Boolean @default(false)
   isFlagged Boolean @default(false)
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  group  Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   originalPost Post?  @relation("PostShare", fields: [originalPostId], references: [id])
   sharedPosts  Post[] @relation("PostShare")
@@ -551,6 +636,8 @@ model Post {
   @@index([visibility, createdAt])
   @@index([deletedAt])
   @@index([authorId, deletedAt, createdAt])
+  @@index([groupId, createdAt])
+  @@index([groupId, deletedAt, createdAt])
 }
 
 // =====================================================

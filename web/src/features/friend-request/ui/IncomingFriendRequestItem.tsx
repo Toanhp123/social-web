@@ -3,6 +3,7 @@
 import { FriendUserCard, type FriendRequest } from "@/entities/friend";
 import { getProfileRoute } from "@/shared/config/routes";
 import { useTranslations } from "@/shared/i18n";
+import { Button } from "@/shared/ui";
 import { useAcceptFriendRequestMutation } from "../model/use-accept-friend-request-mutation";
 import { useRejectFriendRequestMutation } from "../model/use-reject-friend-request-mutation";
 
@@ -30,31 +31,36 @@ export function IncomingFriendRequestItem({
       actionClassName="w-full sm:w-auto"
       action={
         <div className="grid gap-2 sm:flex sm:shrink-0 sm:items-center">
-          <button
+          <Button
             type="button"
+            size="sm"
+            fullWidth={false}
+            className="w-full sm:w-auto"
             onClick={() =>
               acceptMutation.mutate({
                 requestId: request.id,
               })
             }
             disabled={isPending}
-            className="bg-brand text-inverse hover:bg-brand-hover focus-visible:ring-brand-ring rounded-control px-3 py-2 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {acceptMutation.isPending ? t.accepting : t.accept}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="danger"
+            fullWidth={false}
+            className="w-full sm:w-auto"
             onClick={() =>
               rejectMutation.mutate({
                 requestId: request.id,
               })
             }
             disabled={isPending}
-            className="border-subtle text-secondary hover:border-danger-border hover:bg-danger-soft hover:text-danger focus-visible:ring-brand-ring rounded-control border px-3 py-2 text-sm font-semibold transition focus-visible:ring-4 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
           >
             {rejectMutation.isPending ? t.declining : t.decline}
-          </button>
+          </Button>
         </div>
       }
     />

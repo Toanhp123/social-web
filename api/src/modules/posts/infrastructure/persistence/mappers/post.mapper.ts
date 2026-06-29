@@ -1,5 +1,6 @@
 import { MediaType, PostType, Prisma } from '@/generated/prisma/client.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
+import { PostGroup } from '@/modules/posts/domain/entities/post-group.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
@@ -17,6 +18,15 @@ export const POST_INCLUDE = {
   media: {
     orderBy: {
       order: 'asc',
+    },
+  },
+  group: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      avatarUrl: true,
+      privacy: true,
     },
   },
   stats: true,
@@ -64,6 +74,16 @@ export class PostMapper {
       prismaPost.type,
       prismaPost.visibility,
       prismaPost.originalPostId,
+      prismaPost.groupId,
+      prismaPost.group
+        ? new PostGroup(
+            prismaPost.group.id,
+            prismaPost.group.name,
+            prismaPost.group.slug,
+            prismaPost.group.avatarUrl,
+            prismaPost.group.privacy,
+          )
+        : null,
       prismaPost.media.map(
         (media) =>
           new PostMedia(
@@ -104,6 +124,7 @@ export class PostMapper {
       authorId: input.authorId,
       content: input.content,
       visibility: input.visibility,
+      groupId: input.groupId ?? null,
       type: this.getTypeFromMedia(input.media.length),
       media:
         input.media.length > 0

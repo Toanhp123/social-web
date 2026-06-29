@@ -6,6 +6,8 @@ export class AuthAccount {
     public readonly email: string,
     public readonly passwordHash: string,
     public readonly role: UserRole,
+    public readonly fullName: string | null = null,
+    public readonly username: string | null = null,
     public readonly emailVerifiedAt: Date | null = null,
     public readonly passwordChangedAt: Date | null = null,
     public readonly disabledAt: Date | null = null,

@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  POST_FEED_CACHE,
   POST_REACTION_REPOSITORY,
   UNIT_OF_WORK,
 } from '@/common/constants/provider-token.constant.js';
 import type { UnitOfWork } from '@/core/databases/unit-of-work.interface.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
-import type { PostFeedCache } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { CreateNotificationService } from '@/modules/notifications/application/services/create-notification.service.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
 import { PostReactionRepository } from '@/modules/posts/domain/repositories/post-reaction.repository.interface.js';
 import {
@@ -24,8 +23,7 @@ export class ReactToPostService {
     @Inject(UNIT_OF_WORK)
     private readonly unitOfWork: UnitOfWork,
 
-    @Inject(POST_FEED_CACHE)
-    private readonly postFeedCache: PostFeedCache,
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
 
     private readonly realtimePublisher: RealtimePublisher,
 
@@ -37,7 +35,7 @@ export class ReactToPostService {
       this.postReactionRepository.set(input),
     );
 
-    await this.invalidateFeedCache();
+    await this.postFeedCacheInvalidation.invalidatePost(post.id);
     this.realtimePublisher.publishPostReactionUpdated({
       postId: post.id,
       actorId: input.userId,
@@ -53,7 +51,7 @@ export class ReactToPostService {
       this.postReactionRepository.remove(input),
     );
 
-    await this.invalidateFeedCache();
+    await this.postFeedCacheInvalidation.invalidatePost(post.id);
     this.realtimePublisher.publishPostReactionUpdated({
       postId: post.id,
       actorId: input.userId,
@@ -74,13 +72,5 @@ export class ReactToPostService {
       refId: post.id,
       aggregateKey: `post-reaction:${post.id}`,
     });
-  }
-
-  private async invalidateFeedCache(): Promise<void> {
-    try {
-      await this.postFeedCache.invalidateAll();
-    } catch {
-      return;
-    }
   }
 }

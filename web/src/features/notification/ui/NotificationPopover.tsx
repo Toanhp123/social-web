@@ -13,6 +13,7 @@ type NotificationPopoverProps = {
   className?: string;
   buttonClassName?: string;
   popoverClassName?: string;
+  showLabel?: boolean;
 };
 
 type NotificationPanelPosition = {
@@ -28,6 +29,7 @@ export function NotificationPopover({
   className,
   buttonClassName,
   popoverClassName,
+  showLabel = false,
 }: NotificationPopoverProps) {
   const { notifications, unreadNotificationCount, clearUnreadNotifications } =
     useRealtime();
@@ -98,6 +100,7 @@ export function NotificationPopover({
         aria-expanded={isOpen}
       >
         <Bell className="size-4" />
+        {showLabel && <span className="truncate">{label}</span>}
 
         {unreadNotificationCount > 0 && (
           <span className="bg-danger text-inverse absolute -top-1 -right-1 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] leading-none font-semibold">

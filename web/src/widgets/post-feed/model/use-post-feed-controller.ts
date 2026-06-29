@@ -12,12 +12,16 @@ import { usePostFeedDensity } from "./use-post-feed-density";
 type UsePostFeedControllerInput = {
   canInteract: boolean;
   authorId?: string;
+  groupId?: string;
+  groupFeed?: boolean;
   search?: string;
 };
 
 export function usePostFeedController({
   canInteract,
   authorId,
+  groupId,
+  groupFeed,
   search,
 }: UsePostFeedControllerInput) {
   const requireAuth = useRequireAuthRedirect();
@@ -25,7 +29,7 @@ export function usePostFeedController({
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [sharingPost, setSharingPost] = useState<Post | null>(null);
   const density = usePostFeedDensity();
-  const feedQuery = usePostFeedQuery({ authorId, search });
+  const feedQuery = usePostFeedQuery({ authorId, groupId, groupFeed, search });
   const reactPostMutation = useReactPostMutation();
   const posts = useMemo(
     () => feedQuery.data?.pages.flatMap((page) => page.items) ?? [],

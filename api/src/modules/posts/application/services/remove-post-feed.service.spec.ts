@@ -21,6 +21,7 @@ describe(RemovePostFeedService.name, () => {
     } as unknown as PostFeedRepository;
     const postFeedCache = {
       invalidateAll: jest.fn().mockResolvedValue(undefined),
+      invalidatePost: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedCache;
     const postFeedJobQueue = {
       enqueuePostFeedRemovalPage: jest.fn().mockResolvedValue(undefined),
@@ -51,6 +52,7 @@ describe(RemovePostFeedService.name, () => {
       cursor: 'next-cursor',
     });
     expect(postFeedCache.invalidateAll).not.toHaveBeenCalled();
+    expect(postFeedCache.invalidatePost).not.toHaveBeenCalled();
     expect(realtimePublisher.publishFeedUpdated).not.toHaveBeenCalled();
   });
 
@@ -64,6 +66,7 @@ describe(RemovePostFeedService.name, () => {
     } as unknown as PostFeedRepository;
     const postFeedCache = {
       invalidateAll: jest.fn().mockResolvedValue(undefined),
+      invalidatePost: jest.fn().mockResolvedValue(undefined),
     } as unknown as PostFeedCache;
     const postFeedJobQueue = {
       enqueuePostFeedRemovalPage: jest.fn().mockResolvedValue(undefined),
@@ -82,7 +85,8 @@ describe(RemovePostFeedService.name, () => {
 
     expect(postFeedRepository.deleteFeedItemsForPost).not.toHaveBeenCalled();
     expect(postFeedJobQueue.enqueuePostFeedRemovalPage).not.toHaveBeenCalled();
-    expect(postFeedCache.invalidateAll).toHaveBeenCalledTimes(1);
+    expect(postFeedCache.invalidateAll).not.toHaveBeenCalled();
+    expect(postFeedCache.invalidatePost).toHaveBeenCalledWith('post-1');
     expect(realtimePublisher.publishFeedUpdated).toHaveBeenCalledTimes(1);
   });
 });

@@ -18,24 +18,29 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   ] satisfies Array<{ value: ProfileTab; label: string }>;
 
   return (
-    <nav className="text-secondary flex gap-1 overflow-x-auto py-1 text-sm font-semibold">
-      {tabs.map((item) => {
-        const isActive = item.value === activeTab;
+    <nav
+      className="border-subtle flex min-w-0 items-center gap-1 overflow-x-auto border-t"
+      aria-label={t.profileInfo}
+    >
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.value;
 
         return (
           <button
-            key={item.value}
+            key={tab.value}
             type="button"
-            onClick={() => onTabChange(item.value)}
+            onClick={() => onTabChange(tab.value)}
             className={cn(
-              "rounded-control hover:bg-surface-muted relative min-w-24 flex-1 px-3 py-3 text-center transition sm:min-w-0 sm:flex-none sm:px-4",
-              isActive && "text-brand",
+              "relative h-12 shrink-0 px-4 text-sm font-semibold transition",
+              isActive
+                ? "text-brand"
+                : "text-secondary hover:bg-surface-muted hover:text-primary",
             )}
+            aria-current={isActive ? "page" : undefined}
           >
-            {item.label}
-
+            {tab.label}
             {isActive && (
-              <span className="rounded-pill bg-brand absolute inset-x-3 bottom-0 h-1" />
+              <span className="bg-brand absolute inset-x-3 bottom-0 h-0.5 rounded-full" />
             )}
           </button>
         );

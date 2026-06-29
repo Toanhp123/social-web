@@ -50,7 +50,13 @@ export class JwtService implements TokenService {
         throw new Error('Invalid token payload');
       }
 
-      return new JwtPayload(decoded.id, decoded.email, decoded.role);
+      return new JwtPayload(
+        decoded.id,
+        decoded.email,
+        decoded.role,
+        typeof decoded.fullName === 'string' ? decoded.fullName : null,
+        typeof decoded.username === 'string' ? decoded.username : null,
+      );
     } catch {
       throw new DomainError(errorCode, 'Invalid token', 401);
     }

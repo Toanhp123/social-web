@@ -9,7 +9,9 @@ export type NotificationType =
   | "MESSAGE_RECEIVED"
   | "MENTIONED"
   | "POST_REPORT_SUBMITTED"
-  | "POST_REPORT_CANCELED";
+  | "POST_REPORT_CANCELED"
+  | "GROUP_PRIVACY_CHANGED"
+  | "GROUP_JOIN_REQUEST_RECEIVED";
 
 export type Notification = {
   id: string;

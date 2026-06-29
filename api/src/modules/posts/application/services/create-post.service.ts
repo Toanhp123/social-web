@@ -10,7 +10,9 @@ import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import type { FileStoragePort } from '@/modules/media/application/ports/file-storage.port.js';
 import { RealtimePublisher } from '@/core/realtime/realtime-publisher.service.js';
 import { NotifyMentionedUsersService } from '@/modules/notifications/application/services/notify-mentioned-users.service.js';
+import { GroupAccessService } from '@/modules/groups/application/services/group-access.service.js';
 import type { PostFeedJobQueue } from '@/modules/posts/application/ports/post-feed-job-queue.port.js';
+import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
 import { PostDraft } from '@/modules/posts/domain/entities/post-draft.entity.js';
 import {
   PostMedia,
@@ -32,6 +34,7 @@ export type CreatePostInput = {
   authorId: string;
   content?: string | null;
   visibility?: PostVisibility;
+  groupId?: string | null;
   files?: CreatePostMediaFile[];
 };
 
@@ -47,27 +50,47 @@ export class CreatePostService {
     @Inject(POST_FEED_JOB_QUEUE)
     private readonly postFeedJobQueue: PostFeedJobQueue,
 
+    private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
+
     private readonly realtimePublisher: RealtimePublisher,
 
     private readonly notifyMentionedUsersService: NotifyMentionedUsersService,
+
+    private readonly groupAccessService: GroupAccessService,
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
     const files = input.files ?? [];
+    const groupId = input.groupId?.trim() || null;
 
     this.assertValidUploadFiles(files);
+
+    if (groupId) {
+      await this.groupAccessService.assertCanPost({
+        groupId,
+        userId: input.authorId,
+      });
+    }
 
     const media = await this.uploadMedia(input.authorId, files);
     const draft = PostDraft.create({
       authorId: input.authorId,
       content: input.content,
       visibility: input.visibility,
+      groupId,
       media,
     });
 
     const post = await this.postRepository.create(draft.toCreateInput());
 
-    await this.enqueuePostFeedFanOut(post.id, input.authorId);
+    await this.postFeedCacheInvalidation.invalidateAuthor(input.authorId);
+
+    if (!groupId) {
+      await this.enqueuePostFeedFanOut(post.id, input.authorId);
+    } else {
+      await this.invalidateGroupFeedCache(groupId);
+    }
+
     this.realtimePublisher.publishPostCreatedForAuthor({
       postId: post.id,
       authorId: post.author.id,
@@ -93,6 +116,19 @@ export class CreatePostService {
   ): Promise<void> {
     try {
       await this.postFeedJobQueue.enqueueFanOutPage({ postId, authorId });
+    } catch {
+      return;
+    }
+  }
+
+  private async invalidateGroupFeedCache(groupId: string): Promise<void> {
+    try {
+      const memberIds = await this.groupAccessService.listMemberIds(groupId);
+
+      await Promise.all([
+        this.postFeedCacheInvalidation.invalidateGroup(groupId),
+        this.postFeedCacheInvalidation.invalidateViewers(memberIds),
+      ]);
     } catch {
       return;
     }

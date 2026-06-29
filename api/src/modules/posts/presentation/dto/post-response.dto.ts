@@ -4,6 +4,7 @@ import {
   PostType,
   PostVisibility,
   ReactionType,
+  GroupPrivacy,
 } from '@/generated/prisma/client.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
@@ -27,6 +28,14 @@ export class PostMediaResponseDto {
   @Expose() duration!: number | null;
   @Expose() order!: number;
   @Expose() alt!: string | null;
+}
+
+export class PostGroupResponseDto {
+  @Expose() id!: string;
+  @Expose() name!: string;
+  @Expose() slug!: string;
+  @Expose() avatarUrl!: string | null;
+  @Expose() privacy!: GroupPrivacy;
 }
 
 export class PostReactionStatsResponseDto {
@@ -63,6 +72,7 @@ export class PostResponseDto {
   @Expose() type!: PostType;
   @Expose() visibility!: PostVisibility;
   @Expose() originalPostId!: string | null;
+  @Expose() groupId!: string | null;
   @Expose() createdAt!: string;
   @Expose() updatedAt!: string;
   @Expose() currentReaction!: ReactionType | null;
@@ -70,6 +80,10 @@ export class PostResponseDto {
   @Expose()
   @Type(() => PostAuthorResponseDto)
   author!: PostAuthorResponseDto;
+
+  @Expose()
+  @Type(() => PostGroupResponseDto)
+  group!: PostGroupResponseDto | null;
 
   @Expose()
   @Type(() => PostMediaResponseDto)
@@ -87,6 +101,7 @@ export class PostResponseDto {
     dto.type = post.type;
     dto.visibility = post.visibility;
     dto.originalPostId = post.originalPostId;
+    dto.groupId = post.groupId;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.currentReaction = post.currentReaction;
@@ -96,6 +111,15 @@ export class PostResponseDto {
       username: post.author.username,
       avatarUrl: post.author.avatarUrl,
     };
+    dto.group = post.group
+      ? {
+          id: post.group.id,
+          name: post.group.name,
+          slug: post.group.slug,
+          avatarUrl: post.group.avatarUrl,
+          privacy: post.group.privacy,
+        }
+      : null;
     dto.media = post.media.map((media) => ({
       id: media.id,
       url: media.url,

@@ -41,8 +41,8 @@ export function ProfilePanel({
   const profileUserId = profile?.userId ?? profileOwner?.id ?? currentUser.id;
 
   return (
-    <section className="w-full space-y-4">
-      <div className="rounded-card bg-surface shadow-card w-full overflow-hidden">
+    <section className="mx-auto w-full max-w-280 space-y-4">
+      <div className="border-surface-border rounded-card bg-surface shadow-card w-full overflow-hidden border">
         <ProfileCover
           profile={profile}
           variant={variant}
@@ -61,6 +61,7 @@ export function ProfilePanel({
             canEdit={canEdit}
             actions={headerActions}
             stats={profileStats}
+            onEditProfile={() => setActiveTab("about")}
           />
 
           {!isSidebar && (
@@ -70,7 +71,15 @@ export function ProfilePanel({
       </div>
 
       {activeTab === "posts" && !isSidebar && (
-        <PostFeed canInteract authorId={profileUserId} showHeader={false} />
+        <div className="grid gap-4 lg:grid-cols-[360px_minmax(0,680px)] lg:items-start lg:justify-center">
+          <aside className="space-y-4 lg:sticky lg:top-20">
+            <ProfileAboutCard profile={profile} metaItems={metaItems} compact />
+          </aside>
+
+          <div className="min-w-0">
+            <PostFeed canInteract authorId={profileUserId} showHeader={false} />
+          </div>
+        </div>
       )}
 
       {(activeTab === "about" || isSidebar) && (

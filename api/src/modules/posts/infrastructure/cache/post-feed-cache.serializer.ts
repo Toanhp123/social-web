@@ -1,0 +1,189 @@
+import type {
+  MediaType,
+  PostType,
+  PostVisibility,
+  ReactionType,
+  GroupPrivacy,
+} from '@/generated/prisma/client.js';
+import type { PostFeedCacheResult } from '@/modules/posts/application/ports/post-feed-cache.port.js';
+import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
+import { PostGroup } from '@/modules/posts/domain/entities/post-group.entity.js';
+import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
+import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
+import { Post } from '@/modules/posts/domain/entities/post.entity.js';
+
+export type CachedPostFeed = {
+  items: CachedPost[];
+  nextCursor: string | null;
+};
+
+type CachedPost = {
+  id: string;
+  author: {
+    id: string;
+    fullName: string;
+    username: string | null;
+    avatarUrl: string | null;
+  };
+  content: string;
+  type: PostType;
+  visibility: PostVisibility;
+  originalPostId: string | null;
+  groupId: string | null;
+  group: {
+    id: string;
+    name: string;
+    slug: string;
+    avatarUrl: string | null;
+    privacy: GroupPrivacy;
+  } | null;
+  media: Array<{
+    id: string;
+    url: string;
+    thumbnailUrl: string | null;
+    mimeType: string | null;
+    size: number | null;
+    type: MediaType;
+    width: number | null;
+    height: number | null;
+    duration: number | null;
+    order: number;
+    alt: string | null;
+  }>;
+  reactionStats?: {
+    likeCount: number;
+    loveCount: number;
+    hahaCount: number;
+    wowCount: number;
+    sadCount: number;
+    angryCount: number;
+    totalReactionCount: number;
+    commentCount: number;
+    shareCount: number;
+  };
+  currentReaction?: ReactionType | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export class PostFeedCacheSerializer {
+  toCache(result: PostFeedCacheResult): CachedPostFeed {
+    return {
+      items: result.items.map((post) => ({
+        id: post.id,
+        author: {
+          id: post.author.id,
+          fullName: post.author.fullName,
+          username: post.author.username,
+          avatarUrl: post.author.avatarUrl,
+        },
+        content: post.content,
+        type: post.type,
+        visibility: post.visibility,
+        originalPostId: post.originalPostId,
+        groupId: post.groupId,
+        group: post.group
+          ? {
+              id: post.group.id,
+              name: post.group.name,
+              slug: post.group.slug,
+              avatarUrl: post.group.avatarUrl,
+              privacy: post.group.privacy,
+            }
+          : null,
+        media: post.media.map((media) => ({
+          id: media.id,
+          url: media.url,
+          thumbnailUrl: media.thumbnailUrl,
+          mimeType: media.mimeType,
+          size: media.size,
+          type: media.type,
+          width: media.width,
+          height: media.height,
+          duration: media.duration,
+          order: media.order,
+          alt: media.alt,
+        })),
+        reactionStats: {
+          likeCount: post.reactionStats.likeCount,
+          loveCount: post.reactionStats.loveCount,
+          hahaCount: post.reactionStats.hahaCount,
+          wowCount: post.reactionStats.wowCount,
+          sadCount: post.reactionStats.sadCount,
+          angryCount: post.reactionStats.angryCount,
+          totalReactionCount: post.reactionStats.totalReactionCount,
+          commentCount: post.reactionStats.commentCount,
+          shareCount: post.reactionStats.shareCount,
+        },
+        currentReaction: post.currentReaction,
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
+      })),
+      nextCursor: result.nextCursor,
+    };
+  }
+
+  toDomain(result: CachedPostFeed): PostFeedCacheResult {
+    return {
+      items: result.items.map(
+        (post) =>
+          new Post(
+            post.id,
+            new PostAuthor(
+              post.author.id,
+              post.author.fullName,
+              post.author.username,
+              post.author.avatarUrl,
+            ),
+            post.content,
+            post.type,
+            post.visibility,
+            post.originalPostId ?? null,
+            post.groupId ?? null,
+            post.group
+              ? new PostGroup(
+                  post.group.id,
+                  post.group.name,
+                  post.group.slug,
+                  post.group.avatarUrl,
+                  post.group.privacy,
+                )
+              : null,
+            post.media.map(
+              (media) =>
+                new PostMedia(
+                  media.id,
+                  media.url,
+                  media.thumbnailUrl,
+                  media.mimeType,
+                  media.size,
+                  media.type,
+                  media.width,
+                  media.height,
+                  media.duration,
+                  media.order,
+                  media.alt,
+                ),
+            ),
+            new Date(post.createdAt),
+            new Date(post.updatedAt),
+            post.reactionStats
+              ? new PostReactionStats(
+                  post.reactionStats.likeCount,
+                  post.reactionStats.loveCount,
+                  post.reactionStats.hahaCount,
+                  post.reactionStats.wowCount,
+                  post.reactionStats.sadCount,
+                  post.reactionStats.angryCount,
+                  post.reactionStats.totalReactionCount,
+                  post.reactionStats.commentCount,
+                  post.reactionStats.shareCount,
+                )
+              : PostReactionStats.empty(),
+            post.currentReaction ?? null,
+          ),
+      ),
+      nextCursor: result.nextCursor,
+    };
+  }
+}

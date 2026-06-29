@@ -10,7 +10,7 @@ import {
 } from "@/features/friend-request";
 import { FriendsList } from "@/features/friendship";
 import { useTranslations } from "@/shared/i18n";
-import { cn } from "@/shared/lib/utils";
+import { Card, SegmentedTabs } from "@/shared/ui";
 
 type FriendsTab = "friends" | "discover" | "incoming" | "outgoing";
 
@@ -19,67 +19,51 @@ export function FriendsOverview() {
   const [activeTab, setActiveTab] = useState<FriendsTab>("friends");
 
   const tabs: Array<{
-    id: FriendsTab;
+    value: FriendsTab;
     label: string;
     icon: ReactNode;
     content: ReactNode;
   }> = [
     {
-      id: "friends",
+      value: "friends",
       label: t.title,
       icon: <Users className="size-4" />,
       content: <FriendsList />,
     },
     {
-      id: "discover",
+      value: "discover",
       label: t.discoverTitle,
       icon: <Search className="size-4" />,
       content: <FriendCandidateList />,
     },
     {
-      id: "incoming",
+      value: "incoming",
       label: t.incomingTitle,
       icon: <Inbox className="size-4" />,
       content: <IncomingFriendRequestList />,
     },
     {
-      id: "outgoing",
+      value: "outgoing",
       label: t.outgoingTitle,
       icon: <Send className="size-4" />,
       content: <OutgoingFriendRequestList />,
     },
   ];
-  const activeTabContent = tabs.find((tab) => tab.id === activeTab)?.content;
+  const activeTabContent = tabs.find((tab) => tab.value === activeTab)?.content;
 
   return (
-    <section className="rounded-card border-surface-border bg-surface shadow-card border">
-      <div className="border-soft flex gap-1 overflow-x-auto border-b px-2 pt-2 sm:px-3 sm:pt-3">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "relative inline-flex h-11 shrink-0 items-center gap-2 px-3 text-sm font-semibold transition sm:px-4",
-                "text-secondary hover:bg-surface-soft hover:text-primary rounded-control",
-                "focus-visible:ring-brand-ring focus-visible:ring-4 focus-visible:outline-none",
-                isActive && "text-brand bg-brand-soft",
-              )}
-            >
-              {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
-              {isActive && (
-                <span className="bg-brand rounded-pill absolute right-3 bottom-0 left-3 h-0.5" />
-              )}
-            </button>
-          );
-        })}
+    <Card padding="none">
+      <div className="border-soft border-b px-2 pt-2 sm:px-3 sm:pt-3">
+        <SegmentedTabs
+          items={tabs}
+          value={activeTab}
+          onValueChange={setActiveTab}
+          ariaLabel={t.title}
+          hideLabelBelowSm
+        />
       </div>
 
       <div className="p-3 sm:p-5">{activeTabContent}</div>
-    </section>
+    </Card>
   );
 }

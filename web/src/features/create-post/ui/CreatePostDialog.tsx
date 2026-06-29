@@ -10,6 +10,7 @@ import { useVisibilityOptions } from "./VisibilityOptions";
 type CreatePostDialogProps = {
   open: boolean;
   formKey: number;
+  groupId?: string;
   isSubmitting: boolean;
   errorMessage?: string;
   onClose: () => void;
@@ -19,6 +20,7 @@ type CreatePostDialogProps = {
 export function CreatePostDialog({
   open,
   formKey,
+  groupId,
   isSubmitting,
   errorMessage,
   onClose,
@@ -52,6 +54,8 @@ export function CreatePostDialog({
       </header>
 
       <form key={formKey} onSubmit={onSubmit} className="p-5">
+        {groupId && <input type="hidden" name="groupId" value={groupId} />}
+
         <div className="flex items-center gap-3">
           <div className="rounded-pill bg-brand-gradient text-inverse grid size-11 shrink-0 place-items-center text-sm font-semibold">
             SW
@@ -86,7 +90,7 @@ export function CreatePostDialog({
             name="media"
             label={t.addMedia}
             maxFiles={10}
-            density="compact"
+            size="sm"
           />
         </div>
 
@@ -99,9 +103,10 @@ export function CreatePostDialog({
         <div className="border-soft mt-5 border-t pt-4">
           <Button
             type="submit"
+            size="lg"
             disabled={isSubmitting}
             fullWidth
-            className="rounded-pill inline-flex h-11 items-center justify-center gap-2"
+            className="rounded-pill inline-flex items-center justify-center gap-2"
           >
             <SendHorizontal className="size-4" />
             {isSubmitting ? t.posting : t.submit}

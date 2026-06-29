@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsBooleanString,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class ListPostsQueryDto {
   @IsOptional()
@@ -16,6 +23,14 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsString()
   authorId?: string;
+
+  @IsOptional()
+  @IsString()
+  groupId?: string;
+
+  @IsOptional()
+  @IsBooleanString()
+  groupFeed?: string;
 
   @IsOptional()
   @IsString()

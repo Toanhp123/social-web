@@ -9,15 +9,7 @@ export function FriendsPage() {
 
   return (
     <AppLayout title={t.title} description={t.description}>
-      <div className="space-y-6">
-        <header>
-          <h1 className="text-primary text-2xl font-bold tracking-normal">
-            {t.title}
-          </h1>
-        </header>
-
-        <FriendsOverview />
-      </div>
+      <FriendsOverview />
     </AppLayout>
   );
 }
