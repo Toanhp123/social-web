@@ -10,6 +10,14 @@ export type PostAuthor = {
   avatarUrl: string | null;
 };
 
+export type PostGroup = {
+  id: string;
+  name: string;
+  slug: string;
+  avatarUrl: string | null;
+  privacy: "PUBLIC" | "PRIVATE";
+};
+
 export type PostMedia = {
   id: string;
   url: string;
@@ -31,6 +39,7 @@ export type Post = {
   visibility: PostVisibility;
   originalPostId: string | null;
   groupId: string | null;
+  group: PostGroup | null;
   author: PostAuthor;
   media: PostMedia[];
   reactionStats: PostReactionStats;
