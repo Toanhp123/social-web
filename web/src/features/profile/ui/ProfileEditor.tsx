@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 import { Save, Trash2 } from "lucide-react";
 import type { UserProfile } from "@/entities/user";
 import { useTranslations } from "@/shared/i18n";
-import { Button, Input, Textarea } from "@/shared/ui";
+import { Button, DateInput, Input, Textarea } from "@/shared/ui";
 import {
   useDeleteProfileMutation,
   useSaveProfileMutation,
@@ -98,9 +98,8 @@ export function ProfileEditor({
 
         <label className="text-secondary block text-sm font-medium">
           {t.birthday}
-          <Input
+          <DateInput
             name="birthday"
-            type="date"
             defaultValue={toDateInputValue(profile?.birthday)}
           />
         </label>

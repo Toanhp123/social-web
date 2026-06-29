@@ -226,6 +226,7 @@ export const enMessages = {
     moreOptions: "Open more options",
     changeAvatar: "Change avatar",
     changeCover: "Change cover",
+    noCoverPhoto: "No cover photo",
     avatarAlt: "Avatar of",
     memberFallback: "Member",
     addedInfo: "added details",

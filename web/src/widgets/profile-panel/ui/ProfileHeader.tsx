@@ -1,13 +1,13 @@
 "use client";
 
-import { MoreHorizontal, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import type { ReactNode } from "react";
 import { ProfileImageUploader } from "@/features/profile";
 import type { CurrentSessionUser } from "@/entities/session/server";
 import type { User, UserProfile } from "@/entities/user";
 import { useTranslations } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
-import { Avatar } from "@/shared/ui";
+import { Avatar, Button } from "@/shared/ui";
 import type { ProfileMetaItem, ProfilePanelVariant } from "../model/types";
 
 type ProfileHeaderProps = {
@@ -20,6 +20,7 @@ type ProfileHeaderProps = {
   canEdit?: boolean;
   actions?: ReactNode;
   stats?: ReactNode;
+  onEditProfile?: () => void;
 };
 
 export function ProfileHeader({
@@ -32,6 +33,7 @@ export function ProfileHeader({
   canEdit = true,
   actions,
   stats,
+  onEditProfile,
 }: ProfileHeaderProps) {
   const t = useTranslations().profile;
   const isSidebar = variant === "sidebar";
@@ -57,7 +59,7 @@ export function ProfileHeader({
   return (
     <div
       className={cn(
-        "border-subtle border-b",
+        "border-subtle",
         isSidebar
           ? "pb-4"
           : "flex flex-col gap-3 pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
@@ -66,7 +68,9 @@ export function ProfileHeader({
       <div
         className={cn(
           "flex min-w-0 gap-4",
-          isSidebar ? "-mt-10 flex-col" : "-mt-8 items-end sm:-mt-9",
+          isSidebar
+            ? "-mt-10 flex-col"
+            : "-mt-12 flex-col items-center text-center sm:-mt-14 sm:flex-row sm:items-end sm:text-left",
         )}
       >
         <Avatar
@@ -75,16 +79,23 @@ export function ProfileHeader({
           name={displayName}
           size={isSidebar ? 96 : 160}
           className={cn(
-            "border-surface-border shadow-card border-4",
-            isSidebar ? "size-24 text-3xl" : "size-24 text-3xl sm:size-40 sm:text-5xl",
+            "border-surface shadow-card border-4",
+            isSidebar
+              ? "size-24 text-3xl"
+              : "size-28 text-4xl sm:size-40 sm:text-5xl",
           )}
         />
 
-        <div className={cn("min-w-0", !isSidebar && "pb-3 sm:pb-5")}>
+        <div
+          className={cn(
+            "min-w-0",
+            !isSidebar && "w-full pb-1 sm:w-auto sm:pb-5",
+          )}
+        >
           <h2
             className={cn(
-              "text-primary truncate font-bold tracking-tight",
-              isSidebar ? "text-xl" : "text-2xl sm:text-3xl",
+              "text-primary font-bold tracking-tight",
+              isSidebar ? "text-xl" : "text-2xl sm:text-4xl",
             )}
           >
             {displayName}
@@ -95,7 +106,7 @@ export function ProfileHeader({
           </p>
 
           {!isSidebar && (stats || metaItems.length > 0) && (
-            <p className="text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <p className="text-muted mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm sm:justify-start">
               {stats}
 
               {metaItems.length > 0 ? (
@@ -109,35 +120,32 @@ export function ProfileHeader({
       <div
         className={cn(
           "flex flex-wrap items-center gap-2",
-          isSidebar ? "mt-4" : "pb-3 sm:pb-5",
+          isSidebar ? "mt-4" : "justify-center pb-1 sm:justify-end sm:pb-5",
         )}
       >
-        {canEdit && (
+        {canEdit && isSidebar && (
           <ProfileImageUploader kind="avatar" onUploaded={onProfileChange} />
         )}
 
         {!isSidebar && canEdit && (
           <>
-            <button
+            <Button
               type="button"
-              className="rounded-control bg-surface-muted text-primary hover:bg-surface-muted inline-flex h-10 items-center justify-center gap-2 px-3 text-sm font-semibold transition sm:px-4"
+              variant="secondary"
+              fullWidth={false}
+              className="inline-flex items-center gap-2"
+              onClick={onEditProfile}
             >
               <Pencil className="size-4" />
               {t.editProfile}
-            </button>
+            </Button>
 
-            <button
-              type="button"
-              aria-label={t.moreOptions}
-              className="rounded-control bg-surface-muted text-secondary hover:bg-surface-muted grid size-10 place-items-center transition"
-            >
-              <MoreHorizontal className="size-5" />
-            </button>
+            <ProfileImageUploader kind="avatar" onUploaded={onProfileChange} />
           </>
         )}
 
         {actions && (
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:flex-none">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 sm:flex-none sm:justify-end">
             {actions}
           </div>
         )}

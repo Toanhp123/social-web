@@ -6,6 +6,7 @@ export { ImageUploader } from "./image-uploader";
 export { Input } from "./input";
 export { MediaPicker } from "./media-picker";
 export { Dialog } from "./dialog";
+export { DateInput } from "./date-input";
 export { Textarea } from "./textarea";
 export { MentionText } from "./mentionText";
 export { SearchField } from "./search-field";

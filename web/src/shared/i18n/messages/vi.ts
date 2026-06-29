@@ -224,6 +224,7 @@ export const viMessages = {
     moreOptions: "Mở thêm tùy chọn",
     changeAvatar: "Đổi ảnh đại diện",
     changeCover: "Đổi ảnh bìa",
+    noCoverPhoto: "Chưa có ảnh bìa",
     avatarAlt: "Ảnh đại diện của",
     memberFallback: "Thành viên",
     addedInfo: "thông tin đã thêm",
