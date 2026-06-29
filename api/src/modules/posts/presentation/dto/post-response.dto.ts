@@ -4,6 +4,7 @@ import {
   PostType,
   PostVisibility,
   ReactionType,
+  GroupPrivacy,
 } from '@/generated/prisma/client.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
@@ -27,6 +28,14 @@ export class PostMediaResponseDto {
   @Expose() duration!: number | null;
   @Expose() order!: number;
   @Expose() alt!: string | null;
+}
+
+export class PostGroupResponseDto {
+  @Expose() id!: string;
+  @Expose() name!: string;
+  @Expose() slug!: string;
+  @Expose() avatarUrl!: string | null;
+  @Expose() privacy!: GroupPrivacy;
 }
 
 export class PostReactionStatsResponseDto {
@@ -73,6 +82,10 @@ export class PostResponseDto {
   author!: PostAuthorResponseDto;
 
   @Expose()
+  @Type(() => PostGroupResponseDto)
+  group!: PostGroupResponseDto | null;
+
+  @Expose()
   @Type(() => PostMediaResponseDto)
   media!: PostMediaResponseDto[];
 
@@ -98,6 +111,15 @@ export class PostResponseDto {
       username: post.author.username,
       avatarUrl: post.author.avatarUrl,
     };
+    dto.group = post.group
+      ? {
+          id: post.group.id,
+          name: post.group.name,
+          slug: post.group.slug,
+          avatarUrl: post.group.avatarUrl,
+          privacy: post.group.privacy,
+        }
+      : null;
     dto.media = post.media.map((media) => ({
       id: media.id,
       url: media.url,

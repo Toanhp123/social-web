@@ -4,6 +4,7 @@ import {
   ReactionType,
 } from '@/generated/prisma/client.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
+import { PostGroup } from '@/modules/posts/domain/entities/post-group.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 
@@ -16,6 +17,7 @@ export class Post {
     public readonly visibility: PostVisibility,
     public readonly originalPostId: string | null,
     public readonly groupId: string | null,
+    public readonly group: PostGroup | null,
     public readonly media: PostMedia[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date,

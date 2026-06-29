@@ -3,9 +3,11 @@ import type {
   PostType,
   PostVisibility,
   ReactionType,
+  GroupPrivacy,
 } from '@/generated/prisma/client.js';
 import type { PostFeedCacheResult } from '@/modules/posts/application/ports/post-feed-cache.port.js';
 import { PostAuthor } from '@/modules/posts/domain/entities/post-author.entity.js';
+import { PostGroup } from '@/modules/posts/domain/entities/post-group.entity.js';
 import { PostMedia } from '@/modules/posts/domain/entities/post-media.entity.js';
 import { PostReactionStats } from '@/modules/posts/domain/entities/post-reaction-stats.entity.js';
 import { Post } from '@/modules/posts/domain/entities/post.entity.js';
@@ -28,6 +30,13 @@ type CachedPost = {
   visibility: PostVisibility;
   originalPostId: string | null;
   groupId: string | null;
+  group: {
+    id: string;
+    name: string;
+    slug: string;
+    avatarUrl: string | null;
+    privacy: GroupPrivacy;
+  } | null;
   media: Array<{
     id: string;
     url: string;
@@ -73,6 +82,15 @@ export class PostFeedCacheSerializer {
         visibility: post.visibility,
         originalPostId: post.originalPostId,
         groupId: post.groupId,
+        group: post.group
+          ? {
+              id: post.group.id,
+              name: post.group.name,
+              slug: post.group.slug,
+              avatarUrl: post.group.avatarUrl,
+              privacy: post.group.privacy,
+            }
+          : null,
         media: post.media.map((media) => ({
           id: media.id,
           url: media.url,
@@ -122,6 +140,15 @@ export class PostFeedCacheSerializer {
             post.visibility,
             post.originalPostId ?? null,
             post.groupId ?? null,
+            post.group
+              ? new PostGroup(
+                  post.group.id,
+                  post.group.name,
+                  post.group.slug,
+                  post.group.avatarUrl,
+                  post.group.privacy,
+                )
+              : null,
             post.media.map(
               (media) =>
                 new PostMedia(
