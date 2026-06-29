@@ -7,6 +7,8 @@ export const groupQueryKeys = {
     [...groupQueryKeys.all, "detail", groupId] as const,
   members: (groupId: string) =>
     [...groupQueryKeys.all, "members", groupId] as const,
+  media: (groupId: string) =>
+    [...groupQueryKeys.all, "media", groupId] as const,
   joinRequests: (groupId: string) =>
     [...groupQueryKeys.all, "join-requests", groupId] as const,
 };

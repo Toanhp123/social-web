@@ -1,5 +1,9 @@
-import { ImageIcon, Info, Lock, Users, type LucideIcon } from "lucide-react";
+"use client";
+
+import Image from "next/image";
+import { ImageIcon, Info, Lock, PlayCircle, Users, type LucideIcon } from "lucide-react";
 import type { Group } from "@/entities/group";
+import { useGroupMediaQuery } from "@/features/group-membership";
 import { cn } from "@/shared/lib/utils";
 import type { GroupMessages } from "./group-panel.types";
 
@@ -86,28 +90,81 @@ export function GroupMembersPreview({
 }
 
 export function GroupMediaPreview({
+  group,
+  canView = true,
   compact = false,
   t,
 }: {
+  group: Group;
+  canView?: boolean;
   compact?: boolean;
   t: GroupMessages;
 }) {
+  const mediaQuery = useGroupMediaQuery(group.id, canView);
+  const mediaItems = (mediaQuery.data?.items ?? []).slice(0, compact ? 6 : 9);
+
   return (
     <section className="rounded-card border-surface-border bg-surface shadow-card border p-4">
       <h2 className="text-primary flex items-center gap-2 text-base font-semibold">
         <ImageIcon className="text-brand size-4" />
         {t.detail.recentMedia}
       </h2>
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {Array.from({ length: compact ? 6 : 9 }).map((_, index) => (
-          <div
-            key={index}
-            className="rounded-control bg-surface-muted grid aspect-square place-items-center"
-          >
-            <ImageIcon className="text-muted size-4" />
-          </div>
-        ))}
-      </div>
+
+      {!canView ? (
+        <p className="text-muted mt-3 text-sm leading-6">
+          {t.detail.privateMediaDescription}
+        </p>
+      ) : mediaQuery.isLoading ? (
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {Array.from({ length: compact ? 6 : 9 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-control bg-surface-muted aspect-square animate-pulse"
+            />
+          ))}
+        </div>
+      ) : mediaItems.length === 0 ? (
+        <p className="text-muted mt-3 text-sm leading-6">
+          {t.detail.mediaEmptyDescription}
+        </p>
+      ) : (
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {mediaItems.map((media) => (
+            <div
+              key={media.id}
+              className="rounded-control bg-surface-muted relative aspect-square overflow-hidden"
+            >
+              {media.type === "IMAGE" ? (
+                <Image
+                  src={media.url}
+                  alt={media.alt ?? t.detail.mediaAlt}
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              ) : media.thumbnailUrl ? (
+                <Image
+                  src={media.thumbnailUrl}
+                  alt={media.alt ?? t.detail.mediaAlt}
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="grid size-full place-items-center">
+                  <ImageIcon className="text-muted size-4" />
+                </div>
+              )}
+
+              {media.type === "VIDEO" && (
+                <div className="absolute inset-0 grid place-items-center bg-black/20">
+                  <PlayCircle className="text-white size-5 drop-shadow" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

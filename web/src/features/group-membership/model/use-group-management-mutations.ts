@@ -2,11 +2,13 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { GroupMemberRole } from "@/entities/group";
+import type { Group } from "@/entities/group";
 import { groupQueryKeys } from "./group-membership-query-keys";
 import {
   approveGroupJoinRequestAction,
   rejectGroupJoinRequestAction,
   removeGroupMemberAction,
+  updateGroupPrivacyAction,
   updateGroupMemberRoleAction,
 } from "./group-management.action";
 
@@ -86,6 +88,26 @@ export function useRemoveGroupMemberMutation() {
     },
     onSuccess: (_, variables) => {
       invalidateGroupManagement(queryClient, variables.groupId);
+    },
+  });
+}
+
+export function useUpdateGroupPrivacyMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: { groupId: string; privacy: Group["privacy"] }) => {
+      const result = await updateGroupPrivacyAction(input);
+
+      if (!result.ok) {
+        throw new Error(result.error);
+      }
+
+      return result.group;
+    },
+    onSuccess: (group, variables) => {
+      queryClient.setQueryData(groupQueryKeys.detail(variables.groupId), group);
+      queryClient.invalidateQueries({ queryKey: groupQueryKeys.lists() });
     },
   });
 }

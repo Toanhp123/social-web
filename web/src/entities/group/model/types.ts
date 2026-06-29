@@ -54,3 +54,19 @@ export type GroupMember = {
   joinedAt: string;
   user: GroupUser;
 };
+
+export type GroupMediaItem = {
+  id: string;
+  postId: string;
+  url: string;
+  thumbnailUrl: string | null;
+  type: "IMAGE" | "VIDEO";
+  alt: string | null;
+  createdAt: string;
+  author: GroupUser;
+};
+
+export type GroupMediaPage = {
+  items: GroupMediaItem[];
+  nextCursor: string | null;
+};

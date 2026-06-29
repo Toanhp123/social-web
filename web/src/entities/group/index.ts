@@ -2,6 +2,8 @@ export type {
   Group,
   GroupJoinRequest,
   GroupJoinRequestStatus,
+  GroupMediaItem,
+  GroupMediaPage,
   GroupMember,
   GroupMemberRole,
   GroupPage,

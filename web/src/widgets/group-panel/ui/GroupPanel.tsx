@@ -13,6 +13,8 @@ import {
   GroupMediaPreview,
   GroupMembersPreview,
 } from "./GroupInfoPanels";
+import { GroupMediaPanel } from "./GroupMediaPanel";
+import { GroupMembersPanel } from "./GroupMembersPanel";
 import { GroupTabs } from "./GroupTabs";
 import type { GroupTab } from "./group-panel.types";
 
@@ -60,9 +62,13 @@ export function GroupPanel({ group: initialGroup }: GroupPanelProps) {
 
       {activeTab === "about" && <GroupAboutPanel group={group} t={t} />}
 
-      {activeTab === "members" && <GroupMembersPreview group={group} t={t} />}
+      {activeTab === "members" && (
+        <GroupMembersPanel group={group} canView={canViewFeed} t={t} />
+      )}
 
-      {activeTab === "media" && <GroupMediaPreview t={t} />}
+      {activeTab === "media" && (
+        <GroupMediaPanel group={group} canView={canViewFeed} t={t} />
+      )}
 
       {activeTab === "manage" && canManage && (
         <GroupManagementPanel group={group} />
@@ -73,11 +79,12 @@ export function GroupPanel({ group: initialGroup }: GroupPanelProps) {
 
 export function GroupAboutRail({ group }: { group: Group }) {
   const t = useTranslations().groups;
+  const canViewFeed = group.privacy === "PUBLIC" || Boolean(group.viewer.role);
 
   return (
     <div className="space-y-4">
       <GroupAboutPanel group={group} compact t={t} />
-      <GroupMediaPreview compact t={t} />
+      <GroupMediaPreview group={group} canView={canViewFeed} compact t={t} />
       <GroupMembersPreview group={group} compact t={t} />
     </div>
   );

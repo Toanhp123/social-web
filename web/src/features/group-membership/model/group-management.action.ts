@@ -2,16 +2,20 @@
 
 import { ApiError } from "@/shared/api/api-error";
 import type {
+  Group,
   GroupJoinRequest,
+  GroupMediaPage,
   GroupMember,
   GroupMemberRole,
 } from "@/entities/group";
 import {
   approveGroupJoinRequestApi,
+  listGroupMediaApi,
   listGroupJoinRequestsApi,
   listGroupMembersApi,
   rejectGroupJoinRequestApi,
   removeGroupMemberApi,
+  updateGroupPrivacyApi,
   updateGroupMemberRoleApi,
 } from "../api/group-management-api.server";
 
@@ -21,6 +25,10 @@ export type ListGroupMembersActionResult =
 
 export type ListGroupJoinRequestsActionResult =
   | { ok: true; requests: GroupJoinRequest[] }
+  | { ok: false; error: string };
+
+export type ListGroupMediaActionResult =
+  | { ok: true; page: GroupMediaPage }
   | { ok: false; error: string };
 
 export type GroupJoinRequestActionResult =
@@ -33,6 +41,10 @@ export type UpdateGroupMemberRoleActionResult =
 
 export type RemoveGroupMemberActionResult =
   | { ok: true }
+  | { ok: false; error: string };
+
+export type UpdateGroupPrivacyActionResult =
+  | { ok: true; group: Group }
   | { ok: false; error: string };
 
 export async function listGroupMembersAction(input: {
@@ -55,6 +67,21 @@ export async function listGroupJoinRequestsAction(input: {
     return {
       ok: true,
       requests: await listGroupJoinRequestsApi(input.groupId),
+    };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+export async function listGroupMediaAction(input: {
+  groupId: string;
+  cursor?: string | null;
+  limit?: number;
+}): Promise<ListGroupMediaActionResult> {
+  try {
+    return {
+      ok: true,
+      page: await listGroupMediaApi(input),
     };
   } catch (error) {
     return toActionError(error);
@@ -112,6 +139,20 @@ export async function removeGroupMemberAction(input: {
     await removeGroupMemberApi(input);
 
     return { ok: true };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+export async function updateGroupPrivacyAction(input: {
+  groupId: string;
+  privacy: Group["privacy"];
+}): Promise<UpdateGroupPrivacyActionResult> {
+  try {
+    return {
+      ok: true,
+      group: await updateGroupPrivacyApi(input),
+    };
   } catch (error) {
     return toActionError(error);
   }

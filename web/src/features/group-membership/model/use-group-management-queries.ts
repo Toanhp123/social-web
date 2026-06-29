@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { groupQueryKeys } from "./group-membership-query-keys";
 import {
+  listGroupMediaAction,
   listGroupJoinRequestsAction,
   listGroupMembersAction,
 } from "./group-management.action";
@@ -35,6 +36,22 @@ export function useGroupJoinRequestsQuery(groupId: string, enabled = true) {
       }
 
       return result.requests;
+    },
+  });
+}
+
+export function useGroupMediaQuery(groupId: string, enabled = true) {
+  return useQuery({
+    queryKey: groupQueryKeys.media(groupId),
+    enabled,
+    queryFn: async () => {
+      const result = await listGroupMediaAction({ groupId });
+
+      if (!result.ok) {
+        throw new Error(result.error);
+      }
+
+      return result.page;
     },
   });
 }

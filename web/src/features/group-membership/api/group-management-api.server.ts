@@ -1,14 +1,34 @@
 import type {
+  Group,
   GroupJoinRequest,
+  GroupMediaPage,
   GroupMember,
   GroupMemberRole,
 } from "@/entities/group";
-import { authApiFetch } from "@/entities/session/server";
+import { authApiFetch, optionalAuthApiFetch } from "@/entities/session/server";
 
 export async function listGroupMembersApi(
   groupId: string,
 ): Promise<GroupMember[]> {
-  return authApiFetch<GroupMember[]>(`/groups/${groupId}/members`);
+  return optionalAuthApiFetch<GroupMember[]>(`/groups/${groupId}/members`);
+}
+
+export async function listGroupMediaApi(input: {
+  groupId: string;
+  cursor?: string | null;
+  limit?: number;
+}): Promise<GroupMediaPage> {
+  const searchParams = new URLSearchParams({
+    limit: String(input.limit ?? 24),
+  });
+
+  if (input.cursor) {
+    searchParams.set("cursor", input.cursor);
+  }
+
+  return optionalAuthApiFetch<GroupMediaPage>(
+    `/groups/${input.groupId}/media?${searchParams.toString()}`,
+  );
 }
 
 export async function updateGroupMemberRoleApi(input: {
@@ -35,6 +55,16 @@ export async function removeGroupMemberApi(input: {
       method: "DELETE",
     },
   );
+}
+
+export async function updateGroupPrivacyApi(input: {
+  groupId: string;
+  privacy: Group["privacy"];
+}): Promise<Group> {
+  return authApiFetch<Group>(`/groups/${input.groupId}/privacy`, {
+    method: "PATCH",
+    body: JSON.stringify({ privacy: input.privacy }),
+  });
 }
 
 export async function listGroupJoinRequestsApi(

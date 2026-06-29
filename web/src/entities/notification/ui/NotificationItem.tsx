@@ -54,6 +54,10 @@ function getNotificationMessage(
       return t.postReportSubmitted;
     case "POST_REPORT_CANCELED":
       return t.postReportCanceled;
+    case "GROUP_PRIVACY_CHANGED":
+      return t.groupPrivacyChanged;
+    case "GROUP_JOIN_REQUEST_RECEIVED":
+      return t.groupJoinRequestReceived;
     default:
       return t.fallback;
   }
