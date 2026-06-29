@@ -2,9 +2,11 @@ import {
   GroupJoinRequestStatus,
   GroupMemberRole,
   GroupPrivacy,
+  MediaType,
 } from '@/generated/prisma/client.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMediaItem } from '@/modules/groups/domain/entities/group-media-item.entity.js';
 import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import { GroupUser } from '@/modules/groups/domain/entities/group-user.entity.js';
 import { ListGroupsPage } from '@/modules/groups/domain/types/group.type.js';
@@ -113,6 +115,58 @@ export class GroupMemberResponseDto {
       role: member.role,
       joinedAt: member.joinedAt.toISOString(),
       user: GroupUserResponseDto.fromDomain(member.user),
+    };
+  }
+}
+
+export class GroupMediaAuthorResponseDto {
+  id!: string;
+  fullName!: string;
+  username!: string | null;
+  avatarUrl!: string | null;
+
+  static fromDomain(user: GroupUser): GroupMediaAuthorResponseDto {
+    return GroupUserResponseDto.fromDomain(user);
+  }
+}
+
+export class GroupMediaItemResponseDto {
+  id!: string;
+  postId!: string;
+  url!: string;
+  thumbnailUrl!: string | null;
+  type!: MediaType;
+  alt!: string | null;
+  createdAt!: string;
+  author!: GroupMediaAuthorResponseDto;
+
+  static fromDomain(media: GroupMediaItem): GroupMediaItemResponseDto {
+    return {
+      id: media.id,
+      postId: media.postId,
+      url: media.url,
+      thumbnailUrl: media.thumbnailUrl,
+      type: media.type,
+      alt: media.alt,
+      createdAt: media.createdAt.toISOString(),
+      author: GroupMediaAuthorResponseDto.fromDomain(media.author),
+    };
+  }
+}
+
+export class GroupMediaPageResponseDto {
+  items!: GroupMediaItemResponseDto[];
+  nextCursor!: string | null;
+
+  static fromDomain(page: {
+    items: GroupMediaItem[];
+    nextCursor: string | null;
+  }): GroupMediaPageResponseDto {
+    return {
+      items: page.items.map((item) =>
+        GroupMediaItemResponseDto.fromDomain(item),
+      ),
+      nextCursor: page.nextCursor,
     };
   }
 }

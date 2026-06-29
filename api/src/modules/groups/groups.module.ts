@@ -4,30 +4,40 @@ import { CreateGroupService } from '@/modules/groups/application/services/create
 import { GetGroupService } from '@/modules/groups/application/services/get-group.service.js';
 import { GroupAccessService } from '@/modules/groups/application/services/group-access.service.js';
 import { JoinGroupService } from '@/modules/groups/application/services/join-group.service.js';
+import { ListGroupMediaService } from '@/modules/groups/application/services/list-group-media.service.js';
 import { ListGroupJoinRequestsService } from '@/modules/groups/application/services/list-group-join-requests.service.js';
 import { ListGroupMembersService } from '@/modules/groups/application/services/list-group-members.service.js';
 import { ListGroupsService } from '@/modules/groups/application/services/list-groups.service.js';
 import { RemoveGroupMemberService } from '@/modules/groups/application/services/remove-group-member.service.js';
 import { ReviewGroupJoinRequestService } from '@/modules/groups/application/services/review-group-join-request.service.js';
 import { UpdateGroupMemberRoleService } from '@/modules/groups/application/services/update-group-member-role.service.js';
+import { UpdateGroupPrivacyService } from '@/modules/groups/application/services/update-group-privacy.service.js';
 import { GroupPersistenceModule } from '@/modules/groups/infrastructure/persistence/group-persistence.module.js';
 import { GroupController } from '@/modules/groups/presentation/controllers/group.controller.js';
+import { NotificationsModule } from '@/modules/notifications/notifications.module.js';
 import { PostFeedCacheModule } from '@/modules/posts/infrastructure/cache/post-feed-cache.module.js';
 
 @Module({
-  imports: [GroupPersistenceModule, SecurityModule, PostFeedCacheModule],
+  imports: [
+    GroupPersistenceModule,
+    SecurityModule,
+    PostFeedCacheModule,
+    NotificationsModule,
+  ],
   controllers: [GroupController],
   providers: [
     CreateGroupService,
     GetGroupService,
     GroupAccessService,
     JoinGroupService,
+    ListGroupMediaService,
     ListGroupJoinRequestsService,
     ListGroupMembersService,
     ListGroupsService,
     RemoveGroupMemberService,
     ReviewGroupJoinRequestService,
     UpdateGroupMemberRoleService,
+    UpdateGroupPrivacyService,
   ],
   exports: [GroupAccessService],
 })

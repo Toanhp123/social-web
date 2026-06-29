@@ -5,6 +5,7 @@ import {
 } from '@/generated/prisma/client.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMediaItem } from '@/modules/groups/domain/entities/group-media-item.entity.js';
 import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import { GroupUser } from '@/modules/groups/domain/entities/group-user.entity.js';
 import { CreateGroupInput } from '@/modules/groups/domain/types/group.type.js';
@@ -45,6 +46,20 @@ type GroupMemberPayload = Prisma.GroupMemberGetPayload<{
   include: {
     user: {
       select: typeof GROUP_USER_SELECT;
+    };
+  };
+}>;
+
+type GroupMediaPayload = Prisma.MediaGetPayload<{
+  include: {
+    post: {
+      select: {
+        id: true;
+        createdAt: true;
+        author: {
+          select: typeof GROUP_USER_SELECT;
+        };
+      };
     };
   };
 }>;
@@ -98,6 +113,19 @@ export class GroupMapper {
       member.role,
       member.joinedAt,
       this.toUserDomain(member.user),
+    );
+  }
+
+  static toMediaDomain(media: GroupMediaPayload): GroupMediaItem {
+    return new GroupMediaItem(
+      media.id,
+      media.post.id,
+      media.url,
+      media.thumbnailUrl,
+      media.type,
+      media.alt,
+      media.post.createdAt,
+      this.toUserDomain(media.post.author),
     );
   }
 

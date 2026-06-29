@@ -26,6 +26,10 @@ export class GroupRolePolicy {
     return role === GroupMemberRole.OWNER || role === GroupMemberRole.ADMIN;
   }
 
+  static canManageSettings(role: RoleInput): boolean {
+    return role === GroupMemberRole.OWNER || role === GroupMemberRole.ADMIN;
+  }
+
   static canChangeRole(input: RoleChangeInput): boolean {
     if (!input.actorRole || !input.targetRole) {
       return false;

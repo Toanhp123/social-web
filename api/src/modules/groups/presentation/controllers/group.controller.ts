@@ -16,22 +16,27 @@ import type { AuthenticatedUser } from '@/core/security/types/authenticated-user
 import { CreateGroupService } from '@/modules/groups/application/services/create-group.service.js';
 import { GetGroupService } from '@/modules/groups/application/services/get-group.service.js';
 import { JoinGroupService } from '@/modules/groups/application/services/join-group.service.js';
+import { ListGroupMediaService } from '@/modules/groups/application/services/list-group-media.service.js';
 import { ListGroupMembersService } from '@/modules/groups/application/services/list-group-members.service.js';
 import { ListGroupJoinRequestsService } from '@/modules/groups/application/services/list-group-join-requests.service.js';
 import { ListGroupsService } from '@/modules/groups/application/services/list-groups.service.js';
 import { RemoveGroupMemberService } from '@/modules/groups/application/services/remove-group-member.service.js';
 import { ReviewGroupJoinRequestService } from '@/modules/groups/application/services/review-group-join-request.service.js';
 import { UpdateGroupMemberRoleService } from '@/modules/groups/application/services/update-group-member-role.service.js';
+import { UpdateGroupPrivacyService } from '@/modules/groups/application/services/update-group-privacy.service.js';
 import { CreateGroupInputDto } from '@/modules/groups/presentation/dto/create-group-input.dto.js';
 import {
   GroupJoinRequestResponseDto,
+  GroupMediaPageResponseDto,
   GroupMemberResponseDto,
   GroupPageResponseDto,
   GroupResponseDto,
   JoinGroupResponseDto,
 } from '@/modules/groups/presentation/dto/group-response.dto.js';
+import { ListGroupMediaQueryDto } from '@/modules/groups/presentation/dto/list-group-media-query.dto.js';
 import { ListGroupsQueryDto } from '@/modules/groups/presentation/dto/list-groups-query.dto.js';
 import { UpdateGroupMemberRoleInputDto } from '@/modules/groups/presentation/dto/update-group-member-role-input.dto.js';
+import { UpdateGroupPrivacyInputDto } from '@/modules/groups/presentation/dto/update-group-privacy-input.dto.js';
 
 @Controller('groups')
 export class GroupController {
@@ -39,12 +44,14 @@ export class GroupController {
     private readonly createGroupService: CreateGroupService,
     private readonly getGroupService: GetGroupService,
     private readonly joinGroupService: JoinGroupService,
+    private readonly listGroupMediaService: ListGroupMediaService,
     private readonly listGroupMembersService: ListGroupMembersService,
     private readonly listGroupsService: ListGroupsService,
     private readonly listGroupJoinRequestsService: ListGroupJoinRequestsService,
     private readonly removeGroupMemberService: RemoveGroupMemberService,
     private readonly reviewGroupJoinRequestService: ReviewGroupJoinRequestService,
     private readonly updateGroupMemberRoleService: UpdateGroupMemberRoleService,
+    private readonly updateGroupPrivacyService: UpdateGroupPrivacyService,
   ) {}
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -110,18 +117,51 @@ export class GroupController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':groupId/members')
   async listMembers(
     @Param('groupId') groupId: string,
-    @CurrentUser() currentUser: AuthenticatedUser,
+    @CurrentUser() currentUser: AuthenticatedUser | null,
   ): Promise<GroupMemberResponseDto[]> {
     const members = await this.listGroupMembersService.execute({
       groupId,
-      viewerId: currentUser.userId,
+      viewerId: currentUser?.userId,
     });
 
     return members.map((member) => GroupMemberResponseDto.fromDomain(member));
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get(':groupId/media')
+  async listMedia(
+    @Param('groupId') groupId: string,
+    @Query() query: ListGroupMediaQueryDto,
+    @CurrentUser() currentUser: AuthenticatedUser | null,
+  ): Promise<GroupMediaPageResponseDto> {
+    const page = await this.listGroupMediaService.execute({
+      groupId,
+      viewerId: currentUser?.userId,
+      limit: query.limit,
+      cursor: query.cursor,
+    });
+
+    return GroupMediaPageResponseDto.fromDomain(page);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':groupId/privacy')
+  async updatePrivacy(
+    @Param('groupId') groupId: string,
+    @Body() dto: UpdateGroupPrivacyInputDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<GroupResponseDto> {
+    const group = await this.updateGroupPrivacyService.execute({
+      groupId,
+      actorId: currentUser.userId,
+      privacy: dto.privacy,
+    });
+
+    return GroupResponseDto.fromDomain(group);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,9 +1,11 @@
 import {
   GroupJoinRequestStatus,
   GroupMemberRole,
+  GroupPrivacy,
 } from '@/generated/prisma/client.js';
 import { Group } from '@/modules/groups/domain/entities/group.entity.js';
 import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
+import { GroupMediaItem } from '@/modules/groups/domain/entities/group-media-item.entity.js';
 import { GroupMember } from '@/modules/groups/domain/entities/group-member.entity.js';
 import {
   CreateGroupInput,
@@ -43,11 +45,22 @@ export abstract class GroupRepository {
     status: Extract<GroupJoinRequestStatus, 'APPROVED' | 'REJECTED'>;
   }): Promise<GroupJoinRequest>;
   abstract listMembers(groupId: string): Promise<GroupMember[]>;
+  abstract listManagers(groupId: string): Promise<GroupMember[]>;
+  abstract listMedia(input: {
+    groupId: string;
+    limit: number;
+    cursor?: string;
+  }): Promise<{ items: GroupMediaItem[]; nextCursor: string | null }>;
   abstract updateMemberRole(input: {
     groupId: string;
     userId: string;
     role: Extract<GroupMemberRole, 'ADMIN' | 'MEMBER'>;
   }): Promise<GroupMember>;
+  abstract updatePrivacy(input: {
+    groupId: string;
+    viewerId: string;
+    privacy: GroupPrivacy;
+  }): Promise<Group>;
   abstract removeMember(input: {
     groupId: string;
     userId: string;

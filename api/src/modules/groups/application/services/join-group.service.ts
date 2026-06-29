@@ -4,6 +4,8 @@ import { GROUP_REPOSITORY } from '@/common/constants/provider-token.constant.js'
 import { DomainError } from '@/core/exceptions/domain.exception.js';
 import { ErrorCode } from '@/core/exceptions/error-codes.js';
 import { PostFeedCacheInvalidationService } from '@/modules/posts/application/services/post-feed-cache-invalidation.service.js';
+import { CreateNotificationService } from '@/modules/notifications/application/services/create-notification.service.js';
+import { GroupJoinRequest } from '@/modules/groups/domain/entities/group-join-request.entity.js';
 import { GroupRepository } from '@/modules/groups/domain/repositories/group.repository.interface.js';
 import { JoinGroupResult } from '@/modules/groups/domain/types/group.type.js';
 
@@ -12,6 +14,8 @@ export class JoinGroupService {
   constructor(
     @Inject(GROUP_REPOSITORY)
     private readonly groupRepository: GroupRepository,
+
+    private readonly createNotificationService: CreateNotificationService,
 
     private readonly postFeedCacheInvalidation: PostFeedCacheInvalidationService,
   ) {}
@@ -62,10 +66,11 @@ export class JoinGroupService {
     });
 
     if (!pendingRequest) {
-      await this.groupRepository.createJoinRequest({
+      const request = await this.groupRepository.createJoinRequest({
         groupId: input.groupId,
         requesterId: input.userId,
       });
+      await this.notifyManagersAboutJoinRequest(request);
     }
 
     const pendingGroup =
@@ -75,5 +80,23 @@ export class JoinGroupService {
       })) ?? group;
 
     return { status: 'pending', group: pendingGroup };
+  }
+
+  private async notifyManagersAboutJoinRequest(
+    request: GroupJoinRequest,
+  ): Promise<void> {
+    const managers = await this.groupRepository.listManagers(request.groupId);
+
+    await Promise.all(
+      managers.map((manager) =>
+        this.createNotificationService.execute({
+          userId: manager.userId,
+          actorId: request.requesterId,
+          type: 'GROUP_JOIN_REQUEST_RECEIVED',
+          refId: request.id,
+          aggregateKey: `group-join-request:${request.id}`,
+        }),
+      ),
+    );
   }
 }

@@ -17,12 +17,17 @@ describe(JoinGroupService.name, () => {
         role: 'MEMBER',
       }),
       createJoinRequest: jest.fn<() => Promise<unknown>>(),
+      listManagers: jest.fn<() => Promise<unknown[]>>(),
+    };
+    const createNotificationService = {
+      execute: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
     };
     const postFeedCacheInvalidation = {
       invalidateViewer: jest.fn<() => Promise<void>>().mockResolvedValue(),
     };
     const service = new JoinGroupService(
       groupRepository as never,
+      createNotificationService as never,
       postFeedCacheInvalidation as never,
     );
 
@@ -41,6 +46,7 @@ describe(JoinGroupService.name, () => {
     expect(postFeedCacheInvalidation.invalidateViewer).toHaveBeenCalledWith(
       'user-1',
     );
+    expect(createNotificationService.execute).not.toHaveBeenCalled();
   });
 
   it('creates a pending request for a private group', async () => {
@@ -60,12 +66,28 @@ describe(JoinGroupService.name, () => {
         requesterId: 'user-1',
         status: 'PENDING',
       }),
+      listManagers: jest.fn<() => Promise<unknown[]>>().mockResolvedValue([
+        {
+          groupId: 'group-1',
+          userId: 'owner-1',
+          role: 'OWNER',
+        },
+        {
+          groupId: 'group-1',
+          userId: 'admin-1',
+          role: 'ADMIN',
+        },
+      ]),
+    };
+    const createNotificationService = {
+      execute: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
     };
     const postFeedCacheInvalidation = {
       invalidateViewer: jest.fn<() => Promise<void>>().mockResolvedValue(),
     };
     const service = new JoinGroupService(
       groupRepository as never,
+      createNotificationService as never,
       postFeedCacheInvalidation as never,
     );
 
@@ -81,5 +103,20 @@ describe(JoinGroupService.name, () => {
     });
     expect(groupRepository.addMember).not.toHaveBeenCalled();
     expect(postFeedCacheInvalidation.invalidateViewer).not.toHaveBeenCalled();
+    expect(createNotificationService.execute).toHaveBeenCalledTimes(2);
+    expect(createNotificationService.execute).toHaveBeenCalledWith({
+      userId: 'owner-1',
+      actorId: 'user-1',
+      type: 'GROUP_JOIN_REQUEST_RECEIVED',
+      refId: 'request-1',
+      aggregateKey: 'group-join-request:request-1',
+    });
+    expect(createNotificationService.execute).toHaveBeenCalledWith({
+      userId: 'admin-1',
+      actorId: 'user-1',
+      type: 'GROUP_JOIN_REQUEST_RECEIVED',
+      refId: 'request-1',
+      aggregateKey: 'group-join-request:request-1',
+    });
   });
 });

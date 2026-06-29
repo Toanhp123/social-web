@@ -291,6 +291,101 @@ export class PrismaGroupRepository implements GroupRepository {
     return members.map((member) => GroupMapper.toMemberDomain(member));
   }
 
+  async listManagers(groupId: string): Promise<GroupMember[]> {
+    const client = this.getClient();
+    const members = await client.groupMember.findMany({
+      where: {
+        groupId,
+        role: {
+          in: [GroupMemberRole.OWNER, GroupMemberRole.ADMIN],
+        },
+      },
+      include: {
+        user: {
+          select: GROUP_USER_SELECT,
+        },
+      },
+      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }, { userId: 'asc' }],
+    });
+
+    return members.map((member) => GroupMapper.toMemberDomain(member));
+  }
+
+  async listMedia(input: {
+    groupId: string;
+    limit: number;
+    cursor?: string;
+  }): Promise<{
+    items: ReturnType<typeof GroupMapper.toMediaDomain>[];
+    nextCursor: string | null;
+  }> {
+    const client = this.getClient();
+    const cursorMedia = input.cursor
+      ? await client.media.findUnique({
+          where: { id: input.cursor },
+          select: {
+            id: true,
+            order: true,
+            post: {
+              select: {
+                createdAt: true,
+              },
+            },
+          },
+        })
+      : null;
+
+    const mediaItems = await client.media.findMany({
+      where: {
+        post: {
+          groupId: input.groupId,
+          deletedAt: null,
+          isHidden: false,
+        },
+        ...(cursorMedia
+          ? {
+              OR: [
+                { post: { createdAt: { lt: cursorMedia.post.createdAt } } },
+                {
+                  post: { createdAt: cursorMedia.post.createdAt },
+                  order: { gt: cursorMedia.order },
+                },
+                {
+                  post: { createdAt: cursorMedia.post.createdAt },
+                  order: cursorMedia.order,
+                  id: { gt: cursorMedia.id },
+                },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [
+        { post: { createdAt: 'desc' } },
+        { order: 'asc' },
+        { id: 'asc' },
+      ],
+      take: input.limit + 1,
+      include: {
+        post: {
+          select: {
+            id: true,
+            createdAt: true,
+            author: {
+              select: GROUP_USER_SELECT,
+            },
+          },
+        },
+      },
+    });
+    const hasNextPage = mediaItems.length > input.limit;
+    const items = hasNextPage ? mediaItems.slice(0, input.limit) : mediaItems;
+
+    return {
+      items: items.map((media) => GroupMapper.toMediaDomain(media)),
+      nextCursor: hasNextPage ? (items.at(-1)?.id ?? null) : null,
+    };
+  }
+
   async updateMemberRole(input: {
     groupId: string;
     userId: string;
@@ -317,6 +412,31 @@ export class PrismaGroupRepository implements GroupRepository {
       });
 
       return GroupMapper.toMemberDomain(member);
+    } catch (error) {
+      throw mapPrismaError(error);
+    }
+  }
+
+  async updatePrivacy(input: {
+    groupId: string;
+    viewerId: string;
+    privacy: Prisma.GroupUncheckedUpdateInput['privacy'];
+  }): Promise<Group> {
+    const client = this.getClient();
+
+    try {
+      const group = await client.group.update({
+        where: {
+          id: input.groupId,
+          deletedAt: null,
+        },
+        data: {
+          privacy: input.privacy,
+        },
+        include: GroupMapper.includeForViewer(input.viewerId),
+      });
+
+      return GroupMapper.toDomain(group);
     } catch (error) {
       throw mapPrismaError(error);
     }
